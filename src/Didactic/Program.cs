@@ -28,21 +28,29 @@ namespace Didactic
             var gitSecurityNamespaceId = "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87";
             var eksRepoToken = "repoV2/ae92e48d-4a62-4da3-9302-94f8ed43d939/d5f2d1f0-fc7e-4897-8083-3d1c051e4928";
             var kubernetesGroupSid = "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516";
-            var secDescriptor = new VstsAcesDictionaryEntry
+            var moimSid = "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com";
+            var k8sScDescriptor = new VstsAcesDictionaryEntry
             {
                 Allow  = 16388,
                 Deny = 0,
                 Descriptor = kubernetesGroupSid
             };
+            var moimScDescriptor = new VstsAcesDictionaryEntry
+            {
+                Allow = 32382,
+                Deny = 0,
+                Descriptor = moimSid
+            };
             var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
-            aclDictioanry.Add(kubernetesGroupSid, secDescriptor);
+            aclDictioanry.Add(kubernetesGroupSid, k8sScDescriptor);
+            aclDictioanry.Add(moimSid, moimScDescriptor);
 
             var aclService = factory.GetAclListService();
             //var aclCollection = aclService.GetAllAclsAsync(gitSecurityNamespaceId).Result;
 
             // var aclList = aclService.GetAllAclsByTokenAsync(gitSecurityNamespaceId, eksRepoToken).Result;
 
-            aclService.SetAclsAsync(gitSecurityNamespaceId, eksRepoToken, aclDictioanry, true).Wait();
+            aclService.SetAclsAsync(gitSecurityNamespaceId, eksRepoToken, aclDictioanry, false).Wait();
 
 
             Console.WriteLine("test");
