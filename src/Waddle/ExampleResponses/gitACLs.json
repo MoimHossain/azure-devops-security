@@ -1,0 +1,147 @@
+{
+  "count": 7,
+  "value": [
+    {
+      "inheritPermissions": true,
+      "token": "repoV2",
+      "acesDictionary": {
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-0-0-0-0-1": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-0-0-0-0-1",
+          "allow": 32630,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-0-0-0-0-2": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-0-0-0-0-2",
+          "allow": 32630,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-0-0-0-1-1": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-0-0-0-1-1",
+          "allow": 16386,
+          "deny": 0
+        }
+      }
+    },
+    {
+      "inheritPermissions": true,
+      "token": "repoV2/9d7951fb-b9fa-49d9-b20b-76aa5cc77191",
+      "acesDictionary": {
+        "Microsoft.TeamFoundation.ServiceIdentity;49fbb930-b4ce-4e52-b340-cd72948c276d:Build:9d7951fb-b9fa-49d9-b20b-76aa5cc77191": {
+          "descriptor": "Microsoft.TeamFoundation.ServiceIdentity;49fbb930-b4ce-4e52-b340-cd72948c276d:Build:9d7951fb-b9fa-49d9-b20b-76aa5cc77191",
+          "allow": 34,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4139524394-4149619010-2696534217-3651930817-0-0-0-0-1": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4139524394-4149619010-2696534217-3651930817-0-0-0-0-1",
+          "allow": 32630,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4216420765-4206483785-2987095722-1556574609-1-12483492-987009604-2558742274-553158152": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4216420765-4206483785-2987095722-1556574609-1-12483492-987009604-2558742274-553158152",
+          "allow": 16502,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4216420765-4206483785-2987095722-1556574609-1-3244628156-149790541-2434963902-1777826591": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4216420765-4206483785-2987095722-1556574609-1-3244628156-149790541-2434963902-1777826591",
+          "allow": 16386,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4216420765-4206483785-2987095722-1556574609-1-3848342666-1686115148-2775450484-3855937443": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4216420765-4206483785-2987095722-1556574609-1-3848342666-1686115148-2775450484-3855937443",
+          "allow": 16502,
+          "deny": 0
+        }
+      }
+    },
+    {
+      "inheritPermissions": true,
+      "token": "repoV2/9d7951fb-b9fa-49d9-b20b-76aa5cc77191/7cd4b596-eae4-46a8-857d-22a8c4a84b7b",
+      "acesDictionary": {
+        "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com": {
+          "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com",
+          "allow": 32382,
+          "deny": 0
+        }
+      }
+    },
+    {
+      "inheritPermissions": true,
+      "token": "repoV2/9d7951fb-b9fa-49d9-b20b-76aa5cc77191/d98272fb-52dd-4346-8b73-be54000ffecb",
+      "acesDictionary": {
+        "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com": {
+          "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com",
+          "allow": 32382,
+          "deny": 0
+        }
+      }
+    },
+    {
+      "inheritPermissions": true,
+      "token": "repoV2/ae92e48d-4a62-4da3-9302-94f8ed43d939",
+      "acesDictionary": {
+        "Microsoft.TeamFoundation.ServiceIdentity;49fbb930-b4ce-4e52-b340-cd72948c276d:Build:a0f4c5b4-9a51-466a-8470-0de20fbbfe56": {
+          "descriptor": "Microsoft.TeamFoundation.ServiceIdentity;49fbb930-b4ce-4e52-b340-cd72948c276d:Build:a0f4c5b4-9a51-466a-8470-0de20fbbfe56",
+          "allow": 16418,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.ServiceIdentity;49fbb930-b4ce-4e52-b340-cd72948c276d:Build:ae92e48d-4a62-4da3-9302-94f8ed43d939": {
+          "descriptor": "Microsoft.TeamFoundation.ServiceIdentity;49fbb930-b4ce-4e52-b340-cd72948c276d:Build:ae92e48d-4a62-4da3-9302-94f8ed43d939",
+          "allow": 16418,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-2380567214-1649058637-2466419960-3980646713-1-2424723361-2574392129-2457268681-4039737616": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-2380567214-1649058637-2466419960-3980646713-1-2424723361-2574392129-2457268681-4039737616",
+          "allow": 16502,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-2380567214-1649058637-2466419960-3980646713-1-3283948452-3431088718-2932903320-123552265": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-2380567214-1649058637-2466419960-3980646713-1-3283948452-3431088718-2932903320-123552265",
+          "allow": 16386,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-2380567214-1649058637-2466419960-3980646713-1-473752880-3260029263-3149748938-3533988372": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-2380567214-1649058637-2466419960-3980646713-1-473752880-3260029263-3149748938-3533988372",
+          "allow": 16502,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4022273605-4127249737-2208139983-3898350585-0-0-0-0-1": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-4022273605-4127249737-2208139983-3898350585-0-0-0-0-1",
+          "allow": 32630,
+          "deny": 0
+        }
+      }
+    },
+    {
+      "inheritPermissions": true,
+      "token": "repoV2/ae92e48d-4a62-4da3-9302-94f8ed43d939/813645cb-5a19-48f6-ab54-1a9593337a60",
+      "acesDictionary": {
+        "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com": {
+          "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com",
+          "allow": 32382,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516",
+          "allow": 17462,
+          "deny": 32896
+        }
+      }
+    },
+    {
+      "inheritPermissions": true,
+      "token": "repoV2/ae92e48d-4a62-4da3-9302-94f8ed43d939/d5f2d1f0-fc7e-4897-8083-3d1c051e4928",
+      "acesDictionary": {
+        "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com": {
+          "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com",
+          "allow": 32382,
+          "deny": 0
+        },
+        "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516": {
+          "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516",
+          "allow": 16388,
+          "deny": 0
+        }
+      }
+    }
+  ]
+}
