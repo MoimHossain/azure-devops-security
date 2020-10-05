@@ -36,5 +36,15 @@ namespace Waddle
         {
             return new AclListService(this.orgUrl.ToString(), this.pat);
         }
+
+        public ClassificationService GetClassificationService()
+        {
+            return new ClassificationService(this.orgUrl.ToString(), this.pat);
+        }
+
+        public ProjectService GetProjectService()
+        {
+            return new ProjectService(this.orgUrl.ToString(), this.pat);
+        }
     }
 }

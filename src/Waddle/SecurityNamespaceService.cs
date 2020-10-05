@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Waddle.Constants;
 using Waddle.Dtos;
 using Waddle.Supports;
 
@@ -19,8 +21,16 @@ namespace Waddle
 
         }
 
+        public async Task<VstsSecurityNamespace> GetNamespaceAsync(SecurityNamespaceConstants securityNamespace)
+        {
+            var sv = securityNamespace.GetStringValue();
+            var all = await GetAllNamespacesAsync();
+            var ns = all.Value.FirstOrDefault(sn => sn.Name.Equals(sv, StringComparison.OrdinalIgnoreCase));
 
-        public async Task<object> GetAllNamespacesAsync() 
+            return ns;
+        }
+
+        public async Task<VstsSecurityNamespaceCollection> GetAllNamespacesAsync() 
         {
             var path = "_apis/securitynamespaces?api-version=6.0";
             var namespaces = await GetAzureDevOpsDefaultUri()

@@ -17,7 +17,7 @@ namespace Waddle
 
         }
     
-        public async Task<VstsAclList> GetAllAclsAsync(string namespaceId)
+        public async Task<VstsAclList> GetAllAclsAsync(Guid namespaceId)
         {
             var path = $"_apis/accesscontrollists/{namespaceId}?api-version=6.0";
             var aclList = await GetAzureDevOpsDefaultUri()
@@ -26,7 +26,7 @@ namespace Waddle
             return aclList;
         }
 
-        public async Task<VstsAclList> GetAllAclsByTokenAsync(string namespaceId, string token)
+        public async Task<VstsAclList> GetAllAclsByTokenAsync(Guid namespaceId, string token)
         {
             var path = $"_apis/accesscontrollists/{namespaceId}?token={HttpUtility.UrlEncode(token)}&api-version=6.0";
             var aclList = await GetAzureDevOpsDefaultUri()
@@ -36,7 +36,7 @@ namespace Waddle
         }
 
         public async Task SetAclsAsync(
-            string namespaceId, string token, 
+            Guid namespaceId, string token, 
             Dictionary<string, VstsAcesDictionaryEntry> aces, bool inherit = true)
         {
             var payload = new { 
