@@ -20,10 +20,14 @@ namespace Didactic
 
             var factory = new AdoConnectionFactory(new Uri(orgUri), pat);
 
+            var group = factory.GetGrouoService().CreateAadGroupByObjectId(Guid.Parse("")).Result;
+            var groups = factory.GetGrouoService().ListGroupsAsync().Result;
+
+
             var kubernetesGroupSid = "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516";
             var moimSid = "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com";
 
-            SetAclsToAreaPath(factory, kubernetesGroupSid, moimSid);
+            // SetAclsToAreaPath(factory, kubernetesGroupSid, moimSid);
             //SetAclsToRepository(factory, kubernetesGroupSid, moimSid);
 
             Console.WriteLine("test");

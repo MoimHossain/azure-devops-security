@@ -19,6 +19,10 @@ namespace Waddle
             this.orgUrl = orgUrl;
             this.pat = pat;
         }
+        public GroupService GetGrouoService()
+        {
+            return new GroupService(this.orgUrl.ToString(), this.pat);
+        }
 
         public RepositoryService GetRepositoryService()
         {

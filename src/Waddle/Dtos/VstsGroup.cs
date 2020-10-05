@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Waddle.Dtos
@@ -295,13 +297,14 @@ namespace Waddle.Dtos
         public long Count { get; set; }
 
         [JsonProperty("value")]
-        public Group[] Value { get; set; }
+        public VstsGroup[] Value { get; set; }
     }
 
-    public partial class Group
+    public partial class VstsGroup
     {
         [JsonProperty("subjectKind")]
-        public string SubjectKind { get; set; }
+        public SubjectKind SubjectKind { get; set; }
+
         [JsonProperty("description")]
         public string Description { get; set; }
 
@@ -314,12 +317,17 @@ namespace Waddle.Dtos
         [JsonProperty("mailAddress")]
         public object MailAddress { get; set; }
 
+        [JsonProperty("origin")]
+        public Origin Origin { get; set; }
 
         [JsonProperty("originId")]
         public Guid OriginId { get; set; }
 
         [JsonProperty("displayName")]
         public string DisplayName { get; set; }
+
+        [JsonProperty("_links")]
+        public GroupLinks Links { get; set; }
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
@@ -329,6 +337,126 @@ namespace Waddle.Dtos
 
         [JsonProperty("isCrossProject", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsCrossProject { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Origin}:: {PrincipalName}, [{SubjectKind}]";
+        }
+    }
+
+    public partial class GroupLinks
+    {
+        [JsonProperty("self")]
+        public MembershipState Self { get; set; }
+
+        [JsonProperty("memberships")]
+        public MembershipState Memberships { get; set; }
+
+        [JsonProperty("membershipState")]
+        public MembershipState MembershipState { get; set; }
+
+        [JsonProperty("storageKey")]
+        public MembershipState StorageKey { get; set; }
+    }
+
+    public partial class MembershipState
+    {
+        [JsonProperty("href")]
+        public Uri Href { get; set; }
+    }
+
+    public enum Origin { Aad, Vsts };
+
+    public enum SubjectKind { Group };
+
+    internal static class Converter
+    {
+        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        {
+            MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+            DateParseHandling = DateParseHandling.None,
+            Converters =
+            {
+                OriginConverter.Singleton,
+                SubjectKindConverter.Singleton,
+                new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
+            },
+        };
+    }
+
+    internal class OriginConverter : JsonConverter
+    {
+        public override bool CanConvert(Type t) => t == typeof(Origin) || t == typeof(Origin?);
+
+        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return null;
+            var value = serializer.Deserialize<string>(reader);
+            switch (value)
+            {
+                case "aad":
+                    return Origin.Aad;
+                case "vsts":
+                    return Origin.Vsts;
+            }
+            throw new Exception("Cannot unmarshal type Origin");
+        }
+
+        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
+        {
+            if (untypedValue == null)
+            {
+                serializer.Serialize(writer, null);
+                return;
+            }
+            var value = (Origin)untypedValue;
+            switch (value)
+            {
+                case Origin.Aad:
+                    serializer.Serialize(writer, "aad");
+                    return;
+                case Origin.Vsts:
+                    serializer.Serialize(writer, "vsts");
+                    return;
+            }
+            throw new Exception("Cannot marshal type Origin");
+        }
+
+        public static readonly OriginConverter Singleton = new OriginConverter();
+    }
+
+    internal class SubjectKindConverter : JsonConverter
+    {
+        public override bool CanConvert(Type t) => t == typeof(SubjectKind) || t == typeof(SubjectKind?);
+
+        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return null;
+            var value = serializer.Deserialize<string>(reader);
+            if (value == "group")
+            {
+                return SubjectKind.Group;
+            }
+            throw new Exception("Cannot unmarshal type SubjectKind");
+        }
+
+        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
+        {
+            if (untypedValue == null)
+            {
+                serializer.Serialize(writer, null);
+                return;
+            }
+            var value = (SubjectKind)untypedValue;
+            if (value == SubjectKind.Group)
+            {
+                serializer.Serialize(writer, "group");
+                return;
+            }
+            throw new Exception("Cannot marshal type SubjectKind");
+        }
+
+        public static readonly SubjectKindConverter Singleton = new SubjectKindConverter();
     }
     #endregion
 }

@@ -117,7 +117,7 @@ namespace Waddle
             return response;
         }
 
-        public async Task<IEnumerable<Group>> ListGroupsAsync()
+        public async Task<IEnumerable<VstsGroup>> ListGroupsAsync()
         {
             var groups = await GetAzureDevOpsVsspUri()
                 .GetRestAsync<GroupCollection>(
