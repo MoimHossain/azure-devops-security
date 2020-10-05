@@ -338,6 +338,27 @@ namespace Waddle.Dtos
         [JsonProperty("isCrossProject", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsCrossProject { get; set; }
 
+        [JsonIgnore]
+        public string Sid
+        {
+            get
+            {
+                if(!string.IsNullOrWhiteSpace(Descriptor))
+                {
+                    var b64s = Descriptor.Substring(Descriptor.IndexOf(".") + 1);
+                    var raw = DecodeUrlBase64(b64s);
+                    return $"Microsoft.TeamFoundation.Identity;{raw}";
+                }
+                return string.Empty;
+            }
+        }
+
+        public static string DecodeUrlBase64(string s)
+        {
+            s = s.Replace('-', '+').Replace('_', '/').PadRight(4 * ((s.Length + 3) / 4), '=');
+            return ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(s));
+        }
+
         public override string ToString()
         {
             return $"{Origin}:: {PrincipalName}, [{SubjectKind}]";
