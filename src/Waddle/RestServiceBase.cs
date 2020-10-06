@@ -32,6 +32,12 @@ namespace Waddle
             return new Uri($"https://vssps.dev.azure.com/{organizationName}/");
         }
 
+        protected Uri GetAzureDevOpsVsrmUri()
+        {
+            var organizationName = GetOrganizationName();
+            return new Uri($"https://vsrm.dev.azure.com/{organizationName}/");
+        }
+
         protected Uri GetAzureDevOpsDefaultUri()
         {
             return new Uri(this.adoUrl);

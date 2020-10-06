@@ -10,6 +10,10 @@ namespace Waddle.Constants
         [Description("CSS")]
         Classifications,
         [Description("Git Repositories")]
-        Git_Repositories
+        Git_Repositories,
+        [Description("ReleaseManagement")]
+        ReleaseManagement,
+        [Description("Build")]
+        Build
     }
 }

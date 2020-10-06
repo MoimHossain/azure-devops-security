@@ -29,12 +29,99 @@ namespace Didactic
             var kubernetesGroupSid = "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516";
             var moimSid = "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com";
 
-            SetAclsToAreaPath(factory, group.Sid, moimSid);
+            SetAclsToReleaseFolders(factory, group.Sid, moimSid);
+            // SetAclsToAreaPath(factory, group.Sid, moimSid);
 
             // SetAclsToAreaPath(factory, kubernetesGroupSid, moimSid);
             // SetAclsToRepository(factory, kubernetesGroupSid, moimSid);
 
             Console.WriteLine("test");
+        }
+
+        private static void SetAclsToBuildFolders(
+            AdoConnectionFactory factory,
+            string kubernetesGroupSid,
+            string moimSid)
+        {
+            var projects = factory.GetProjectService().GetProjectsAsync().Result;
+            var project = projects.Value[0];
+
+            var secService = factory.GetSecurityNamespaceService();
+            var releaseNamespace = secService.GetNamespaceAsync(SecurityNamespaceConstants.Build).Result;
+            var secNamespaceId = releaseNamespace.NamespaceId;
+           
+            // token for area paths
+            var token = $"{project.Id}/Test-folder-one";
+
+            var k8sScDescriptor = new VstsAcesDictionaryEntry
+            {
+                Allow = 1,
+                Deny = 0,
+                Descriptor = kubernetesGroupSid
+            };
+            var moimScDescriptor = new VstsAcesDictionaryEntry
+            {
+                Allow = 1,
+                Deny = 0,
+                Descriptor = moimSid
+            };
+            var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
+            aclDictioanry.Add(kubernetesGroupSid, k8sScDescriptor);
+            aclDictioanry.Add(moimSid, moimScDescriptor);
+
+            var aclService = factory.GetAclListService();
+            var aclCollection = aclService.GetAllAclsAsync(secNamespaceId).Result;
+            var aclList = aclService.GetAllAclsByTokenAsync(secNamespaceId, token).Result;
+            aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false).Wait();
+        }
+
+        private static void SetAclsToReleaseFolders(
+            AdoConnectionFactory factory,
+            string kubernetesGroupSid,
+            string moimSid)
+        {
+            var projects = factory.GetProjectService().GetProjectsAsync().Result;
+            var project = projects.Value[0];
+
+            var releaseService = factory.GetReleaseService();
+            var folders = releaseService.ListFoldersAsync(project.Id).Result;
+            var fpath = folders.Value[1].Path;
+
+            fpath = fpath.TrimStart("\\".ToCharArray()).Replace("\\", "/");
+
+            var secService = factory.GetSecurityNamespaceService();
+            var releaseNamespace = secService.GetNamespaceAsync(SecurityNamespaceConstants.ReleaseManagement, "AdministerReleasePermissions").Result;
+            var secNamespaceId = releaseNamespace.NamespaceId;
+
+          
+
+            // token for area paths
+            var token = $"{project.Id}/{fpath}";
+
+            //releaseNamespace = secService.GetNamespaceAsync(SecurityNamespaceConstants.Build).Result;
+            //secNamespaceId = releaseNamespace.NamespaceId;
+            //token = $"{project.Id}/Test-folder-one";
+
+            var k8sScDescriptor = new VstsAcesDictionaryEntry
+            {
+                Allow = 1,
+                Deny = 0,
+                Descriptor = kubernetesGroupSid
+            };
+            var moimScDescriptor = new VstsAcesDictionaryEntry
+            {
+                Allow = 1,
+                Deny = 0,
+                Descriptor = moimSid
+            };
+            var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
+            aclDictioanry.Add(kubernetesGroupSid, k8sScDescriptor);
+            aclDictioanry.Add(moimSid, moimScDescriptor);
+
+            var aclService = factory.GetAclListService();
+            var aclCollection = aclService.GetAllAclsAsync(secNamespaceId).Result;
+            var aclList = aclService.GetAllAclsByTokenAsync(secNamespaceId, token).Result;
+            aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false).Wait();
         }
 
         private static void SetAclsToAreaPath(

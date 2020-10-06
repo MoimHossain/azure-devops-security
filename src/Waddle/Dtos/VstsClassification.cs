@@ -25,8 +25,7 @@ namespace Waddle.Dtos
         [JsonProperty("path")]
         public string Path { get; set; }
 
-        [JsonProperty("_links")]
-        public Links Links { get; set; }
+   
 
         [JsonProperty("url")]
         public Uri Url { get; set; }

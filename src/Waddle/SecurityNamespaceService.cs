@@ -30,6 +30,19 @@ namespace Waddle
             return ns;
         }
 
+        
+        public async Task<VstsSecurityNamespace> GetNamespaceAsync(
+            SecurityNamespaceConstants securityNamespace, string action)
+        {
+            var sv = securityNamespace.GetStringValue();
+            var all = await GetAllNamespacesAsync();
+            var ns = all.Value.FirstOrDefault(sn => sn.Name.Equals(sv, StringComparison.OrdinalIgnoreCase) 
+                        && sn.Actions.Any(ac => ac.Name.Equals(action, StringComparison.OrdinalIgnoreCase)));
+            return ns;
+        }
+
+        
+
         public async Task<VstsSecurityNamespaceCollection> GetAllNamespacesAsync() 
         {
             var path = "_apis/securitynamespaces?api-version=6.0";

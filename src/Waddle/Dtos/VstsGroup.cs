@@ -96,7 +96,7 @@ namespace Waddle.Dtos
         public Uri Url { get; set; }
 
         [JsonProperty("createdBy")]
-        public CreatedBy CreatedBy { get; set; }
+        public VstsFolderCreatedBy CreatedBy { get; set; }
 
         [JsonProperty("description")]
         public string Description { get; set; }
@@ -155,42 +155,7 @@ namespace Waddle.Dtos
         [JsonProperty("secretName", NullValueHandling = NullValueHandling.Ignore)]
         public string SecretName { get; set; }
     }
-
-    public partial class CreatedBy
-    {
-        [JsonProperty("displayName")]
-        public string DisplayName { get; set; }
-
-        [JsonProperty("url")]
-        public Uri Url { get; set; }
-
-        [JsonProperty("_links")]
-        public Links Links { get; set; }
-
-        [JsonProperty("id")]
-        public Guid Id { get; set; }
-
-        [JsonProperty("uniqueName")]
-        public string UniqueName { get; set; }
-
-        [JsonProperty("imageUrl")]
-        public Uri ImageUrl { get; set; }
-
-        [JsonProperty("descriptor")]
-        public string Descriptor { get; set; }
-    }
-
-    public partial class Links
-    {
-        [JsonProperty("avatar")]
-        public Avatar Avatar { get; set; }
-    }
-
-    public partial class Avatar
-    {
-        [JsonProperty("href")]
-        public Uri Href { get; set; }
-    }
+  
 
     public partial class Data
     {

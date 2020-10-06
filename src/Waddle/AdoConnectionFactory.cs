@@ -50,5 +50,10 @@ namespace Waddle
         {
             return new ProjectService(this.orgUrl.ToString(), this.pat);
         }
+
+        public ReleaseService GetReleaseService()
+        {
+            return new ReleaseService(this.orgUrl.ToString(), this.pat);
+        }
     }
 }
