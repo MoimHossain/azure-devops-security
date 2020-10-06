@@ -10,31 +10,26 @@ namespace Didactic
 {
     class Program
     {
-        // sampel data in moim org
-        // EKS REPO :: https://dev.azure.com/moim/ae92e48d-4a62-4da3-9302-94f8ed43d939/_apis/git/repositories/d5f2d1f0-fc7e-4897-8083-3d1c051e4928
-        // 
         static void Main(string[] args)
         {
-            var pat = Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
-            var orgUri = Environment.GetEnvironmentVariable("AzDOAADJoinedURL");
+            var pat = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
+            var orgUri = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");                      
 
-            var factory = new AdoConnectionFactory(new Uri(orgUri), pat);
+            var factory = new AdoConnectionFactory(new Uri(orgUri), pat); 
 
+            //var content = factory.GetSecurityNamespaceService()
+            //    .GenerateEnumerationsAsync(typeof(SecurityNamespaceConstants).Namespace).Result;
             var group = factory.GetGrouoService().CreateAadGroupByObjectId(Guid.Parse("00238ebc-66c1-4220-a859-ed0a00243f27")).Result;
-            // var groups = factory.GetGrouoService().ListGroupsAsync().Result;
-
-
-
+            var groups = factory.GetGrouoService().ListGroupsAsync().Result;
 
             var kubernetesGroupSid = "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516";
             var moimSid = "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com";
 
-            SetAclsToReleaseFolders(factory, group.Sid, moimSid);
+            // SetAclsToBuildFolders(factory, group.Sid, moimSid);
+            // SetAclsToReleaseFolders(factory, group.Sid, moimSid);
             // SetAclsToAreaPath(factory, group.Sid, moimSid);
-
             // SetAclsToAreaPath(factory, kubernetesGroupSid, moimSid);
             // SetAclsToRepository(factory, kubernetesGroupSid, moimSid);
-
             Console.WriteLine("test");
         }
 
@@ -46,12 +41,18 @@ namespace Didactic
             var projects = factory.GetProjectService().GetProjectsAsync().Result;
             var project = projects.Value[0];
 
+            var buildService = factory.GetBuildService();
+            var folders = buildService.ListFoldersAsync(project.Id).Result;
+            var fpath = folders.Value[1].Path;
+
+            fpath = fpath.TrimStart("\\".ToCharArray()).Replace("\\", "/");
+
             var secService = factory.GetSecurityNamespaceService();
             var releaseNamespace = secService.GetNamespaceAsync(SecurityNamespaceConstants.Build).Result;
             var secNamespaceId = releaseNamespace.NamespaceId;
            
             // token for area paths
-            var token = $"{project.Id}/Test-folder-one";
+            var token = $"{project.Id}/{fpath}";
 
             var k8sScDescriptor = new VstsAcesDictionaryEntry
             {

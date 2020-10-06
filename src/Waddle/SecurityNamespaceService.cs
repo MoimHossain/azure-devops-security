@@ -52,6 +52,49 @@ namespace Waddle
             return namespaces;
         }
 
+        public async Task<string> GenerateEnumerationsAsync(string codeNamespace)
+        {
+            var sb = new StringBuilder();
+            var all = await GetAllNamespacesAsync();
+
+            var distincts = new List<string>();
+            var safeName = new Func<string, string>(name => 
+            {
+                var alterName = $"{name.Replace(" ", string.Empty)}{(distincts.Contains(name) ? "Ex" : string.Empty)}";
+                distincts.Add(name);
+                return alterName;
+            });
+
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("using System.ComponentModel;");
+            sb.AppendLine("using System.Text;");
+            sb.AppendLine("using System.Runtime.InteropServices;");
+            sb.AppendLine();
+            sb.AppendLine($"namespace {codeNamespace}");
+            sb.AppendLine("{");
+
+            foreach (var item in all.Value)
+            {
+                sb.AppendLine($"\t[Guid(\"{item.NamespaceId}\")]");
+                sb.AppendLine($"\t[Description(\"{item.DisplayName}\")]");
+                sb.AppendLine($"\tpublic enum {safeName(item.Name)}");
+                sb.AppendLine("\t{");
+                for(var i =0; i < item.Actions.Length; ++ i)
+                {
+                    var action = item.Actions[i];
+                    sb.AppendLine($"\t\t[Description(\"{action.DisplayName}\")]");
+                    sb.AppendLine($"\t\t[DefaultValue({action.Bit})]");
+                    sb.AppendLine($"\t\t{action.Name}{(i + 1 == item.Actions.Length ? string.Empty : ",")}");
+                }                
+                sb.AppendLine("\t}");
+                sb.AppendLine();
+            }
+            sb.AppendLine("}");
+
+            return sb.ToString();
+        }
+
         #region Example methods
         public async Task<string> CreateAcrConnectionAsync(
             string projectName, string acrName, string name, string description,
