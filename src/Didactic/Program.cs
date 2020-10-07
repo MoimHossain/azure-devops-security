@@ -2,48 +2,48 @@
 
 using CommandLine;
 using Didactic.CliOptions;
+using Didactic.Schema;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Waddle;
 using Waddle.Constants;
 using Waddle.Dtos;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Didactic
 {
     class Program
     {
-        private static int RunApplyVerb(ApplyOptions opts)
-        {
-            Console.WriteLine("test");
-            return 0;
-        }
+
 
         static int Main(string[] args)
         {
             return Parser.Default.ParseArguments<ApplyOptions>(args)
                .MapResult(
-                 (ApplyOptions opts) => RunApplyVerb(opts),
+                 (ApplyOptions opts) => new CliRunner().RunApplyVerb(opts),
                  errs => 1);
 
-            var pat = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
-            var orgUri = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");                      
+            //var pat = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
+            //var orgUri = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");                      
 
-            var factory = new AdoConnectionFactory(new Uri(orgUri), pat); 
+            //var factory = new AdoConnectionFactory(new Uri(orgUri), pat); 
 
-            //var content = factory.GetSecurityNamespaceService()
-            //    .GenerateEnumerationsAsync(typeof(SecurityNamespaceConstants).Namespace).Result;
-            var group = factory.GetGrouoService().CreateAadGroupByObjectId(Guid.Parse("00238ebc-66c1-4220-a859-ed0a00243f27")).Result;
-            var groups = factory.GetGrouoService().ListGroupsAsync().Result;
+            ////var content = factory.GetSecurityNamespaceService()
+            ////    .GenerateEnumerationsAsync(typeof(SecurityNamespaceConstants).Namespace).Result;
+            //var group = factory.GetGrouoService().CreateAadGroupByObjectId(Guid.Parse("00238ebc-66c1-4220-a859-ed0a00243f27")).Result;
+            //var groups = factory.GetGrouoService().ListGroupsAsync().Result;
 
-            var kubernetesGroupSid = "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516";
-            var moimSid = "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com";
+            //var kubernetesGroupSid = "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1204400969-2402986413-2179408616-3-2250019746-1978212418-2861161535-2502070516";
+            //var moimSid = "Microsoft.IdentityModel.Claims.ClaimsIdentity;cac2cc32-7de9-4f3d-8d79-76375427b620\\Moim_Hossain@hotmail.com";
 
-            // SetAclsToBuildFolders(factory, group.Sid, moimSid);
-            // SetAclsToReleaseFolders(factory, group.Sid, moimSid);
-            // SetAclsToAreaPath(factory, group.Sid, moimSid);
-            // SetAclsToAreaPath(factory, kubernetesGroupSid, moimSid);
-            // SetAclsToRepository(factory, kubernetesGroupSid, moimSid);
-            Console.WriteLine("test");
+            //// SetAclsToBuildFolders(factory, group.Sid, moimSid);
+            //// SetAclsToReleaseFolders(factory, group.Sid, moimSid);
+            //// SetAclsToAreaPath(factory, group.Sid, moimSid);
+            //// SetAclsToAreaPath(factory, kubernetesGroupSid, moimSid);
+            //// SetAclsToRepository(factory, kubernetesGroupSid, moimSid);
+            //Console.WriteLine("test");
         }
 
 
