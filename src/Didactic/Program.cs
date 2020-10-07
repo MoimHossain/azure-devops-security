@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.Services.Common;
-using Microsoft.VisualStudio.Services.WebApi;
+﻿
+
+using CommandLine;
+using Didactic.CliOptions;
 using System;
 using System.Collections.Generic;
 using Waddle;
@@ -10,8 +12,19 @@ namespace Didactic
 {
     class Program
     {
-        static void Main(string[] args)
+        private static int RunApplyVerb(ApplyOptions opts)
         {
+            Console.WriteLine("test");
+            return 0;
+        }
+
+        static int Main(string[] args)
+        {
+            return Parser.Default.ParseArguments<ApplyOptions>(args)
+               .MapResult(
+                 (ApplyOptions opts) => RunApplyVerb(opts),
+                 errs => 1);
+
             var pat = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
             var orgUri = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");                      
 
@@ -32,6 +45,8 @@ namespace Didactic
             // SetAclsToRepository(factory, kubernetesGroupSid, moimSid);
             Console.WriteLine("test");
         }
+
+
 
         private static void SetAclsToBuildFolders(
             AdoConnectionFactory factory,

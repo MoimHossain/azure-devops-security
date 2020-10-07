@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Didactic": {
+      "commandName": "Project",
+      "commandLineArgs": "apply -f C:\\GitHub\\MoimHossain\\azure-devops-security\\src\\Manifests\\Project.yml"
+    }
+  }
+}
