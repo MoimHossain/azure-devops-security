@@ -11,11 +11,26 @@ namespace Didactic
     {
         static int Main(string[] args)
         {
-            var pat = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
-            var orgUri = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");
             return Parser.Default.ParseArguments<ApplyOptions>(args)
                .MapResult(
-                 (ApplyOptions opts) => new CliRunner().RunApplyVerb(opts, orgUri, pat),
+                 (ApplyOptions opts) => 
+                 {
+                     if(!string.IsNullOrWhiteSpace(opts.OrganizationURL))
+                     {
+                         if (!opts.OrganizationURL.EndsWith("/")) {
+                             opts.OrganizationURL = $"{opts.OrganizationURL}/";
+                         }
+                     }
+                     else
+                     {
+                         opts.OrganizationURL = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");
+                     }
+                     if (string.IsNullOrWhiteSpace(opts.PAT)) 
+                     {
+                         opts.PAT = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
+                     }
+                     return new CliRunner().RunApplyVerb(opts);                    
+                 },
                  errs => 1);
         }
     }
