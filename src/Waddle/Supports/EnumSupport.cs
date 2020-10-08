@@ -19,5 +19,15 @@ namespace Waddle.Supports
             var description = ((DescriptionAttribute)valueAttributes[0]).Description;
             return description;
         }
+
+        public static int GetBitMaskValue(Type enumType, string value)
+        {
+            var memberInfos = enumType.GetMember(value.ToString());
+            var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == enumType);
+            var valueAttributes =
+                  enumValueMemberInfo.GetCustomAttributes(typeof(DefaultValueAttribute), false);
+            var bitmask = (int)((DefaultValueAttribute)valueAttributes[0]).Value;
+            return bitmask;
+        }
     }
 }
