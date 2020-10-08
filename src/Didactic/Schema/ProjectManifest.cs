@@ -10,6 +10,7 @@ namespace Didactic.Schema
     public class ProjectManifest : BaseSchema
     {
         public ProcessTemplateSchema Template { get; set; }
+        public List<RepositoryManifest> Repositories { get; set; }
 
         protected override bool OnValidateCore()
         {

@@ -21,6 +21,7 @@ namespace Didactic.ApiServices
             var manifest = Deserialize<ProjectManifest>(manifestContent);
             var factory = base.Factory;
             var projectService = factory.GetProjectService();
+            var repoService = factory.GetRepositoryService();
             var templates = await projectService.ListProcessAsync();
 
             if (manifest.Validate())
@@ -32,12 +33,35 @@ namespace Didactic.ApiServices
                 }
 
                 var projects = await projectService.GetProjectsAsync();
+                var project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name, 
+                    StringComparison.OrdinalIgnoreCase));
 
-                if(!projects.Value.Any(p=> p.Name.Equals(manifest.Metadata.Name, StringComparison.OrdinalIgnoreCase)))
+                if (project == null)
                 {
                     await projectService.CreateProjectAsync(
                         manifest.Metadata.Name, tempalte,
                         manifest.Template.SourceControlType, manifest.Metadata.Description);
+                    await Task.Delay(5000);
+                    project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
+                        StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (project != null && manifest.Repositories != null && manifest.Repositories.Any())
+                {
+                    foreach(var repo in manifest.Repositories)
+                    {
+                        if(!string.IsNullOrWhiteSpace(repo.Name))
+                        {
+                            var reposCollection = await repoService.GetRepositoryListAsync(project.Id);
+                            var repository = reposCollection
+                                .FirstOrDefault(r => r.Name.Equals(repo.Name, StringComparison.OrdinalIgnoreCase));
+
+                            if (repository == null)
+                            {
+                                repository = await repoService.CreateAsync(project.Id, repo.Name);
+                            }
+                        }
+                    }
                 }
             }
 

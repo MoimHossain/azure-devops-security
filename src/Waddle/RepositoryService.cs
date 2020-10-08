@@ -1,4 +1,5 @@
-﻿using Microsoft.TeamFoundation.SourceControl.WebApi;
+﻿using Microsoft.TeamFoundation.Core.WebApi;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +20,24 @@ namespace Waddle
         {
             var allRepos = await this.gitClient.GetRepositoriesAsync();
             return allRepos;
+        }
+
+        public async Task<List<GitRepository>> GetRepositoryListAsync(Guid projectId)
+        {
+            var allRepos = await this.gitClient.GetRepositoriesAsync(projectId);
+            return allRepos;
+        }
+
+        public async Task<GitRepository> CreateAsync(Guid id, string name)
+        {
+            return await this.gitClient.CreateRepositoryAsync(new GitRepositoryCreateOptions
+            {
+                Name = name,
+                ProjectReference = new TeamProjectReference
+                {
+                    Id = id
+                }
+            });
         }
     }
 }

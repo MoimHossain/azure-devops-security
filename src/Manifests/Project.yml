@@ -6,3 +6,5 @@ metadata:
 template:
   name: Agile
   sourceControlType: Git
+repositories:
+  - name: BI-Examples-Repo
