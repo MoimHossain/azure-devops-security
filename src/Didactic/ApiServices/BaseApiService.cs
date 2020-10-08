@@ -1,16 +1,28 @@
-﻿using Didactic.Schema;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+
+using Didactic.Schema;
+using Microsoft.TeamFoundation.TestManagement.WebApi;
 using System.Threading.Tasks;
+using Waddle;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Didactic.ApiServices
 {
     public abstract class BaseApiService
     {
-        protected BaseApiService()
+        protected BaseApiService(string orgUri, string pat)
         {
+            this.deserializer = new DeserializerBuilder()
+                .WithNamingConvention(new CamelCaseNamingConvention())
+                .IgnoreUnmatchedProperties()
+                .Build();
+            this.Factory = new AdoConnectionFactory(orgUri, pat);
+        }
 
+        protected TPayload Deserialize<TPayload>(string content)
+        {
+            return deserializer.Deserialize<TPayload>(content);
         }
 
         public async Task ExecuteAsync(BaseSchema baseSchema, string manifest)
@@ -19,5 +31,12 @@ namespace Didactic.ApiServices
         }
 
         protected abstract Task ExecuteCoreAsync(BaseSchema baseSchema, string manifest);
+
+        protected AdoConnectionFactory Factory
+        {
+            get;
+        }
+
+        private readonly Deserializer deserializer;
     }
 }

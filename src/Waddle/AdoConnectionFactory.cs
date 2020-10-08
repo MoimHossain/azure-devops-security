@@ -13,11 +13,17 @@ namespace Waddle
         private readonly string pat;
         private readonly VssConnection connection;
 
+
         public AdoConnectionFactory(Uri orgUrl, string pat)
         {
             this.connection = new VssConnection(orgUrl, new VssBasicCredential(string.Empty, pat));
             this.orgUrl = orgUrl;
             this.pat = pat;
+        }
+
+        public AdoConnectionFactory(string orgUri, string pat) : this(new Uri(orgUri), pat)
+        {
+
         }
 
         public ServiceEndpointService GetServiceEndpointService()

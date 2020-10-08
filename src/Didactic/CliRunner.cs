@@ -10,7 +10,7 @@ namespace Didactic
 {
     public class CliRunner
     {
-        public int RunApplyVerb(ApplyOptions opts)
+        public int RunApplyVerb(ApplyOptions opts, string orgUri, string pat)
         {
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(new CamelCaseNamingConvention())
@@ -23,7 +23,7 @@ namespace Didactic
                 {
                     var payload = File.ReadAllText(file);
                     var baseSchema = deserializer.Deserialize<BaseSchema>(payload);
-                    MappedApiServiceAttribute.GetApiServiceInstance(baseSchema.Kind)
+                    MappedApiServiceAttribute.GetApiServiceInstance(baseSchema.Kind, orgUri, pat)
                         .ExecuteAsync(baseSchema, payload).Wait();
                 }
             }

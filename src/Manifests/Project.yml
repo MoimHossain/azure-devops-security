@@ -2,18 +2,7 @@ apiVersion: apps/v1
 kind: Project
 metadata:
   name: BI-Engineering
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
+  description: Project for BI Engineering team
+template:
+  name: Agile
+  sourceControlType: Git
