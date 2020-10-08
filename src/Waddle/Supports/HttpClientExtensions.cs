@@ -79,6 +79,12 @@ namespace Waddle.Supports
         }
 
         public static async Task<string> PutRestAsync(
+            this Uri baseAddress, string requestPath, object payload, Action<HttpClient> configureClient)
+        {
+            return await PutRestAsync(baseAddress, requestPath, JsonConvert.SerializeObject(payload), configureClient);
+        }
+
+        public static async Task<string> PutRestAsync(
           this Uri baseAddress, string requestPath, string payload, Action<HttpClient> configureClient)
         {
             using (var client = new HttpClient())
