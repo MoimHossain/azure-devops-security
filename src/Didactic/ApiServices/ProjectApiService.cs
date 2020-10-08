@@ -29,26 +29,34 @@ namespace Didactic.ApiServices
             var repoService = factory.GetRepositoryService();
             var templates = await projectService.ListProcessAsync();
 
+            Logger.StatusBegin("Validating Manifest file...");
             if (manifest.Validate())
             {
+                Logger.StatusEndSuccess("Succeed");
+
+                Logger.StatusBegin("Creating project, reading Process templates...");
                 var tempalte = templates.Value.FirstOrDefault(t => t.Name.Equals(manifest.Template.Name, StringComparison.InvariantCulture));
                 if (tempalte == null)
                 {
-                    throw new ArgumentOutOfRangeException($"Process template {manifest.Template.Name} is not valid! Good example: Agile, CMMI, Basic, Scrum etc.");
+                    Logger.StatusEndFailed("Failed");
+                    Logger.Error($"Process template {manifest.Template.Name} is not valid! Good example: Agile, CMMI, Basic, Scrum etc.");
+                    return;
                 }
-
-                var projects = await projectService.GetProjectsAsync();
-                var project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
-                    StringComparison.OrdinalIgnoreCase));
-                project = await EnsureProjectExistsAsync(manifest, projectService, tempalte, projects, project);
-
-                await EnsureEnvironmentExistsAsync(manifest, factory, project);
+                else
+                {
+                    Logger.StatusEndSuccess("Succeed");
+                }
+                
+                var project = await EnsureProjectExistsAsync(manifest, projectService, tempalte);
                 await EnsureRepositoriesExistsAsync(manifest, factory, repoService, project);
+                await EnsureEnvironmentExistsAsync(manifest, factory, project);                
                 await EnsureBuildFoldersAsync(manifest, factory, project);
                 await EnsureReleaseFoldersAsync(manifest, factory, project);
             }
-
-            await Task.CompletedTask;
+            else
+            {
+                Logger.StatusEndFailed("Failed");
+            }
         }
 
         private async Task EnsureReleaseFoldersAsync(ProjectManifest manifest,
@@ -67,7 +75,9 @@ namespace Didactic.ApiServices
                     {
                         existingItem = await releaseService.CreateFolderAsync(project.Id, rp.Path);
                     }
+                    Logger.StatusBegin($"Creating permissions {rp.Path}...");
                     await ProvisionReleasePathPermissionsAsync(factory, project, rp, existingItem);
+                    Logger.StatusEndSuccess("Succeed");
                 }
             }
         }
@@ -111,8 +121,9 @@ namespace Didactic.ApiServices
                     {
                         existingItem = await buildService.CreateFolderAsync(project.Id, bp.Path);
                     }
-
+                    Logger.StatusBegin($"Creating permissions {bp.Path}...");
                     await ProvisionBuildPathPermissionsAsync(factory, project, bp, existingItem);
+                    Logger.StatusEndSuccess("Succeed");
                 }
             }
         }
@@ -151,7 +162,9 @@ namespace Didactic.ApiServices
                 {
                     if (pe != null && !string.IsNullOrWhiteSpace(pe.Name))
                     {
+                        Logger.StatusBegin($"Creating environment {pe.Name}...");
                         await ProvisionEnvironmentAsync(factory, project, peService, pe);
+                        Logger.StatusEndSuccess("Succeed");
                     }
                 }
             }
@@ -219,10 +232,14 @@ namespace Didactic.ApiServices
 
                         if (repository == null)
                         {
+                            Logger.StatusBegin($"Creating Repository {repo.Name}...");
                             repository = await repoService.CreateAsync(project.Id, repo.Name);
+                            Logger.StatusEndSuccess("Succeed");
                         }
 
+                        Logger.StatusBegin($"Setting up permissions for repository {repo.Name}...");
                         await EnsureRepositoryPermissionsAsync(factory, project, repo, repository);
+                        Logger.StatusEndSuccess("Succeed");
                     }
                 }
             }
@@ -291,18 +308,29 @@ namespace Didactic.ApiServices
 
         private async Task<Waddle.Dtos.Project> EnsureProjectExistsAsync(
             ProjectManifest manifest, Waddle.ProjectService projectService, 
-            ProcessTemplate tempalte, 
-            ProjectCollection projects, 
-            Waddle.Dtos.Project project)
+            ProcessTemplate tempalte)
         {
+            var projects = await projectService.GetProjectsAsync();
+            var project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
+                StringComparison.OrdinalIgnoreCase));
+
             if (project == null)
             {
                 await projectService.CreateProjectAsync(
                     manifest.Metadata.Name, tempalte,
                     manifest.Template.SourceControlType, manifest.Metadata.Description);
-                await Task.Delay(5000);
-                project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
+                Logger.StatusBegin("Waiting on project creation...");
+                while (project == null)
+                {
+                    projects = await projectService.GetProjectsAsync();
+                    project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
                     StringComparison.OrdinalIgnoreCase));
+                }
+                Logger.StatusEndSuccess("Succeed");
+            }
+            else
+            {
+                Logger.Message($"{project.Name} already exists...");
             }
 
             return project;

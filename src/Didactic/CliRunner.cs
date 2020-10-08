@@ -2,6 +2,7 @@
 
 using Didactic.CliOptions;
 using Didactic.Schema;
+using System;
 using System.IO;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -27,6 +28,7 @@ namespace Didactic
                         .ExecuteAsync(baseSchema, payload).Wait();
                 }
             }
+            Console.ResetColor();
             return 0;
         }
     }

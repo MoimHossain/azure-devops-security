@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Project
 metadata:
-  name: BI-Engineering
+  name: BIEngineering
   description: Project for BI Engineering team
 template:
   name: Agile

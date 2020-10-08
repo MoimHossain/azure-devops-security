@@ -18,8 +18,10 @@ namespace Didactic.ApiServices
                 .IgnoreUnmatchedProperties()
                 .Build();
             this.Factory = new AdoConnectionFactory(orgUri, pat);
+            this.Logger = new ConsoleLogger();
         }
 
+        protected ConsoleLogger Logger { get; }
         protected TPayload Deserialize<TPayload>(string content)
         {
             return deserializer.Deserialize<TPayload>(content);
