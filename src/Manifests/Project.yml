@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Project
 metadata:
-  name: BIEngineering
+  name: Moim1
   description: Project for BI Engineering team
 template:
   name: Agile
   sourceControlType: Git
 repositories:
-  - name: BI-Examples-Repo
+  - name: AKS-Repo
     permissions:
       - group: 'Database-Adninistrators'
         origin: aad
@@ -25,7 +25,7 @@ repositories:
           - PullRequestContribute
           - PolicyExempt
 environments:
-  - name: DevelopmentEnvironment
+  - name: AksDevelopmentEnvironment
     description: 'Deployment environment for Developers'
     permissions:
       - group: 'Database-Adninistrators'
@@ -33,7 +33,7 @@ environments:
         roles: 
           - User
 buildFolders:
-  - path: '/moim-test'
+  - path: '/AKSBuilds'
     permissions:
       - group: 'Database-Adninistrators'
         origin: aad
@@ -45,7 +45,7 @@ buildFolders:
           - EditBuildDefinition
           - DeleteBuilds
 releaseFolders:
-  - path: '/example-releases'
+  - path: '/AksReleases'
     permissions:
       - group: 'Database-Adninistrators'
         origin: aad

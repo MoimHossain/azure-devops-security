@@ -234,6 +234,7 @@ namespace Didactic.ApiServices
                         {
                             Logger.StatusBegin($"Creating Repository {repo.Name}...");
                             repository = await repoService.CreateAsync(project.Id, repo.Name);
+                            await Task.Delay(20000);
                             Logger.StatusEndSuccess("Succeed");
                         }
 
