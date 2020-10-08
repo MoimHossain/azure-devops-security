@@ -29,6 +29,7 @@ namespace Waddle
         public enum ServiceEndpointPermissions
         {
             Administrator,
+            Reader,
             User
         }
 

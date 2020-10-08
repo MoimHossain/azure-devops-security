@@ -11,7 +11,9 @@ namespace Didactic.Schema
     {
         public ProcessTemplateSchema Template { get; set; }
         public List<RepositoryManifest> Repositories { get; set; }
-
+        public List<EnvironmentManifest> Environments { get; set; }
+        public List<PipelineFolder> BuildFolders { get; set; }
+        public List<PipelineFolder> ReleaseFolders { get; set; }
         protected override bool OnValidateCore()
         {
             if(Template == null || string.IsNullOrWhiteSpace(Template.Name))
@@ -32,5 +34,12 @@ namespace Didactic.Schema
         {
             return this.Name;
         }
+    }
+
+    public class PipelineFolder
+    {
+        public string Path { get; set; }
+
+        public List<PermissionManifest> Permissions { get; set; }
     }
 }

@@ -24,3 +24,36 @@ repositories:
           - CreateBranch
           - PullRequestContribute
           - PolicyExempt
+environments:
+  - name: DevelopmentEnvironment
+    description: 'Deployment environment for Developers'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        roles: 
+          - User
+buildFolders:
+  - path: '/moim-test'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        allowed:
+          - ViewBuilds
+          - QueueBuilds
+          - StopBuilds
+          - ViewBuildDefinition
+          - EditBuildDefinition
+          - DeleteBuilds
+releaseFolders:
+  - path: '/example-releases'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        allowed:
+          - ViewReleaseDefinition
+          - EditReleaseDefinition
+          - ViewReleases
+          - CreateReleases
+          - EditReleaseEnvironment
+          - DeleteReleaseEnvironment
+          - ManageDeployments

@@ -10,10 +10,10 @@ namespace Didactic.Schema
     {
         public string Name { get; set; }
 
-        public List<RepositoryPermissionManifest> Permissions { get; set; }
+        public List<PermissionManifest> Permissions { get; set; }
     }
 
-    public class RepositoryPermissionManifest
+    public class PermissionManifest
     {
         public string Group { get; set; }
         public string Origin { get; set; }

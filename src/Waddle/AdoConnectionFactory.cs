@@ -26,6 +26,11 @@ namespace Waddle
 
         }
 
+        public PipelineEnvironmentService GetPipelineEnvironmentService()
+        {
+            return new PipelineEnvironmentService(this.orgUrl.ToString(), this.pat);
+        }
+
         public ServiceEndpointService GetServiceEndpointService()
         {
             return new ServiceEndpointService(this.orgUrl.ToString(), this.pat);
