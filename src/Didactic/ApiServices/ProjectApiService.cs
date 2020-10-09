@@ -48,8 +48,8 @@ namespace Didactic.ApiServices
                 }
 
                 var outcome = await EnsureProjectExistsAsync(manifest, projectService, tempalte);
-                await EnsureRepositoriesExistsAsync(manifest, factory, repoService, outcome.Item1);
-                await DeleteDefaultRepoAsync(repoService, outcome.Item1, outcome.Item2);
+                await EnsureRepositoriesExistsAsync(manifest, factory, repoService, 
+                    outcome.Item1, outcome.Item2);                
                 await EnsureEnvironmentExistsAsync(manifest, factory, outcome.Item1);
                 await EnsureBuildFoldersAsync(manifest, factory, outcome.Item1);
                 await EnsureReleaseFoldersAsync(manifest, factory, outcome.Item1);
@@ -235,7 +235,9 @@ namespace Didactic.ApiServices
 
         private async Task EnsureRepositoriesExistsAsync(
             ProjectManifest manifest, Waddle.AdoConnectionFactory factory, 
-            Waddle.RepositoryService repoService, Waddle.Dtos.Project project)
+            Waddle.RepositoryService repoService, 
+            Waddle.Dtos.Project project,
+            bool projectWasAbsent)
         {
             if (project != null && manifest.Repositories != null && manifest.Repositories.Any())
             {
@@ -257,7 +259,7 @@ namespace Didactic.ApiServices
                                 exception => { Logger.SilentError(exception.Message); });                                                        
                             Logger.StatusEndSuccess("Succeed");
                         }
-
+                        await DeleteDefaultRepoAsync(repoService, project, projectWasAbsent);
                         Logger.StatusBegin($"Setting up permissions for repository {repo.Name}...");
                         await EnsureRepositoryPermissionsAsync(factory, project, repo, repository);
                         Logger.StatusEndSuccess("Succeed");
