@@ -46,16 +46,33 @@ namespace Didactic.ApiServices
                 {
                     Logger.StatusEndSuccess("Succeed");
                 }
-                
-                var project = await EnsureProjectExistsAsync(manifest, projectService, tempalte);
-                await EnsureRepositoriesExistsAsync(manifest, factory, repoService, project);
-                await EnsureEnvironmentExistsAsync(manifest, factory, project);                
-                await EnsureBuildFoldersAsync(manifest, factory, project);
-                await EnsureReleaseFoldersAsync(manifest, factory, project);
+
+                var outcome = await EnsureProjectExistsAsync(manifest, projectService, tempalte);
+                await EnsureRepositoriesExistsAsync(manifest, factory, repoService, outcome.Item1);
+                await DeleteDefaultRepoAsync(repoService, outcome.Item1, outcome.Item2);
+                await EnsureEnvironmentExistsAsync(manifest, factory, outcome.Item1);
+                await EnsureBuildFoldersAsync(manifest, factory, outcome.Item1);
+                await EnsureReleaseFoldersAsync(manifest, factory, outcome.Item1);
             }
             else
             {
                 Logger.StatusEndFailed("Failed");
+            }
+        }
+
+        private static async Task DeleteDefaultRepoAsync(
+            Waddle.RepositoryService repoService, 
+            Waddle.Dtos.Project project, bool projectWasAbsent)
+        {
+            if (projectWasAbsent)
+            {
+                // when new projects are created, there's a defaul repository
+                // let's remove that
+                var allRepos = await repoService.GetRepositoryListAsync(project.Id);
+                if (allRepos != null && allRepos.Count > 0)
+                {
+                    await repoService.DeleteRepositoryAsync(project.Id, allRepos.First().Id);
+                }
             }
         }
 
@@ -310,10 +327,11 @@ namespace Didactic.ApiServices
             return group;
         }
 
-        private async Task<Waddle.Dtos.Project> EnsureProjectExistsAsync(
+        private async Task<Tuple<Waddle.Dtos.Project, bool>> EnsureProjectExistsAsync(
             ProjectManifest manifest, Waddle.ProjectService projectService, 
             ProcessTemplate tempalte)
         {
+            var projectCreatedJIT = false;
             var projects = await projectService.GetProjectsAsync();
             var project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
                 StringComparison.OrdinalIgnoreCase));
@@ -323,21 +341,13 @@ namespace Didactic.ApiServices
                 await projectService.CreateProjectAsync(
                     manifest.Metadata.Name, tempalte,
                     manifest.Template.SourceControlType, manifest.Metadata.Description);
+                projectCreatedJIT = true;
                 Logger.StatusBegin("Waiting on project creation...");
                 while (project == null)
                 {
                     projects = await projectService.GetProjectsAsync();
                     project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
-                    StringComparison.OrdinalIgnoreCase));
-                }
-
-                // when new projects are created, there's a defaul repository
-                // let's remove that
-                var repoService = Factory.GetRepositoryService();
-                var allRepos = await repoService.GetRepositoryListAsync();
-                if(allRepos != null && allRepos.Count == 1)
-                {
-                    await repoService.DeleteRepositoryAsync(project.Id, allRepos.First().Id);
+                                                StringComparison.OrdinalIgnoreCase));
                 }
                 Logger.StatusEndSuccess("Succeed");
             }
@@ -345,8 +355,7 @@ namespace Didactic.ApiServices
             {
                 Logger.Message($"{project.Name} already exists...");
             }
-
-            return project;
+            return new Tuple<Waddle.Dtos.Project, bool>(project, projectCreatedJIT);
         }
     }
 }
