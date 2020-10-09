@@ -14,6 +14,8 @@ namespace Didactic.Schema
         public List<EnvironmentManifest> Environments { get; set; }
         public List<PipelineFolder> BuildFolders { get; set; }
         public List<PipelineFolder> ReleaseFolders { get; set; }
+        public List<TeamSchemaManifest> Teams { get; set; }
+
         protected override bool OnValidateCore()
         {
             if(Template == null || string.IsNullOrWhiteSpace(Template.Name))

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Waddle.Supports;
 
 namespace Waddle.Dtos
 {
@@ -56,6 +57,15 @@ namespace Waddle.Dtos
 
         [JsonProperty("metaTypeId")]
         public long MetaTypeId { get; set; }
+
+        [JsonIgnore]
+        public string Sid
+        {
+            get
+            {
+                return IdentityBase64Supports.GetSid(this.Descriptor);
+            }
+        }
     }
 
     public partial class VstsIdentityProperty

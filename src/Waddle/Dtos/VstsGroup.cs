@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Waddle.Supports;
 
 namespace Waddle.Dtos
 {
@@ -308,20 +309,8 @@ namespace Waddle.Dtos
         {
             get
             {
-                if(!string.IsNullOrWhiteSpace(Descriptor))
-                {
-                    var b64s = Descriptor.Substring(Descriptor.IndexOf(".") + 1);
-                    var raw = DecodeUrlBase64(b64s);
-                    return $"Microsoft.TeamFoundation.Identity;{raw}";
-                }
-                return string.Empty;
+                return IdentityBase64Supports.GetSid(this.Descriptor);
             }
-        }
-
-        public static string DecodeUrlBase64(string s)
-        {
-            s = s.Replace('-', '+').Replace('_', '/').PadRight(4 * ((s.Length + 3) / 4), '=');
-            return ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(s));
         }
 
         public override string ToString()
@@ -353,7 +342,7 @@ namespace Waddle.Dtos
 
     public enum Origin { Aad, Vsts };
 
-    public enum SubjectKind { Group };
+    public enum SubjectKind { Group, User };
 
     internal static class Converter
     {
@@ -474,5 +463,93 @@ namespace Waddle.Dtos
 
         [JsonProperty("name")]
         public string Name { get; set; }
+    }
+
+
+    public partial class VstsItentitySearchResultResponse
+    {
+        [JsonProperty("results")]
+        public VstsIdentitySearchResult[] Results { get; set; }
+    }
+
+    public partial class VstsIdentitySearchResult
+    {
+        [JsonProperty("queryToken")]
+        public string QueryToken { get; set; }
+
+        [JsonProperty("identities")]
+        public VstsIdentitySearchedItem[] Identities { get; set; }
+
+        [JsonProperty("pagingToken")]
+        public string PagingToken { get; set; }
+    }
+
+    public partial class VstsIdentitySearchedItem
+    {
+        [JsonProperty("entityId")]
+        public string EntityId { get; set; }
+
+        [JsonProperty("entityType")]
+        public string EntityType { get; set; }
+
+        [JsonProperty("originDirectory")]
+        public string OriginDirectory { get; set; }
+
+        [JsonProperty("originId")]
+        public Guid OriginId { get; set; }
+
+        [JsonProperty("localDirectory")]
+        public string LocalDirectory { get; set; }
+
+        [JsonProperty("localId")]
+        public Guid LocalId { get; set; }
+
+        [JsonProperty("displayName")]
+        public object DisplayName { get; set; }
+
+        [JsonProperty("scopeName")]
+        public object ScopeName { get; set; }
+
+        [JsonProperty("samAccountName")]
+        public object SamAccountName { get; set; }
+
+        [JsonProperty("active")]
+        public object Active { get; set; }
+
+        [JsonProperty("subjectDescriptor")]
+        public object SubjectDescriptor { get; set; }
+
+        [JsonProperty("department")]
+        public object Department { get; set; }
+
+        [JsonProperty("jobTitle")]
+        public object JobTitle { get; set; }
+
+        [JsonProperty("mail")]
+        public object Mail { get; set; }
+
+        [JsonProperty("mailNickname")]
+        public object MailNickname { get; set; }
+
+        [JsonProperty("physicalDeliveryOfficeName")]
+        public object PhysicalDeliveryOfficeName { get; set; }
+
+        [JsonProperty("signInAddress")]
+        public object SignInAddress { get; set; }
+
+        [JsonProperty("surname")]
+        public object Surname { get; set; }
+
+        [JsonProperty("guest")]
+        public bool Guest { get; set; }
+
+        [JsonProperty("telephoneNumber")]
+        public object TelephoneNumber { get; set; }
+
+        [JsonProperty("description")]
+        public object Description { get; set; }
+
+        [JsonProperty("isMru")]
+        public bool IsMru { get; set; }
     }
 }

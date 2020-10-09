@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.TeamFoundation.Core.WebApi;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,26 @@ namespace Waddle
 {
     public class ProjectService : RestServiceBase
     {
-        public ProjectService(string adoUrl, string pat)
+        private readonly TeamHttpClient teamClient;
+
+        public ProjectService(TeamHttpClient teamClient, string adoUrl, string pat)
             : base(adoUrl, pat)
         {
+            this.teamClient = teamClient;
+        }
 
+        public async Task<WebApiTeam> CreateTeamAsync(WebApiTeam team, Guid projectId)
+        {
+            return await teamClient.CreateTeamAsync(team, projectId.ToString());
+        }
+
+        public async Task<VstsTeamCollection> GetTeamsAsync()
+        {
+            var path = "_apis/teams?api-version=6.1-preview.3";
+            var teams = await GetAzureDevOpsDefaultUri()
+                .GetRestAsync<VstsTeamCollection>(path, await GetBearerTokenAsync());
+
+            return teams;
         }
 
         public async Task<ProjectCollection> GetProjectsAsync()
@@ -48,7 +65,7 @@ namespace Waddle
                     {
                         versioncontrol = new
                         {
-                            sourceControlType = sourceControlType
+                            sourceControlType
                         },
                         processTemplate = new
                         {

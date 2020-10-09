@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -47,6 +48,14 @@ namespace Waddle
             return users;
         }
 
+        public async Task<string> GetStorageKey(Uri storageKeyUrl)
+        {
+            var path = string.Empty;
+            var storageKeys = await storageKeyUrl
+                .GetRestAsync<string>(path, await GetBearerTokenAsync());
+
+            return storageKeys;
+        }
 
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesBySidAsync(string descriptors)
         {
@@ -58,6 +67,7 @@ namespace Waddle
 
             return users;
         }
+
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesByNameAsync(string name)
         {
             //var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode("[TEAM FOUNDATION]\\IoT-Developers")}&queryMembership=None&api-version=6.0";
@@ -66,6 +76,23 @@ namespace Waddle
                 .GetRestAsync<VstsIdentityCollection>(path, await GetBearerTokenAsync());
 
             return users;
+        }
+
+        public async Task<VstsItentitySearchResultResponse> GetIdentityWithPickerdAsync(string userAccount)
+        {
+            var path = $"_apis/IdentityPicker/Identities?api-version=5.1-preview.1";
+
+            var response = await GetAzureDevOpsDefaultUri()
+                .PostRestAsync<VstsItentitySearchResultResponse>(
+                path,
+                new
+                { 
+                    query = userAccount, 
+                    identityTypes = new List<string> { "user", "group" }, 
+                    operationScopes = new List<object> { "ims" } 
+                },
+                await GetBearerTokenAsync());
+            return response;
         }
     }
 }

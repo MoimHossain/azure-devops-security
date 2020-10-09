@@ -6,6 +6,12 @@ metadata:
 template:
   name: Agile
   sourceControlType: Git
+teams:
+  - name: TheATeam
+    description: The A Team
+    admins:
+      - Timothy Green
+      - Linda
 repositories:
   - name: AKS-Repo
     permissions:

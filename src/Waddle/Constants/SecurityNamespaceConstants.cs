@@ -14,6 +14,8 @@ namespace Waddle.Constants
         [Description("ReleaseManagement")]
         ReleaseManagement,
         [Description("Build")]
-        Build
+        Build,
+        [Description("Identity")]
+        Identity
     }
 }

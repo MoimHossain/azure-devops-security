@@ -2,8 +2,6 @@
 
 using CommandLine;
 using Didactic.CliOptions;
-using System;
-using Waddle;
 
 namespace Didactic
 {
@@ -11,6 +9,7 @@ namespace Didactic
     {
         static int Main(string[] args)
         {
+
             return Parser.Default.ParseArguments<ApplyOptions>(args)
                .MapResult(
                  (ApplyOptions opts) => 

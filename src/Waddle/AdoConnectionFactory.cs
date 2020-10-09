@@ -1,4 +1,5 @@
-﻿using Microsoft.TeamFoundation.SourceControl.WebApi;
+﻿using Microsoft.TeamFoundation.Core.WebApi;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using Microsoft.VisualStudio.Services.WebApi;
 using System;
@@ -18,7 +19,7 @@ namespace Waddle
         {
             this.connection = new VssConnection(orgUrl, new VssBasicCredential(string.Empty, pat));
             this.orgUrl = orgUrl;
-            this.pat = pat;
+            this.pat = pat; 
         }
 
         public AdoConnectionFactory(string orgUri, string pat) : this(new Uri(orgUri), pat)
@@ -36,7 +37,7 @@ namespace Waddle
             return new ServiceEndpointService(this.orgUrl.ToString(), this.pat);
         }
 
-        public GraphService GetGrouoService()
+        public GraphService GetGroupService()
         {
             return new GraphService(this.orgUrl.ToString(), this.pat);
         }
@@ -65,7 +66,8 @@ namespace Waddle
 
         public ProjectService GetProjectService()
         {
-            return new ProjectService(this.orgUrl.ToString(), this.pat);
+            var teamClient = connection.GetClient<TeamHttpClient>();
+            return new ProjectService(teamClient, this.orgUrl.ToString(), this.pat);
         }
 
         public ReleaseService GetReleaseService()
