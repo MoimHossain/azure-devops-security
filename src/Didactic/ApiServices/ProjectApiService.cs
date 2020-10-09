@@ -233,8 +233,11 @@ namespace Didactic.ApiServices
                         if (repository == null)
                         {
                             Logger.StatusBegin($"Creating Repository {repo.Name}...");
-                            repository = await repoService.CreateAsync(project.Id, repo.Name);
-                            await Task.Delay(20000);
+                            await ExecutionSupports.Retry(async () =>
+                                {
+                                    repository = await repoService.CreateAsync(project.Id, repo.Name);
+                                },
+                                exception => { Logger.SilentError(exception.Message); });                                                        
                             Logger.StatusEndSuccess("Succeed");
                         }
 
@@ -326,6 +329,15 @@ namespace Didactic.ApiServices
                     projects = await projectService.GetProjectsAsync();
                     project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
                     StringComparison.OrdinalIgnoreCase));
+                }
+
+                // when new projects are created, there's a defaul repository
+                // let's remove that
+                var repoService = Factory.GetRepositoryService();
+                var allRepos = await repoService.GetRepositoryListAsync();
+                if(allRepos != null && allRepos.Count == 1)
+                {
+                    await repoService.DeleteRepositoryAsync(project.Id, allRepos.First().Id);
                 }
                 Logger.StatusEndSuccess("Succeed");
             }

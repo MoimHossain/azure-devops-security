@@ -34,5 +34,10 @@ namespace Didactic.ApiServices
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(message);
         }
+
+        public void SilentError(string message)
+        {
+            // Doing nothing for now
+        }
     }
 }

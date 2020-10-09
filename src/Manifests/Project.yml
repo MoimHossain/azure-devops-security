@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Project
 metadata:
-  name: Moim2
+  name: Moim1
   description: Project for BI Engineering team
 template:
   name: Agile

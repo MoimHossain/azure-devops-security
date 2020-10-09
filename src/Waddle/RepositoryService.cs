@@ -39,5 +39,10 @@ namespace Waddle
                 }
             });
         }
+
+        public async Task DeleteRepositoryAsync(Guid projectId, Guid repositoryId)
+        {
+            await this.gitClient.DeleteRepositoryAsync(projectId, repositoryId);
+        }
     }
 }
