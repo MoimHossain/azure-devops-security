@@ -322,13 +322,13 @@ namespace Didactic.ApiServices
                                 },
                                 exception => { Logger.SilentError(exception.Message); });                                                        
                             Logger.StatusEndSuccess("Succeed");
-                        }
-                        await DeleteDefaultRepoAsync(repoService, project, projectWasAbsent);
+                        }                        
                         Logger.StatusBegin($"Setting up permissions for repository {repo.Name}...");
                         await EnsureRepositoryPermissionsAsync(factory, project, repo, repository);
                         Logger.StatusEndSuccess("Succeed");
                     }
                 }
+                await DeleteDefaultRepoAsync(repoService, project, projectWasAbsent);
             }
         }
 
