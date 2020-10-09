@@ -49,71 +49,9 @@ namespace Didactic.ApiServices
                 }
 
                 var outcome = await EnsureProjectExistsAsync(manifest, projectService, tempalte);
-
-
-                var gService = factory.GetGroupService();
-                var secService = factory.GetSecurityNamespaceService();
-                var aclService = factory.GetAclListService();
-                foreach (var teamManifest in manifest.Teams)
-                {
-                    var tc = await projectService.GetTeamsAsync();
-                    var eteam = tc.Value
-                        .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name, 
-                        StringComparison.OrdinalIgnoreCase));
-
-                    if (eteam == null)
-                    {
-                        Logger.StatusBegin($"Creating team [{teamManifest.Name}]...");
-                        var team = await projectService.CreateTeamAsync(
-                            new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
-                            {
-                                Name = teamManifest.Name,
-                                Description = teamManifest.Description,
-                                ProjectId = outcome.Item1.Id,
-                                ProjectName = outcome.Item1.Name
-                            }, 
-                            outcome.Item1.Id);
-
-                        while(eteam == null)
-                        {
-                            tc = await projectService.GetTeamsAsync();
-                            eteam = tc.Value
-                                .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
-                                StringComparison.OrdinalIgnoreCase));
-                        }           
-                        Logger.StatusEndSuccess("Succeed");
-                    }
-
-                    if(eteam != null && 
-                        teamManifest.Admins != null && 
-                        teamManifest.Admins.Any())
-                    {
-                        var token = $"{eteam.ProjectId}\\{eteam.Id}";
-                        var releaseNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
-                        var secNamespaceId = releaseNamespace.NamespaceId;
-                        var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
-
-                        foreach (var adminUserName in teamManifest.Admins)
-                        {
-                            var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName);
-                            if(matches != null && matches.Count > 0)
-                            {
-                                var adminUserInfo = matches.Value.First();
-                                aclDictioanry.Add(adminUserInfo.Descriptor, new VstsAcesDictionaryEntry
-                                {
-                                    Allow = 31,
-                                    Deny = 0,
-                                    Descriptor = adminUserInfo.Descriptor
-                                });
-                            }                          
-                        }
-                        await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
-                    }
-                }
-
-
-                await EnsureRepositoriesExistsAsync(manifest, factory, repoService, 
-                    outcome.Item1, outcome.Item2);                
+                await EnsureTeamProvisionedAsync(manifest, factory, projectService, outcome);
+                await EnsureRepositoriesExistsAsync(manifest, factory, repoService,
+                    outcome.Item1, outcome.Item2);
                 await EnsureEnvironmentExistsAsync(manifest, factory, outcome.Item1);
                 await EnsureBuildFoldersAsync(manifest, factory, outcome.Item1);
                 await EnsureReleaseFoldersAsync(manifest, factory, outcome.Item1);
@@ -121,6 +59,69 @@ namespace Didactic.ApiServices
             else
             {
                 Logger.StatusEndFailed("Failed");
+            }
+        }
+
+        private async Task EnsureTeamProvisionedAsync(ProjectManifest manifest, Waddle.AdoConnectionFactory factory, Waddle.ProjectService projectService, Tuple<Waddle.Dtos.Project, bool> outcome)
+        {
+            var gService = factory.GetGroupService();
+            var secService = factory.GetSecurityNamespaceService();
+            var aclService = factory.GetAclListService();
+            foreach (var teamManifest in manifest.Teams)
+            {
+                var tc = await projectService.GetTeamsAsync();
+                var eteam = tc.Value
+                    .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
+                    StringComparison.OrdinalIgnoreCase));
+
+                if (eteam == null)
+                {
+                    Logger.StatusBegin($"Creating team [{teamManifest.Name}]...");
+                    var team = await projectService.CreateTeamAsync(
+                        new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
+                        {
+                            Name = teamManifest.Name,
+                            Description = teamManifest.Description,
+                            ProjectId = outcome.Item1.Id,
+                            ProjectName = outcome.Item1.Name
+                        },
+                        outcome.Item1.Id);
+
+                    while (eteam == null)
+                    {
+                        tc = await projectService.GetTeamsAsync();
+                        eteam = tc.Value
+                            .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
+                            StringComparison.OrdinalIgnoreCase));
+                    }
+                    Logger.StatusEndSuccess("Succeed");
+                }
+
+                if (eteam != null &&
+                    teamManifest.Admins != null &&
+                    teamManifest.Admins.Any())
+                {
+                    var token = $"{eteam.ProjectId}\\{eteam.Id}";
+                    var releaseNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
+                    var secNamespaceId = releaseNamespace.NamespaceId;
+                    var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
+
+                    foreach (var adminUserName in teamManifest.Admins)
+                    {
+                        var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName);
+                        if (matches != null && matches.Count > 0)
+                        {
+                            var adminUserInfo = matches.Value.First();
+                            aclDictioanry.Add(adminUserInfo.Descriptor, new VstsAcesDictionaryEntry
+                            {
+                                Allow = 31,
+                                Deny = 0,
+                                Descriptor = adminUserInfo.Descriptor
+                            });
+                        }
+                    }
+                    await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
+                }
             }
         }
 
