@@ -20,7 +20,7 @@ namespace Waddle
         public async Task<VstsFolderCollection> ListFoldersAsync(Guid projectId, string path = "")
         {
             var requestPath = $"{projectId}/_apis/release/folders/{path}?api-version=6.0-preview.2";
-            var folders = await GetAzureDevOpsVsrmUri()
+            var folders = await VsrmApi()
                 .GetRestAsync<VstsFolderCollection>(requestPath, await GetBearerTokenAsync());
 
             return folders;
@@ -30,7 +30,7 @@ namespace Waddle
         public async Task<VstsFolder> CreateFolderAsync(
                 Guid project, string path)
         {
-            var response = await GetAzureDevOpsVsrmUri().PostRestAsync(             
+            var response = await VsrmApi().PostRestAsync(             
                 $"{project}/_apis/Release/folders{HttpUtility.UrlEncode(path)}?api-version=6.0-preview.2",
                 new
                 {

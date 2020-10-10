@@ -67,6 +67,7 @@ namespace Didactic.ApiServices
             var gService = factory.GetGroupService();
             var secService = factory.GetSecurityNamespaceService();
             var aclService = factory.GetAclListService();
+            var allUsers = await gService.ListUsersAsync();
             foreach (var teamManifest in manifest.Teams)
             {
                 var tc = await projectService.GetTeamsAsync();
@@ -97,6 +98,34 @@ namespace Didactic.ApiServices
                     Logger.StatusEndSuccess("Succeed");
                 }
 
+                if (eteam != null && teamManifest.Membership != null
+                    && (teamManifest.Membership.Groups != null && teamManifest.Membership.Groups.Any()))
+                {
+                    var teamGroup = await GetGroupByNameAsync(factory, IdentityOrigin.Vsts.ToString(), eteam.Name);
+                    if (teamGroup != null)
+                    {
+                        foreach (var gp in teamManifest.Membership.Groups)
+                        {
+                            var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+
+                            if (groupObject != null)
+                            {
+                                await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, groupObject.Descriptor);
+                            }
+                        }
+
+                        
+                        foreach (var user in teamManifest.Membership.Users)
+                        {
+                            var userInfo = allUsers.Value.FirstOrDefault(u=> u.OriginId.Equals(user.Id));
+                            if (userInfo != null )
+                            {
+                                await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, userInfo.Descriptor);
+                            }
+                        }
+                    }                    
+                }
+
                 if (eteam != null &&
                     teamManifest.Admins != null &&
                     teamManifest.Admins.Any())
@@ -108,7 +137,7 @@ namespace Didactic.ApiServices
 
                     foreach (var adminUserName in teamManifest.Admins)
                     {
-                        var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName);
+                        var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName.Name);
                         if (matches != null && matches.Count > 0)
                         {
                             var adminUserInfo = matches.Value.First();
@@ -384,13 +413,19 @@ namespace Didactic.ApiServices
         }
 
         private async Task<VstsGroup> GetGroupByNameAsync(
-            Waddle.AdoConnectionFactory factory, string origin, string groupName)
+            Waddle.AdoConnectionFactory factory, string origin, string groupName, Guid? id = null)
         {
-            var groups = await factory.GetGroupService().ListGroupsAsync();
+            var gService = factory.GetGroupService();
+            var groups = await gService.ListGroupsAsync();
             var group = groups.Value
                 .FirstOrDefault(g =>
                 g.Origin.ToString().Equals(origin, StringComparison.OrdinalIgnoreCase) &&
                 g.PrincipalName.Contains(groupName, StringComparison.OrdinalIgnoreCase));
+
+            if (group == null && id.HasValue)
+            {
+                group = await gService.CreateAadGroupByObjectId(id.Value);
+            }
             return group;
         }
 

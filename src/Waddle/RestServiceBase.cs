@@ -23,22 +23,22 @@ namespace Waddle
 
         protected string GetOrganizationName()
         {
-            return GetAzureDevOpsDefaultUri().AbsolutePath.Replace("/", string.Empty);
+            return CoreApi().AbsolutePath.Replace("/", string.Empty);
         }
 
-        protected Uri GetAzureDevOpsVsspUri()
+        protected Uri VsspsApi()
         {
             var organizationName = GetOrganizationName();
             return new Uri($"https://vssps.dev.azure.com/{organizationName}/");
         }
 
-        protected Uri GetAzureDevOpsVsrmUri()
+        protected Uri VsrmApi()
         {
             var organizationName = GetOrganizationName();
             return new Uri($"https://vsrm.dev.azure.com/{organizationName}/");
         }
 
-        protected Uri GetAzureDevOpsDefaultUri()
+        protected Uri CoreApi()
         {
             return new Uri(this.adoUrl);
         }

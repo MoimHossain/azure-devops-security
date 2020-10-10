@@ -26,7 +26,7 @@ namespace Waddle
         public async Task<VstsTeamCollection> GetTeamsAsync()
         {
             var path = "_apis/teams?api-version=6.1-preview.3";
-            var teams = await GetAzureDevOpsDefaultUri()
+            var teams = await CoreApi()
                 .GetRestAsync<VstsTeamCollection>(path, await GetBearerTokenAsync());
 
             return teams;
@@ -35,7 +35,7 @@ namespace Waddle
         public async Task<ProjectCollection> GetProjectsAsync()
         {
             var path = "_apis/projects?stateFilter=All&api-version=1.0";
-            var projects = await GetAzureDevOpsDefaultUri()
+            var projects = await CoreApi()
                 .GetRestAsync<ProjectCollection>(path, await GetBearerTokenAsync());
 
             return projects;
@@ -44,7 +44,7 @@ namespace Waddle
         public async Task<ProcessTemplateCollection> ListProcessAsync()
         {
             var path = "_apis/process/processes?api-version=6.1-preview.1";
-            var processes = await GetAzureDevOpsDefaultUri()
+            var processes = await CoreApi()
                 .GetRestAsync<ProcessTemplateCollection>(path, await GetBearerTokenAsync());
 
             return processes;
@@ -54,7 +54,7 @@ namespace Waddle
             string name, ProcessTemplate tempalte, 
             string sourceControlType, string description)
         {
-            var response = await GetAzureDevOpsDefaultUri()
+            var response = await CoreApi()
                 .PostRestAsync(
                 $"_apis/projects?api-version=6.1-preview.4",
                 new

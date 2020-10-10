@@ -46,7 +46,7 @@ namespace Waddle
         public async Task<VstsSecurityNamespaceCollection> GetAllNamespacesAsync() 
         {
             var path = "_apis/securitynamespaces?api-version=6.0";
-            var namespaces = await GetAzureDevOpsDefaultUri()
+            var namespaces = await CoreApi()
                 .GetRestAsync<VstsSecurityNamespaceCollection>(path, await GetBearerTokenAsync());
 
             return namespaces;
@@ -101,7 +101,7 @@ namespace Waddle
             string subscriptionId, string subscriptionName, string resourceGroup,
             string clientId, string secret, string tenantId)
         {
-            var response = await GetAzureDevOpsDefaultUri()
+            var response = await CoreApi()
                 .PostRestAsync(
                 $"{projectName}/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2",
                 new
@@ -139,7 +139,7 @@ namespace Waddle
             string projectName, Guid groupId, long envId,
             string instruction = "Please approve the Deployment")
         {
-            var response = await GetAzureDevOpsDefaultUri()
+            var response = await CoreApi()
                 .PostRestAsync(
                 $"{projectName}/_apis/pipelines/checks/configurations?api-version=5.2-preview.1",
                 new
@@ -175,7 +175,7 @@ namespace Waddle
 
         public async Task<IEnumerable<VstsGroup>> ListGroupsAsync()
         {
-            var groups = await GetAzureDevOpsVsspUri()
+            var groups = await VsspsApi()
                 .GetRestAsync<GroupCollection>(
                 $"_apis/graph/groups?api-version=5.1-preview.1",
                 await GetBearerTokenAsync());
@@ -186,7 +186,7 @@ namespace Waddle
             string projectName, long environmentId, Guid endpointId,
             string kubernetesNamespace, string kubernetesClusterName)
         {
-            var link = await GetAzureDevOpsDefaultUri()
+            var link = await CoreApi()
                             .PostRestAsync(
                             $"{projectName}/_apis/distributedtask/environments/{environmentId}/providers/kubernetes?api-version=5.0-preview.1",
                             new
@@ -206,7 +206,7 @@ namespace Waddle
             string clusterApiUri,
             string serviceAccountCertificate, string apiToken)
         {
-            var ep = await GetAzureDevOpsDefaultUri()
+            var ep = await CoreApi()
                 .PostRestAsync<Endpoint>(
                 $"{projectName}/_apis/serviceendpoint/endpoints?api-version=6.0-preview.4",
                 new
@@ -252,7 +252,7 @@ namespace Waddle
         public async Task<PipelineEnvironment> CreateEnvironmentAsync(
             string project, string envName, string envDesc)
         {
-            var env = await GetAzureDevOpsDefaultUri()
+            var env = await CoreApi()
                 .PostRestAsync<PipelineEnvironment>(
                 $"{project}/_apis/distributedtask/environments?api-version=5.1-preview.1",
                 new
@@ -268,7 +268,7 @@ namespace Waddle
         public async Task<EndpointCollection> ListEndpointsAsync(string project)
         {
             var path = $"{project}/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2";
-            var types = await GetAzureDevOpsDefaultUri()
+            var types = await CoreApi()
                 .GetRestAsync<EndpointCollection>(path, await GetBearerTokenAsync());
 
             return types;
@@ -277,7 +277,7 @@ namespace Waddle
         public async Task<string> GetEndpointTypesAsync()
         {
             var path = "_apis/serviceendpoint/types?api-version=5.1-preview.1";
-            var types = await GetAzureDevOpsDefaultUri()
+            var types = await CoreApi()
                 .GetRestJsonAsync(path, await GetBearerTokenAsync());
 
             return types;
@@ -286,7 +286,7 @@ namespace Waddle
         public async Task<ProjectCollection> GetProjectsAsync()
         {
             var path = "_apis/projects?stateFilter=All&api-version=1.0";
-            var projects = await GetAzureDevOpsDefaultUri()
+            var projects = await CoreApi()
                 .GetRestAsync<ProjectCollection>(path, await GetBearerTokenAsync());
 
             return projects;
@@ -294,7 +294,7 @@ namespace Waddle
 
         public async Task<PipelineEnvironmentCollection> GetEnvAsync(string project)
         {
-            var envs = await GetAzureDevOpsDefaultUri()
+            var envs = await CoreApi()
                 .GetRestAsync<PipelineEnvironmentCollection>(
                 $"{project}/_apis/distributedtask/environments",
                 await GetBearerTokenAsync());

@@ -21,7 +21,7 @@ namespace Waddle
         public async Task<VstsClassification> GetAllAreaPathsAsync(Guid projectId, int depth = 1)
         {
             var path = $"{projectId}/_apis/wit/classificationnodes/Areas?$depth={depth}&api-version=6.0";
-            var paths = await GetAzureDevOpsDefaultUri()
+            var paths = await CoreApi()
                 .GetRestAsync<VstsClassification>(path, await GetBearerTokenAsync());
 
             return paths;
@@ -30,7 +30,7 @@ namespace Waddle
         public async Task<VstsClassification> GetAllIterationsPathsAsync(Guid projectId, int depth = 1)
         {
             var path = $"{projectId}/_apis/wit/classificationnodes/Iterations?$depth={depth}&api-version=6.0";
-            var paths = await GetAzureDevOpsDefaultUri()
+            var paths = await CoreApi()
                 .GetRestAsync<VstsClassification>(path, await GetBearerTokenAsync());
 
             return paths;

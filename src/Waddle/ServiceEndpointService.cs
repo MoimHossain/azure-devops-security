@@ -20,7 +20,7 @@ namespace Waddle
         public async Task<VstsServiceEndpointCollection> ListServiceEndpointsAsync(Guid projectId)
         {
             var requestPath = $"{projectId}/_apis/serviceendpoint/endpoints?api-version=6.1-preview.4";
-            var endpoints = await GetAzureDevOpsDefaultUri()
+            var endpoints = await CoreApi()
                 .GetRestAsync<VstsServiceEndpointCollection>(requestPath, await GetBearerTokenAsync());
 
             return endpoints;
@@ -39,7 +39,7 @@ namespace Waddle
             Guid localId, 
             ServiceEndpointPermissions permission)
         {
-            var response = await GetAzureDevOpsDefaultUri()
+            var response = await CoreApi()
                 .PutRestAsync(
                 $"_apis/securityroles/scopes/distributedtask.serviceendpointrole/roleassignments/resources/{projectId}_{endpointId}?api-version=5.0-preview.1",
                 new List<object>
@@ -58,7 +58,7 @@ namespace Waddle
             Guid endpointId,
             Guid localId)
         {
-            var response = await GetAzureDevOpsDefaultUri()
+            var response = await CoreApi()
                 .PutRestAsync(
                 $"_apis/securityroles/scopes/distributedtask.serviceendpointrole/roleassignments/resources/collection_{endpointId}?api-version=5.0-preview.1",
                 new List<object>

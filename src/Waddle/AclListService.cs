@@ -20,7 +20,7 @@ namespace Waddle
         public async Task<VstsAclList> GetAllAclsAsync(Guid namespaceId)
         {
             var path = $"_apis/accesscontrollists/{namespaceId}?api-version=6.0";
-            var aclList = await GetAzureDevOpsDefaultUri()
+            var aclList = await CoreApi()
                 .GetRestAsync<VstsAclList>(path, await GetBearerTokenAsync());
 
             return aclList;
@@ -29,7 +29,7 @@ namespace Waddle
         public async Task<VstsAclList> GetAllAclsByTokenAsync(Guid namespaceId, string token)
         {
             var path = $"_apis/accesscontrollists/{namespaceId}?token={HttpUtility.UrlEncode(token)}&api-version=6.0";
-            var aclList = await GetAzureDevOpsDefaultUri()
+            var aclList = await CoreApi()
                 .GetRestAsync<VstsAclList>(path, await GetBearerTokenAsync());
 
             return aclList;
@@ -48,7 +48,7 @@ namespace Waddle
 
             var sample = JsonConvert.SerializeObject(payload);
 
-            await GetAzureDevOpsDefaultUri()
+            await CoreApi()
                .PostRestAsync<object>(
                $"_apis/accesscontrollists/{namespaceId}?api-version=6.0",
                payload,

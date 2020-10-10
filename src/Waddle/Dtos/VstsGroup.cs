@@ -284,7 +284,7 @@ namespace Waddle.Dtos
         public object MailAddress { get; set; }
 
         [JsonProperty("origin")]
-        public Origin Origin { get; set; }
+        public IdentityOrigin Origin { get; set; }
 
         [JsonProperty("originId")]
         public Guid OriginId { get; set; }
@@ -340,7 +340,7 @@ namespace Waddle.Dtos
         public Uri Href { get; set; }
     }
 
-    public enum Origin { Aad, Vsts };
+    public enum IdentityOrigin { Aad, Vsts };
 
     public enum SubjectKind { Group, User };
 
@@ -361,7 +361,7 @@ namespace Waddle.Dtos
 
     internal class OriginConverter : JsonConverter
     {
-        public override bool CanConvert(Type t) => t == typeof(Origin) || t == typeof(Origin?);
+        public override bool CanConvert(Type t) => t == typeof(IdentityOrigin) || t == typeof(IdentityOrigin?);
 
         public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
         {
@@ -370,9 +370,9 @@ namespace Waddle.Dtos
             switch (value)
             {
                 case "aad":
-                    return Origin.Aad;
+                    return IdentityOrigin.Aad;
                 case "vsts":
-                    return Origin.Vsts;
+                    return IdentityOrigin.Vsts;
             }
             throw new Exception("Cannot unmarshal type Origin");
         }
@@ -384,13 +384,13 @@ namespace Waddle.Dtos
                 serializer.Serialize(writer, null);
                 return;
             }
-            var value = (Origin)untypedValue;
+            var value = (IdentityOrigin)untypedValue;
             switch (value)
             {
-                case Origin.Aad:
+                case IdentityOrigin.Aad:
                     serializer.Serialize(writer, "aad");
                     return;
-                case Origin.Vsts:
+                case IdentityOrigin.Vsts:
                     serializer.Serialize(writer, "vsts");
                     return;
             }

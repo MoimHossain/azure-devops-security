@@ -20,7 +20,7 @@ namespace Waddle
         public async Task<GroupCollection> ListGroupsAsync()
         {
             var path = "_apis/graph/groups?api-version=6.0-preview.1";
-            var groups = await GetAzureDevOpsVsspUri()
+            var groups = await VsspsApi()
                 .GetRestAsync<GroupCollection>(path, await GetBearerTokenAsync());
 
             return groups;
@@ -28,7 +28,7 @@ namespace Waddle
 
         public async Task<VstsGroup> CreateAadGroupByObjectId(Guid aadObjectId)
         {
-            var ep = await GetAzureDevOpsVsspUri()
+            var ep = await VsspsApi()
                 .PostRestAsync<VstsGroup>(
                 $"_apis/graph/groups?api-version=6.0-preview.1",
                 new
@@ -42,7 +42,7 @@ namespace Waddle
         public async Task<GroupCollection> ListUsersAsync()
         {
             var path = "_apis/graph/users?subjectTypes=aad&api-version=6.1-preview.1";
-            var users = await GetAzureDevOpsVsspUri()
+            var users = await VsspsApi()
                 .GetRestAsync<GroupCollection>(path, await GetBearerTokenAsync());
 
             return users;
@@ -62,7 +62,7 @@ namespace Waddle
             var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";
 
             //var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode("[TEAM FOUNDATION]\\IoT-Developers")}&queryMembership=None&api-version=6.0";
-            var users = await GetAzureDevOpsVsspUri()
+            var users = await VsspsApi()
                 .GetRestAsync<VstsIdentityCollection>(path, await GetBearerTokenAsync());
 
             return users;
@@ -72,7 +72,7 @@ namespace Waddle
         {
             //var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode("[TEAM FOUNDATION]\\IoT-Developers")}&queryMembership=None&api-version=6.0";
             var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode(name)}&queryMembership=None&api-version=6.0";
-            var users = await GetAzureDevOpsVsspUri()
+            var users = await VsspsApi()
                 .GetRestAsync<VstsIdentityCollection>(path, await GetBearerTokenAsync());
 
             return users;
@@ -82,7 +82,7 @@ namespace Waddle
         {
             var path = $"_apis/IdentityPicker/Identities?api-version=5.1-preview.1";
 
-            var response = await GetAzureDevOpsDefaultUri()
+            var response = await CoreApi()
                 .PostRestAsync<VstsItentitySearchResultResponse>(
                 path,
                 new
@@ -91,6 +91,18 @@ namespace Waddle
                     identityTypes = new List<string> { "user", "group" }, 
                     operationScopes = new List<object> { "ims" } 
                 },
+                await GetBearerTokenAsync());
+            return response;
+        }
+
+        public async Task<string> AddMemberAsync(Guid projectId, string parentDescriptor, string childDescriptor)
+        {
+            var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.0-preview.1";
+
+            var response = await VsspsApi()
+                .PutRestAsync(
+                path,
+                string.Empty,
                 await GetBearerTokenAsync());
             return response;
         }
