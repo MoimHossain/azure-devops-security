@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30323.103
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manifests", "Manifests", "{F3ED3EAB-F89A-48E2-82F5-0FAD49B93C0E}"
+	ProjectSection(SolutionItems) = preProject
+		Manifests\Project.yml = Manifests\Project.yml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waddle", "Waddle\Waddle.csproj", "{6DB4BB53-D7EB-4382-9049-197E6E89BC10}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Didactic", "Didactic\Didactic.csproj", "{3EFBCD5B-12CE-4209-BB08-689B25E1A649}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6DB4BB53-D7EB-4382-9049-197E6E89BC10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DB4BB53-D7EB-4382-9049-197E6E89BC10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DB4BB53-D7EB-4382-9049-197E6E89BC10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DB4BB53-D7EB-4382-9049-197E6E89BC10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EFBCD5B-12CE-4209-BB08-689B25E1A649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EFBCD5B-12CE-4209-BB08-689B25E1A649}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EFBCD5B-12CE-4209-BB08-689B25E1A649}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EFBCD5B-12CE-4209-BB08-689B25E1A649}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FCECF9F-1961-4A98-B303-AEDADBBCDBB2}
+	EndGlobalSection
+EndGlobal

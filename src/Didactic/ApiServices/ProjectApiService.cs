@@ -273,9 +273,7 @@ namespace Didactic.ApiServices
                 {
                     if (pe != null && !string.IsNullOrWhiteSpace(pe.Name))
                     {
-                        Logger.StatusBegin($"Creating environment {pe.Name}...");
-                        await ProvisionEnvironmentAsync(factory, project, peService, pe);
-                        Logger.StatusEndSuccess("Succeed");
+                        await ProvisionEnvironmentAsync(factory, project, peService, pe);              
                     }
                 }
             }
@@ -309,7 +307,9 @@ namespace Didactic.ApiServices
             {
                 foreach (var permissionObject in pe.Permissions)
                 {
-                    var group = await GetGroupByNameAsync(factory, permissionObject.Origin, permissionObject.Group);
+                    Logger.StatusBegin($"Configuring Environment ({pe.Name}) permissions: AAD object ({permissionObject.Group}) ...");
+                    var group = await GetGroupByNameAsync(factory, 
+                        permissionObject.Origin, permissionObject.Group, permissionObject.Id);
                     if (group != null)
                     {
                         var legacyIdentity = await factory.GetGroupService()
@@ -321,7 +321,12 @@ namespace Didactic.ApiServices
                             {
                                 await peService.SetPermissionAsync(project.Id, envObject.Id, localId, role);
                             }
+                            Logger.StatusEndSuccess("Succeeded");
                         }
+                    } 
+                    else 
+                    {
+                        Logger.StatusEndFailed("Failed (Not found in AAD)");
                     }
                 }
             }

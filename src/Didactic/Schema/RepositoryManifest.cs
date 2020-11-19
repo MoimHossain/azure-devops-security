@@ -16,6 +16,7 @@ namespace Didactic.Schema
     public class PermissionManifest
     {
         public string Group { get; set; }
+        public Guid Id { get; set; }
         public string Origin { get; set; }
         public List<string> Allowed { get; set; }
     }
