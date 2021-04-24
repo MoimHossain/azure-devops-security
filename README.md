@@ -5,7 +5,7 @@ This repository helps you automate Azure DevOps project provision and setting up
 
 # Instructions
 
-The repository containes two projects (once is a Library - produced a DLL and another is the console executable application) and the console executable is named as ```azdoctl.exe```.
+The repository contains two projects (once is a Library - produced a DLL and another is the console executable application) and the console executable is named as ```azdoctl.exe```.
 
 The idea is to create a manifest file (yaml format) and apply the changes via the ```azdoctl.exe```:
 
@@ -17,7 +17,7 @@ The idea is to create a manifest file (yaml format) and apply the changes via th
 You need to create a manifest file to descibe your Azure DevOps project and permissions. The format of the manifest file is in yaml (and idea is borrowed from Kubernetes manufest files.)
 
 ### Schema
-Here's the scheam of the manifest file:
+Here's the schema of the manifest file:
 
 ```yaml
 apiVersion: apps/v1
