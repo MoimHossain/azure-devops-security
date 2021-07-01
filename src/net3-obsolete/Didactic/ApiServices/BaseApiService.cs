@@ -13,8 +13,8 @@ namespace Didactic.ApiServices
     {
         protected BaseApiService(string orgUri, string pat)
         {
-            this.deserializer = new DeserializerBuilder()
-                .WithNamingConvention(new CamelCaseNamingConvention())
+            this.deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+                .WithNamingConvention(new YamlDotNet.Serialization.NamingConventions.CamelCaseNamingConvention())
                 .IgnoreUnmatchedProperties()
                 .Build();
             this.Factory = new AdoConnectionFactory(orgUri, pat);

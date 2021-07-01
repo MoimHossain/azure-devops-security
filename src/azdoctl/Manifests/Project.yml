@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Project
+metadata:
+  name: Moim1x
+  description: Project for BI Engineering team
+template:
+  name: Agile
+  sourceControlType: Git
+teams:
+  - name: TheATeamX
+    description: The A Team
+    admins:
+      - name: Timothy Green
+        id: 4ae3c851-6ef3-4748-bef9-4f809736d538
+      - name: Linda
+        id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
+    membership:
+      groups:
+        - name: 'Kubernetes-Admins'
+          id: a2931c86-e975-4220-aa89-dc3f952290f4
+      users:
+        - name: Timothy Green
+          id: 4ae3c851-6ef3-4748-bef9-4f809736d538
+        - name: Linda
+          id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
+repositories:
+  - name: AKS-Repo
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        allowed:
+          - GenericRead
+          - GenericContribute
+          - CreateBranch
+          - PullRequestContribute
+      - group: 'Kubernetes-Admins'
+        origin: aad
+        allowed:
+          - GenericRead
+          - GenericContribute
+          - CreateBranch
+          - PullRequestContribute
+          - PolicyExempt
+environments:
+  - name: AksDevelopmentEnvironment
+    description: 'Deployment environment for Developers'
+    serviceEndpointReference: K8sEndpointChanged
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        id: 04dcbbaf-614d-4614-8f08-37a54de80504
+        roles: 
+          - User
+buildFolders:
+  - path: '/AKSBuilds'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        id: 04dcbbaf-614d-4614-8f08-37a54de80504
+        allowed:
+          - ViewBuilds
+          - QueueBuilds
+          - StopBuilds
+          - ViewBuildDefinition
+          - EditBuildDefinition
+          - DeleteBuilds
+releaseFolders:
+  - path: '/AksReleases'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        id: 04dcbbaf-614d-4614-8f08-37a54de80504
+        allowed:
+          - ViewReleaseDefinition
+          - EditReleaseDefinition
+          - ViewReleases
+          - CreateReleases
+          - EditReleaseEnvironment
+          - DeleteReleaseEnvironment
+          - ManageDeployments
+serviceEndpoints:
+  - name: K8sEndpointChanged
+    description: K8S service endpoint
+    kind: Kubernetes
+    clusterInfo:
+      namespace:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: bi-workloads
+          annotations:
+            workload: didactic
+            purpose: cloud-delivery
+          labels:
+            workload: didactic
+            purpose: cloud-delivery
+      serviceAccount: 
+        spec:
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: cicd-account
+            labels:
+              purpose: ado-automation  
+              project: Azure-K8S-Demo
+        role:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: Role
+          metadata:
+            name: cicd-account-role
+          rules:
+          - apiGroups: ["*"]
+            resources: ["*"]
+            verbs: ["*"]
+        binding:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: RoleBinding
+          metadata:
+            name: cicd-account-rolebinding
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: Role
+            name: cicd-account-role
+          subjects:
+          - kind: ServiceAccount
+            name: cicd-account
