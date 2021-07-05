@@ -15,6 +15,8 @@ namespace Kdoctl.Schema
         public List<PipelineFolder> ReleaseFolders { get; set; }
         public List<TeamSchemaManifest> Teams { get; set; }
 
+        public ProjectRetentionSetting RetentionSettings { get; set; }
+
         public List<ServiceEndpointManifest> ServiceEndpoints { get; set; }
         protected override bool OnValidateCore()
         {
@@ -25,6 +27,19 @@ namespace Kdoctl.Schema
 
             return base.OnValidateCore();
         }
+    }
+
+    public class ProjectRetentionSetting
+    {
+        public UpdateRetentionSettingSchema ArtifactsRetention { get; set; }
+        public UpdateRetentionSettingSchema PullRequestRunRetention { get; set; }
+        public UpdateRetentionSettingSchema RetainRunsPerProtectedBranch { get; set; }
+        public UpdateRetentionSettingSchema RunRetention { get; set; }
+    }
+
+    public class UpdateRetentionSettingSchema
+    {
+        public int Value { get; set; }
     }
 
     public class ProcessTemplateSchema

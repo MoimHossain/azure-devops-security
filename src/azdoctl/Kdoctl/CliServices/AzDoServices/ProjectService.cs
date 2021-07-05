@@ -1,6 +1,7 @@
 ﻿using Kdoctl.CliServices.Abstract;
 using Kdoctl.CliServices.AzDoServices.Dtos;
 using Kdoctl.CliServices.Supports;
+using Kdoctl.Schema;
 using Microsoft.TeamFoundation.Core.WebApi;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,17 @@ namespace Kdoctl.CliServices.AzDoServices
                 .GetRestAsync<VstsTeamCollection>(path, await GetBearerTokenAsync());
 
             return teams;
+        }
+
+        public async Task<string> UpdateRetentionAsync(Guid projectId, ProjectRetentionSetting settings)
+        {   
+            var response = await CoreApi()
+                .PatchRestAsync(
+                $"/{GetOrganizationName()}/{projectId}/_apis/build/retention?api-version=6.0-preview.1",
+                settings,
+                await GetBearerTokenAsync());
+
+            return response;
         }
 
         public async Task<ProjectCollection> GetProjectsAsync()

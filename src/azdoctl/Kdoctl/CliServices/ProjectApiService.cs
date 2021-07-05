@@ -50,12 +50,12 @@ namespace Kdoctl.Schema.CliServices
 
                 var outcome = await EnsureProjectExistsAsync(manifest, projectService, tempalte);
                 var seOutcome = await EnsureServiceEndpointExistsAsync(manifest, projectService, factory, outcome);
-                //await EnsureTeamProvisionedAsync(manifest, factory, projectService, outcome);
-                //await EnsureRepositoriesExistsAsync(manifest, factory, repoService,
-                //    outcome.Item1, outcome.Item2);
+                await EnsureTeamProvisionedAsync(manifest, factory, projectService, outcome);
+                await EnsureRepositoriesExistsAsync(manifest, factory, repoService,
+                    outcome.Item1, outcome.Item2);
                 await EnsureEnvironmentExistsAsync(manifest, factory, outcome.Item1, seOutcome);
-                //await EnsureBuildFoldersAsync(manifest, factory, outcome.Item1);
-                //await EnsureReleaseFoldersAsync(manifest, factory, outcome.Item1);
+                await EnsureBuildFoldersAsync(manifest, factory, outcome.Item1);
+                await EnsureReleaseFoldersAsync(manifest, factory, outcome.Item1);
             }
             else
             {
@@ -578,6 +578,16 @@ namespace Kdoctl.Schema.CliServices
             {
                 Logger.Message($"{project.Name} already exists...");
             }
+
+            //await projectService.UpdateRetentionAsync(project.Id, new ProjectRetentionSetting 
+            //{
+            //    ArtifactsRetention = new UpdateRetentionSettingSchema { Value = 15 },
+            //    PullRequestRunRetention = new UpdateRetentionSettingSchema { Value = 12 },
+            //    RetainRunsPerProtectedBranch = new UpdateRetentionSettingSchema { Value = 4 },
+            //    RunRetention = new UpdateRetentionSettingSchema { Value = 12 },
+            //});
+
+
             return new Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool>(project, projectCreatedJIT);
         }
     }

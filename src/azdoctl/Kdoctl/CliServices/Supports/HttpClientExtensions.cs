@@ -144,6 +144,16 @@ namespace Kdoctl.CliServices.Supports
         }
 
         public static async Task<string> PatchRestAsync(
+         this Uri baseAddress, string requestPath, object payload, Action<HttpClient> configureClient)
+        {
+            var plString = JsonConvert.SerializeObject(payload, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
+            return await PatchRestAsync(baseAddress, requestPath, plString, configureClient);
+        }
+
+        public static async Task<string> PatchRestAsync(
          this Uri baseAddress, string requestPath, string payload, Action<HttpClient> configureClient)
         {
             using (var client = new HttpClient())
