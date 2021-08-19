@@ -143,7 +143,7 @@ namespace Kdoctl.CliServices.AzDoServices
         }
 
 
-        public async Task UpdateKubernetesEndpointAsync(
+        public async Task<Endpoint> UpdateKubernetesEndpointAsync(
             Guid endpointId,
             Guid projectId, string projectName,
             string endpointName, string endpointDescription,
@@ -190,6 +190,9 @@ namespace Kdoctl.CliServices.AzDoServices
                     }
                 },
                 await GetBearerTokenAsync());
+
+            var endpoint = JsonConvert.DeserializeObject<Endpoint>(ep);
+            return endpoint;
         }
     }
 }

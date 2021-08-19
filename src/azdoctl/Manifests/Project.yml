@@ -101,8 +101,8 @@ serviceEndpoints:
           metadata:
             name: cicd-account
             labels:
-              purpose: ado-automation  
-              project: Azure-K8S-Demo
+              purpose: cloud-delivery
+              workload: didactic
         role:
           apiVersion: rbac.authorization.k8s.io/v1
           kind: Role

@@ -89,17 +89,21 @@ namespace Kdoctl.Schema.CliServices
                                 seManifest.ClusterInfo.ServiceAccount.Role != null  &&
                                 !string.IsNullOrWhiteSpace(seManifest.ClusterInfo.Namespace.Metadata.Name) &&
                                 !string.IsNullOrWhiteSpace(seManifest.ClusterInfo.ServiceAccount.Spec.Metadata.Name))
-                            {   
+                            {
+                                //Logger.StatusBegin($"Creating Service endpoint '{seManifest.Name}' to deploy in Kubernetes namespace..");
+                                
                                 await K8sService.Cluster
-                                    .EnsureNamespaceExistsAsync(seManifest.ClusterInfo);
-
+                                    .EnsureNamespaceExistsAsync(seManifest.ClusterInfo, Logger);
                                 var sa = await K8sService.Cluster
-                                    .EnsureServiceAccountExists(seManifest.ClusterInfo);
-                                var secret = await K8sService.Cluster.GetSecretAsync(sa);
+                                    .EnsureServiceAccountExists(seManifest.ClusterInfo, Logger);
+                                if(sa != null)
+                                {
+                                    var secret = await K8sService.Cluster.GetSecretAsync(sa);
 
-                                await EnsureServiceEndpointForKubernetesAsync(manifest, seManifest, factory, projectService, secret, outcome);
+                                    await EnsureServiceEndpointForKubernetesAsync(manifest, seManifest, factory, projectService, secret, outcome);
 
-                                producedK8sInfo.Add(new Tuple<k8s.Models.V1ServiceAccount>(sa));
+                                    producedK8sInfo.Add(new Tuple<k8s.Models.V1ServiceAccount>(sa));
+                                }
                             }
                         }
                     }
@@ -125,22 +129,29 @@ namespace Kdoctl.Schema.CliServices
                 var endpoint = eps.Value.FirstOrDefault(ep => ep.Name.Equals(seManifest.Name, StringComparison.OrdinalIgnoreCase));
                 if (endpoint == null)
                 {
+                    Logger.StatusBegin($"Creating Kubernetes Service Endpoint '{seManifest.Name}' ...");
                     var newEndpoint = await seService.CreateKubernetesEndpointAsync(
                         project.Id, project.Name,
                         seManifest.Name, seManifest.Description,
                         K8sService.Cluster.GetClusterAPIUri().ToString(),
                         Convert.ToBase64String(secret.Data["ca.crt"]),
                         Convert.ToBase64String(secret.Data["token"]));
+
+                    if (newEndpoint != null) { Logger.StatusEndSuccess("Succeed"); } else { Logger.StatusEndFailed("Failed"); }
                 } 
                 else
                 {
-                    await seService.UpdateKubernetesEndpointAsync(
+                    Logger.StatusBegin($"Updating Kubernetes Service Endpoint '{seManifest.Name}' ...");
+                    var updatedEndpoint = await seService.UpdateKubernetesEndpointAsync(
                          endpoint.Id,
                          project.Id, project.Name,
                          seManifest.Name, seManifest.Description,
                          K8sService.Cluster.GetClusterAPIUri().ToString(),
                          Convert.ToBase64String(secret.Data["ca.crt"]),
                          Convert.ToBase64String(secret.Data["token"]));
+
+
+                    if (updatedEndpoint != null) { Logger.StatusEndSuccess("Succeed"); } else { Logger.StatusEndFailed("Failed"); }
                 }
             }
         }
