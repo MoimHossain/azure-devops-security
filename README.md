@@ -13,6 +13,22 @@ The idea is to create a manifest file (yaml format) and apply the changes via th
 > azdoctl apply -f manifest.yaml
 ```
 
+## Running on Docker
+
+You can also run the AzDO process with a publicly available Docker container. Here's the command:
+
+```
+docker run --rm \
+           -e AzDOAADJoinedPAT="YOUR AZDO PAT" \
+           -e AzDOAADJoinedURL="https://dev.azure.com/moim/" \
+           -v "/home/moimhossain/.kube:/home/.kube" \
+           -e K8S_CONFIG_FILEPATH="/home/.kube/config" \
+           -v "/home/manifests:/home/payload" \
+           moimhossain/adoctl:v1 -f "/home/payload/Project.yml"
+```
+
+> In the above snippet ```K8S_CONFIG_FILEPATH``` is only required if you are creating environment and service connection pointing to Kubernetes cluster.
+
 ## Manifest file
 You need to create a manifest file to descibe your Azure DevOps project and permissions. The format of the manifest file is in yaml (and idea is borrowed from Kubernetes manufest files.)
 

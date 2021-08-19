@@ -148,7 +148,15 @@ namespace Kdoctl.CliServices.K8sServices
 
         private K8sService()
         {
-            k8s = new Kubernetes(KubernetesClientConfiguration.BuildConfigFromConfigFile());
+            var configFilePath = System.Environment.GetEnvironmentVariable("K8S_CONFIG_FILEPATH");
+            if (!string.IsNullOrWhiteSpace(configFilePath))
+            {
+                k8s = new Kubernetes(KubernetesClientConfiguration.BuildConfigFromConfigFile(configFilePath));
+            }
+            else
+            {
+                k8s = new Kubernetes(KubernetesClientConfiguration.BuildConfigFromConfigFile());
+            }
         }
     }
 }

@@ -3,6 +3,9 @@
     "Kdoctl": {
       "commandName": "Project",
       "commandLineArgs": "apply -f \"C:\\GitHub\\moimhossain\\azure-devops-security\\src\\azdoctl\\Manifests\\Project.yml\""
+    },
+    "Docker": {
+      "commandName": "Docker"
     }
   }
 }

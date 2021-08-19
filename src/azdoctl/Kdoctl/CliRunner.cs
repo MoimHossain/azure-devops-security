@@ -21,7 +21,7 @@ namespace Kdoctl
                 .Build();
 
             foreach (var file in opts.ManifestFiles)
-            {
+            {   
                 if (File.Exists(file))
                 {
                     var payload = File.ReadAllText(file);
