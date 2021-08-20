@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Project
 metadata:
-  name: Moim1x
+  name: Tulsa
   description: Project for BI Engineering team
 template:
   name: Agile
   sourceControlType: Git
 teams:
-  - name: TheATeamX
+  - name: TulsaPeople
     description: The A Team
     admins:
       - name: Timothy Green
@@ -24,7 +24,7 @@ teams:
         - name: Linda
           id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
 repositories:
-  - name: AKS-Repo
+  - name: Temp
     permissions:
       - group: 'Database-Adninistrators'
         origin: aad
@@ -42,9 +42,9 @@ repositories:
           - PullRequestContribute
           - PolicyExempt
 environments:
-  - name: AksDevelopmentEnvironment
+  - name: UnprCluster
     description: 'Deployment environment for Developers'
-    serviceEndpointReference: K8sEndpointChanged
+    serviceEndpointReference: UnprEndpoint
     permissions:
       - group: 'Database-Adninistrators'
         origin: aad
@@ -79,7 +79,7 @@ releaseFolders:
           - DeleteReleaseEnvironment
           - ManageDeployments
 serviceEndpoints:
-  - name: K8sEndpointChanged
+  - name: UnprEndpoint
     description: K8S service endpoint
     kind: Kubernetes
     clusterInfo:
@@ -87,7 +87,7 @@ serviceEndpoints:
         apiVersion: v1
         kind: Namespace
         metadata:
-          name: bi-workloads
+          name: tulsa
           annotations:
             workload: didactic
             purpose: cloud-delivery

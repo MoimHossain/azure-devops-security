@@ -116,7 +116,8 @@ namespace Kdoctl.CliServices.AzDoServices
                     },
                     data = new
                     {
-                        authorizationType = "ServiceAccount"
+                        authorizationType = "ServiceAccount",
+                        acceptUntrustedCerts = true
                     },
                     isShared = false,
                     name = endpointName,
@@ -167,7 +168,8 @@ namespace Kdoctl.CliServices.AzDoServices
                     },
                     data = new
                     {
-                        authorizationType = "ServiceAccount"
+                        authorizationType = "ServiceAccount",
+                        acceptUntrustedCerts = true
                     },
                     isShared = false,
                     name = endpointName,
