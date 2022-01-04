@@ -190,6 +190,6 @@ The code is provided as-is, with MIT license. You can use it, replicate it, modi
 
 And, that also means, the author is not taking any respondiblity to provide any gurantee or such.
 
-Thanks!
+Thank you!
 
 
