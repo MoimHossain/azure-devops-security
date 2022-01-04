@@ -15,18 +15,18 @@ namespace Kdoctl.CliServices.K8sServices
         public async Task EnsureNamespaceExistsAsync(
             KubernetesEndpointManifest clusterInfo, ConsoleLogger Logger)
         {
+            Logger.StatusBegin($"Checking Kubernetes namespace '{clusterInfo.Namespace.Metadata.Name}' ...");
             var found = await GetNamespaceAsync(clusterInfo);
             if (found == null)
-            {
-                Logger.StatusBegin($"Creating Kubernetes namespace '{clusterInfo.Namespace.Metadata.Name}' ...");
+            {   
                 await k8s.CreateNamespaceAsync(clusterInfo.Namespace);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("Namespace Created");
             }
             else
             {
                 Logger.StatusBegin($"Updating Kubernetes namespace '{clusterInfo.Namespace.Metadata.Name}' ...");
                 await k8s.ReplaceNamespaceAsync(clusterInfo.Namespace, clusterInfo.Namespace.Metadata.Name);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("Namespace updated");
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿
 
 using Kdoctl.CliServices;
+using Kdoctl.CliServices.Supports;
 using System.Threading.Tasks;
 
 using YamlDotNet.Serialization;
@@ -28,7 +29,13 @@ namespace Kdoctl.Schema.CliServices
 
         public async Task ExecuteAsync(BaseSchema baseSchema, string manifest)
         {
-            await ExecuteCoreAsync(baseSchema, manifest);
+            var exponentialBackoffFactor = 5000;
+            var retryCount = 1;
+            await ExecutionSupports.Retry(async () =>
+            {
+                await ExecuteCoreAsync(baseSchema, manifest);
+            },
+            exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);            
         }
 
         protected abstract Task ExecuteCoreAsync(BaseSchema baseSchema, string manifest);
