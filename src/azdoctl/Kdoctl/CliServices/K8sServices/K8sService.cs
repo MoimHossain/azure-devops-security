@@ -53,68 +53,66 @@ namespace Kdoctl.CliServices.K8sServices
             clusterInfo.ServiceAccount.Spec.Metadata.NamespaceProperty = clusterInfo.Namespace.Metadata.Name;
             clusterInfo.ServiceAccount.Role.Metadata.NamespaceProperty = clusterInfo.Namespace.Metadata.Name;
             clusterInfo.ServiceAccount.Binding.Metadata.NamespaceProperty = clusterInfo.Namespace.Metadata.Name;
+            
+            Logger.StatusBegin($"Preparing Kubernetes service account '{clusterInfo.ServiceAccount.Spec.Metadata.Name}' ...");
+
             foreach (var item in clusterInfo.ServiceAccount.Binding.Subjects)
             {
                 item.NamespaceProperty = clusterInfo.Namespace.Metadata.Name;
             }
             var found = await GetSaFromNamespace(clusterInfo);
             if (found == null)
-            {
-                Logger.StatusBegin($"Creating Kubernetes service account '{clusterInfo.ServiceAccount.Spec.Metadata.Name}' ...");
-                found = await k8s.CreateNamespacedServiceAccountAsync(clusterInfo.ServiceAccount.Spec,
+            {               
+                _ = await k8s.CreateNamespacedServiceAccountAsync(clusterInfo.ServiceAccount.Spec,
                     clusterInfo.Namespace.Metadata.Name);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("SA Created");
             }
             else
             {
                 Logger.StatusBegin($"Updating Kubernetes service account '{clusterInfo.ServiceAccount.Spec.Metadata.Name}' ...");
-                found = await k8s.ReplaceNamespacedServiceAccountAsync(clusterInfo.ServiceAccount.Spec,
+                _ = await k8s.ReplaceNamespacedServiceAccountAsync(clusterInfo.ServiceAccount.Spec,
                     clusterInfo.ServiceAccount.Spec.Metadata.Name,
                     clusterInfo.Namespace.Metadata.Name);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("SA Updated");
             }
-
             await EnsureRoleExistsAsync(clusterInfo, Logger);
             await EnsureRoleBindingExistsAsync(clusterInfo, Logger);
-
             // You need to reload this - so the secrets are also poplulated
-            found = await GetSaFromNamespace(clusterInfo);
-            return found;
+            return await GetSaFromNamespace(clusterInfo);
         }
 
         public async Task EnsureRoleBindingExistsAsync(
             KubernetesEndpointManifest clusterInfo, 
             ConsoleLogger Logger)
         {
+            Logger.StatusBegin($"Preparing Role binding '{clusterInfo.ServiceAccount.Binding.Metadata.Name}' ...");
             var all = await k8s.ListNamespacedRoleBindingAsync(clusterInfo.Namespace.Metadata.Name);
             var found = all.Items.FirstOrDefault(al => al.Metadata.Name.Equals(clusterInfo.ServiceAccount.Binding.Metadata.Name));
             if (found == null)
-            {
-                Logger.StatusBegin($"Creating Role binding '{clusterInfo.ServiceAccount.Binding.Metadata.Name}' ...");
+            {   
                 await k8s.CreateNamespacedRoleBindingAsync(clusterInfo.ServiceAccount.Binding,
                     clusterInfo.Namespace.Metadata.Name);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("Created");
             }
             else
-            {
-                Logger.StatusBegin($"Updating Role binding '{clusterInfo.ServiceAccount.Binding.Metadata.Name}' ...");
+            {                
                 await k8s.ReplaceNamespacedRoleBindingAsync(clusterInfo.ServiceAccount.Binding,
                     clusterInfo.ServiceAccount.Binding.Metadata.Name,
                     clusterInfo.Namespace.Metadata.Name);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("Updated");
             }
         }
 
         public async Task EnsureRoleExistsAsync(KubernetesEndpointManifest clusterInfo, ConsoleLogger Logger)
         {
+            Logger.StatusBegin($"Preparing Role '{clusterInfo.ServiceAccount.Role.Metadata.Name}' ...");
             var all = await k8s.ListNamespacedRoleAsync(clusterInfo.Namespace.Metadata.Name);
             var found = all.Items.FirstOrDefault(al => al.Metadata.Name.Equals(clusterInfo.ServiceAccount.Role.Metadata.Name));
             if (found == null)
-            {
-                Logger.StatusBegin($"Creating Role '{clusterInfo.ServiceAccount.Role.Metadata.Name}' ...");
+            {   
                 await k8s.CreateNamespacedRoleAsync(clusterInfo.ServiceAccount.Role,
                     clusterInfo.Namespace.Metadata.Name);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("Created");
             }
             else
             {
@@ -122,7 +120,7 @@ namespace Kdoctl.CliServices.K8sServices
                 await k8s.ReplaceNamespacedRoleAsync(clusterInfo.ServiceAccount.Role,
                     clusterInfo.ServiceAccount.Role.Metadata.Name,
                     clusterInfo.Namespace.Metadata.Name);
-                Logger.StatusEndSuccess("Succeed");
+                Logger.StatusEndSuccess("Updated");
             }
         }
 
@@ -143,8 +141,10 @@ namespace Kdoctl.CliServices.K8sServices
             return found;
         }
 
-        private Kubernetes k8s;
-        public static K8sService Cluster = new K8sService();
+        private readonly Kubernetes k8s;
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+        public static K8sService Cluster = new();
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
         private K8sService()
         {

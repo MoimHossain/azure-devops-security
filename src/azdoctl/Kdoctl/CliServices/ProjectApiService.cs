@@ -185,13 +185,18 @@ namespace Kdoctl.Schema.CliServices
                             ProjectName = outcome.Item1.Name
                         },
                         outcome.Item1.Id);
-
+                    var breakOut = 0;
                     while (eteam == null)
                     {
                         tc = await projectService.GetTeamsAsync();
                         eteam = tc.Value
                             .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
                             StringComparison.OrdinalIgnoreCase));
+
+                        if(++breakOut > 10)
+                        {
+                            throw new InvalidOperationException($"Team [{teamManifest.Name}] was not retrieved on time.");
+                        }
                     }
                     Logger.StatusEndSuccess("Succeed");
                 }
@@ -235,6 +240,17 @@ namespace Kdoctl.Schema.CliServices
 
                     foreach (var adminUserName in teamManifest.Admins)
                     {
+                        // --
+                        //aclDictioanry.Add("Linda@moimhossainhotmail.onmicrosoft.com", new VstsAcesDictionaryEntry
+                        //{
+                        //    Allow = 31,
+                        //    Deny = 0,
+                        //    Descriptor = "Linda@moimhossainhotmail.onmicrosoft.com"
+                        //});
+                        
+                        // ---
+
+
                         var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName.Name);
                         if (matches != null && matches.Count > 0)
                         {
