@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Kdoctl.Schema.CliServices
 {
-    public class ProjectApiService : BaseApiService
+    public partial class ProjectApiService : BaseApiService
     {
         public ProjectApiService(string orgUri, string pat) : base(orgUri, pat)
         {
@@ -28,31 +28,18 @@ namespace Kdoctl.Schema.CliServices
             var factory = base.Factory;
             var projectService = factory.GetProjectService();
             var repoService = factory.GetRepositoryService();
-            var templates = await projectService.ListProcessAsync();
+
 
             Logger.StatusBegin("Validating Manifest file...");
             if (manifest.Validate())
             {
                 Logger.StatusEndSuccess("Succeed");
+                var outcome = await EnsureProjectExistsAsync(manifest, projectService);
 
-                Logger.StatusBegin("Creating project, reading Process templates...");
-                var tempalte = templates.Value.FirstOrDefault(t => t.Name.Equals(manifest.Template.Name, StringComparison.InvariantCulture));
-                if (tempalte == null)
-                {
-                    Logger.StatusEndFailed("Failed");
-                    Logger.Error($"Process template {manifest.Template.Name} is not valid! Good example: Agile, CMMI, Basic, Scrum etc.");
-                    return;
-                }
-                else
-                {
-                    Logger.StatusEndSuccess("Succeed");
-                }
-
-                var outcome = await EnsureProjectExistsAsync(manifest, projectService, tempalte);
-                var seOutcome = await EnsureServiceEndpointExistsAsync(manifest, projectService, factory, outcome);
+                await ProcessPermissionsAsync(manifest, factory, projectService, outcome);
                 await EnsureTeamProvisionedAsync(manifest, factory, projectService, outcome);
-                await EnsureRepositoriesExistsAsync(manifest, factory, repoService,
-                    outcome.Item1, outcome.Item2);
+                await EnsureRepositoriesExistsAsync(manifest, factory, repoService, outcome.Item1, outcome.Item2);
+                var seOutcome = await EnsureServiceEndpointExistsAsync(manifest, projectService, factory, outcome);
                 await EnsureEnvironmentExistsAsync(manifest, factory, outcome.Item1, seOutcome);
                 await EnsureBuildFoldersAsync(manifest, factory, outcome.Item1);
                 await EnsureReleaseFoldersAsync(manifest, factory, outcome.Item1);
@@ -60,6 +47,160 @@ namespace Kdoctl.Schema.CliServices
             else
             {
                 Logger.StatusEndFailed("Failed");
+            }
+        }
+
+        private async Task ProcessPermissionsAsync(
+            ProjectManifest manifest,
+            AdoConnectionFactory factory,
+            ProjectService projectService,
+            Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool> outcome)
+        {
+            if (manifest.Permissions != null && manifest.Permissions.Any())
+            {
+                var gService = factory.GetGroupService();
+                var allUsers = await gService.ListUsersAsync();
+                var projectId = outcome.Item1.Id;
+
+                foreach (var permissionEntry in manifest.Permissions)
+                {
+                    if (!string.IsNullOrWhiteSpace(permissionEntry.Name) && permissionEntry.Membership != null)
+                    {                        
+                        var projectGroups = await gService.ListGroupsInProjectAsync(projectId);
+                        if(projectGroups != null)
+                        {
+                            var targetGroup = projectGroups
+                                .FirstOrDefault(pg => pg.DisplayName.Equals(permissionEntry.Name, StringComparison.OrdinalIgnoreCase));
+                            if (targetGroup != null)
+                            {
+                                Logger.StatusBegin($"Updating membership of [{targetGroup.PrincipalName}]...");
+                                if (permissionEntry.Membership.Groups != null && permissionEntry.Membership.Groups.Any())
+                                {
+                                    foreach (var gp in permissionEntry.Membership.Groups)
+                                    {
+                                        var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+                                        if (groupObject != null)
+                                        {
+                                            await gService.AddMemberAsync(projectId, targetGroup.Descriptor, groupObject.Descriptor);
+                                        }
+                                    }
+
+                                    foreach (var user in permissionEntry.Membership.Users)
+                                    {
+                                        var userInfo = allUsers.Value.FirstOrDefault(u => u.OriginId.Equals(user.Id));
+                                        if (userInfo != null)
+                                        {
+                                            await gService.AddMemberAsync(projectId, targetGroup.Descriptor, userInfo.Descriptor);
+                                        }
+                                    }
+                                }
+                                Logger.StatusEndSuccess("Succeed");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private async Task EnsureTeamProvisionedAsync(
+            ProjectManifest manifest,
+            AdoConnectionFactory factory,
+            ProjectService projectService,
+            Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool> outcome)
+        {
+            var gService = factory.GetGroupService();
+            var secService = factory.GetSecurityNamespaceService();
+            var aclService = factory.GetAclListService();
+            var allUsers = await gService.ListUsersAsync();
+            foreach (var teamManifest in manifest.Teams)
+            {
+                var tc = await projectService.GetTeamsAsync();
+                var eteam = tc.Value
+                    .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
+                    StringComparison.OrdinalIgnoreCase));
+
+                if (eteam == null)
+                {
+                    Logger.StatusBegin($"Creating team [{teamManifest.Name}]...");
+                    var team = await projectService.CreateTeamAsync(
+                        new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
+                        {
+                            Name = teamManifest.Name,
+                            Description = teamManifest.Description,
+                            ProjectId = outcome.Item1.Id,
+                            ProjectName = outcome.Item1.Name
+                        },
+                        outcome.Item1.Id);
+                    var breakOut = 0;
+                    while (eteam == null)
+                    {
+                        tc = await projectService.GetTeamsAsync();
+                        eteam = tc.Value
+                            .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
+                            StringComparison.OrdinalIgnoreCase));
+
+                        if (++breakOut > 10)
+                        {
+                            throw new InvalidOperationException($"Team [{teamManifest.Name}] was not retrieved on time.");
+                        }
+                    }
+                    Logger.StatusEndSuccess("Succeed");
+                }
+
+                if (eteam != null && teamManifest.Membership != null
+                    && (teamManifest.Membership.Groups != null && teamManifest.Membership.Groups.Any()))
+                {
+                    var teamGroup = await GetGroupByNameAsync(factory, IdentityOrigin.Vsts.ToString(), eteam.Name);
+                    if (teamGroup != null)
+                    {
+                        foreach (var gp in teamManifest.Membership.Groups)
+                        {
+                            var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+
+                            if (groupObject != null)
+                            {
+                                await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, groupObject.Descriptor);
+                            }
+                        }
+
+
+                        foreach (var user in teamManifest.Membership.Users)
+                        {
+                            var userInfo = allUsers.Value.FirstOrDefault(u => u.OriginId.Equals(user.Id));
+                            if (userInfo != null)
+                            {
+                                await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, userInfo.Descriptor);
+                            }
+                        }
+                    }
+                }
+
+                if (eteam != null &&
+                    teamManifest.Admins != null &&
+                    teamManifest.Admins.Any())
+                {
+                    var token = $"{eteam.ProjectId}\\{eteam.Id}";
+                    var releaseNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
+                    var secNamespaceId = releaseNamespace.NamespaceId;
+                    var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
+
+                    foreach (var adminUserName in teamManifest.Admins)
+                    {
+                        var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName.Name);
+                        if (matches != null && matches.Count > 0)
+                        {
+                            var adminUserInfo = matches.Value.First();
+                            aclDictioanry.Add(adminUserInfo.Descriptor, new VstsAcesDictionaryEntry
+                            {
+                                Allow = 31,
+                                Deny = 0,
+                                Descriptor = adminUserInfo.Descriptor
+                            });
+                        }
+                    }
+                    await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
+                }
             }
         }
 
@@ -156,106 +297,7 @@ namespace Kdoctl.Schema.CliServices
             }
         }
 
-        private async Task EnsureTeamProvisionedAsync(
-            ProjectManifest manifest, 
-            AdoConnectionFactory factory, 
-            ProjectService projectService, 
-            Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool> outcome)
-        {
-            var gService = factory.GetGroupService();
-            var secService = factory.GetSecurityNamespaceService();
-            var aclService = factory.GetAclListService();
-            var allUsers = await gService.ListUsersAsync();
-            foreach (var teamManifest in manifest.Teams)
-            {
-                var tc = await projectService.GetTeamsAsync();
-                var eteam = tc.Value
-                    .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
-                    StringComparison.OrdinalIgnoreCase));
 
-                if (eteam == null)
-                {
-                    Logger.StatusBegin($"Creating team [{teamManifest.Name}]...");
-                    var team = await projectService.CreateTeamAsync(
-                        new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
-                        {
-                            Name = teamManifest.Name,
-                            Description = teamManifest.Description,
-                            ProjectId = outcome.Item1.Id,
-                            ProjectName = outcome.Item1.Name
-                        },
-                        outcome.Item1.Id);
-                    var breakOut = 0;
-                    while (eteam == null)
-                    {
-                        tc = await projectService.GetTeamsAsync();
-                        eteam = tc.Value
-                            .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
-                            StringComparison.OrdinalIgnoreCase));
-
-                        if(++breakOut > 10)
-                        {
-                            throw new InvalidOperationException($"Team [{teamManifest.Name}] was not retrieved on time.");
-                        }
-                    }
-                    Logger.StatusEndSuccess("Succeed");
-                }
-
-                if (eteam != null && teamManifest.Membership != null
-                    && (teamManifest.Membership.Groups != null && teamManifest.Membership.Groups.Any()))
-                {
-                    var teamGroup = await GetGroupByNameAsync(factory, IdentityOrigin.Vsts.ToString(), eteam.Name);
-                    if (teamGroup != null)
-                    {
-                        foreach (var gp in teamManifest.Membership.Groups)
-                        {
-                            var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
-
-                            if (groupObject != null)
-                            {
-                                await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, groupObject.Descriptor);
-                            }
-                        }
-
-                        
-                        foreach (var user in teamManifest.Membership.Users)
-                        {
-                            var userInfo = allUsers.Value.FirstOrDefault(u=> u.OriginId.Equals(user.Id));
-                            if (userInfo != null )
-                            {
-                                await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, userInfo.Descriptor);
-                            }
-                        }
-                    }                    
-                }
-
-                if (eteam != null &&
-                    teamManifest.Admins != null &&
-                    teamManifest.Admins.Any())
-                {
-                    var token = $"{eteam.ProjectId}\\{eteam.Id}";
-                    var releaseNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
-                    var secNamespaceId = releaseNamespace.NamespaceId;
-                    var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
-
-                    foreach (var adminUserName in teamManifest.Admins)
-                    {                       
-                        var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName.Name);
-                        if (matches != null && matches.Count > 0)
-                        {
-                            var adminUserInfo = matches.Value.First();
-                            aclDictioanry.Add(adminUserInfo.Descriptor, new VstsAcesDictionaryEntry
-                            {
-                                Allow = 31,
-                                Deny = 0,
-                                Descriptor = adminUserInfo.Descriptor
-                            });
-                        }
-                    }
-                    await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
-                }
-            }
-        }
 
         private static async Task DeleteDefaultRepoAsync(
             RepositoryService repoService,
@@ -567,8 +609,7 @@ namespace Kdoctl.Schema.CliServices
         }
 
         private async Task<Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool>> EnsureProjectExistsAsync(
-            ProjectManifest manifest, ProjectService projectService, 
-            ProcessTemplate tempalte)
+            ProjectManifest manifest, ProjectService projectService)
         {
             var projectCreatedJIT = false;
             var projects = await projectService.GetProjectsAsync();
@@ -577,6 +618,19 @@ namespace Kdoctl.Schema.CliServices
 
             if (project == null)
             {
+                Logger.StatusBegin("Creating project, reading Process templates...");
+                var templates = await projectService.ListProcessAsync();
+                var tempalte = templates.Value.FirstOrDefault(t => t.Name.Equals(manifest.Template.Name, StringComparison.InvariantCulture));
+                if (tempalte == null)
+                {
+                    Logger.StatusEndFailed("Failed");
+                    throw new InvalidOperationException($"Process template {manifest.Template.Name} is not valid! Good example: Agile, CMMI, Basic, Scrum etc.");
+                }
+                else
+                {
+                    Logger.StatusEndSuccess("Succeed");
+                }
+
                 await projectService.CreateProjectAsync(
                     manifest.Metadata.Name, tempalte,
                     manifest.Template.SourceControlType, manifest.Metadata.Description);
@@ -602,7 +656,6 @@ namespace Kdoctl.Schema.CliServices
             //    RetainRunsPerProtectedBranch = new UpdateRetentionSettingSchema { Value = 4 },
             //    RunRetention = new UpdateRetentionSettingSchema { Value = 12 },
             //});
-
 
             return new Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool>(project, projectCreatedJIT);
         }

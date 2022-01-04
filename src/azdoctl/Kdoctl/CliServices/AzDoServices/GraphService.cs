@@ -7,24 +7,79 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Linq;
+using System.Net.Http;
 
 namespace Kdoctl.CliServices.AzDoServices
 {
     public class GraphService : RestServiceBase
     {
+        private static GroupCollection cachedCopy;
+
         public GraphService(string adoUrl, string pat)
             : base(adoUrl, pat)
         {
 
         }
 
+        private async Task<GroupCollection> ListAllGroupsFromOrganizationCoreAsync()
+        {
+            var extractToken = new Func<HttpResponseMessage, string>((response) =>
+            {
+                foreach (var header in response.Headers)
+                {
+                    if (header.Key.Equals("X-MS-ContinuationToken", StringComparison.OrdinalIgnoreCase) && header.Value != null)
+                    {
+                        return header.Value.FirstOrDefault();
+                    }
+                }
+                return string.Empty;
+            });
+
+            var nextPageToken = string.Empty;
+            var allGroups = new List<VstsGroup>();
+
+            var path = "_apis/graph/groups?api-version=6.1-preview.1";
+            var groups = await VsspsApi()
+                .GetRestAsync<GroupCollection>(path,
+                    await GetBearerTokenAsync(),
+                    response =>
+                    {
+                        nextPageToken = extractToken(response);
+                    });
+            allGroups.AddRange(groups.Value);
+
+            while (!string.IsNullOrWhiteSpace(nextPageToken))
+            {
+                var nextPath = $"{path}&continuationToken={nextPageToken}";
+                groups = await VsspsApi()
+                    .GetRestAsync<GroupCollection>(nextPath,
+                        await GetBearerTokenAsync(),
+                        response =>
+                        {
+                            nextPageToken = extractToken(response);
+                        });
+                allGroups.AddRange(groups.Value);
+            }
+            return new GroupCollection { Value = allGroups.ToArray(), Count = allGroups.Count };
+        }
+
         public async Task<GroupCollection> ListGroupsAsync()
         {
-            var path = "_apis/graph/groups?api-version=6.0-preview.1";
-            var groups = await VsspsApi()
-                .GetRestAsync<GroupCollection>(path, await GetBearerTokenAsync());
+            if(cachedCopy != null )
+            {
+                return cachedCopy;
+            }
+            cachedCopy = await ListAllGroupsFromOrganizationCoreAsync();
+            return cachedCopy;
+        }
 
-            return groups;
+        public async Task<List<VstsGroup>> ListGroupsInProjectAsync(Guid projectId)
+        {
+            var allGroups = await ListGroupsAsync();
+
+            var projectGroups = allGroups.Value.Where(g => g.Domain.Contains($"{projectId}"));
+            return projectGroups.ToList();
         }
 
         public async Task<VstsGroup> CreateAadGroupByObjectId(Guid aadObjectId)
@@ -37,6 +92,8 @@ namespace Kdoctl.CliServices.AzDoServices
                     originId = aadObjectId
                 },
                 await GetBearerTokenAsync());
+            // invalidate cache 
+            cachedCopy = null;
             return ep;
         }
 

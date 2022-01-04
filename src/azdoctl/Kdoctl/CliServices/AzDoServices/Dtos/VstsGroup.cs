@@ -302,8 +302,14 @@ namespace Kdoctl.CliServices.AzDoServices.Dtos
         [JsonProperty("descriptor")]
         public string Descriptor { get; set; }
 
-        [JsonProperty("isCrossProject", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? IsCrossProject { get; set; }
+        
+        public bool CrossProject
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(Domain) && Domain.StartsWith("vstfs:///Framework/Generic/");
+            }
+        }
 
         [JsonIgnore]
         public string Sid
@@ -316,7 +322,7 @@ namespace Kdoctl.CliServices.AzDoServices.Dtos
 
         public override string ToString()
         {
-            return $"{Origin}:: {PrincipalName}, [{SubjectKind}]";
+            return $"{(CrossProject ? "ORG" : "PROJ")}:: {Origin}:: {PrincipalName}, [{SubjectKind}]";
         }
     }
 

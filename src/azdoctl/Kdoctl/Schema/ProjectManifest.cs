@@ -14,7 +14,7 @@ namespace Kdoctl.Schema
         public List<PipelineFolder> BuildFolders { get; set; }
         public List<PipelineFolder> ReleaseFolders { get; set; }
         public List<TeamSchemaManifest> Teams { get; set; }
-
+        public List<PermissionSchemaManifest> Permissions { get; set; }
         public ProjectRetentionSetting RetentionSettings { get; set; }
 
         public List<ServiceEndpointManifest> ServiceEndpoints { get; set; }

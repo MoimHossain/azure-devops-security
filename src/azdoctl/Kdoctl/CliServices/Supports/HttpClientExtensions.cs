@@ -48,7 +48,9 @@ namespace Kdoctl.CliServices.Supports
         }
 
         public static async Task<TPayload> GetRestAsync<TPayload>(
-            this Uri baseAddress, string requestPath, Action<HttpClient> configureClient)
+            this Uri baseAddress, string requestPath, 
+            Action<HttpClient> configureClient, 
+            Action<HttpResponseMessage> processResponse = null)
         {
             using (var client = new HttpClient())
             {
@@ -57,10 +59,13 @@ namespace Kdoctl.CliServices.Supports
                 var response = await client.GetAsync(requestPath);
                 if (response.IsSuccessStatusCode)
                 {
+                    if (processResponse != null)
+                    {
+                        processResponse(response);
+                    }
                     return await response.Content.ReadContentAsync<TPayload>();
                 }
             }
-
             return default(TPayload);
         }
 
