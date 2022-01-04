@@ -107,5 +107,14 @@ namespace Kdoctl.CliServices.AzDoServices
                 await GetBearerTokenAsync());
             return response;
         }
+
+        // User ID must be a GUID given by AzDO system after adding an user entitlement
+        public async Task<string> GetUserEntitlementAsync(string userId)
+        {
+            var path = $"_apis/userentitlements/{userId}?api-version=5.0-preview.2";
+
+            var response = await VsaexApi().GetRestJsonAsync(path, await GetBearerTokenAsync());
+            return response;
+        }
     }
 }

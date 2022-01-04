@@ -26,6 +26,12 @@ namespace Kdoctl.CliServices.Abstract
             return CoreApi().AbsolutePath.Replace("/", string.Empty);
         }
 
+        protected Uri VsaexApi()
+        {
+            var organizationName = GetOrganizationName();
+            return new Uri($"https://vsaex.dev.azure.com/{organizationName}/");
+        }
+
         protected Uri VsspsApi()
         {
             var organizationName = GetOrganizationName();

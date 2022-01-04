@@ -239,18 +239,7 @@ namespace Kdoctl.Schema.CliServices
                     var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
 
                     foreach (var adminUserName in teamManifest.Admins)
-                    {
-                        // --
-                        //aclDictioanry.Add("Linda@moimhossainhotmail.onmicrosoft.com", new VstsAcesDictionaryEntry
-                        //{
-                        //    Allow = 31,
-                        //    Deny = 0,
-                        //    Descriptor = "Linda@moimhossainhotmail.onmicrosoft.com"
-                        //});
-                        
-                        // ---
-
-
+                    {                       
                         var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName.Name);
                         if (matches != null && matches.Count > 0)
                         {
