@@ -2,16 +2,18 @@
 
 using Kdoctl.CliServices;
 using Kdoctl.CliServices.Supports;
+using Kdoctl.Schema;
+using Kdoctl.Schema.CliServices;
 using System.Threading.Tasks;
 
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace Kdoctl.Schema.CliServices
+namespace Kdoctl.CliServices
 {
-    public abstract class BaseApiService
+    public abstract class TaskBase
     {
-        protected BaseApiService(string orgUri, string pat)
+        protected TaskBase(string orgUri, string pat)
         {
             this.deserializer = (Deserializer)new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -35,7 +37,7 @@ namespace Kdoctl.Schema.CliServices
             {
                 await ExecuteCoreAsync(baseSchema, manifest);
             },
-            exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);            
+            exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);
         }
 
         protected abstract Task ExecuteCoreAsync(BaseSchema baseSchema, string manifest);

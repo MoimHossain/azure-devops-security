@@ -1,4 +1,5 @@
-﻿using Kdoctl.Schema.CliServices;
+﻿using Kdoctl.CliServices;
+using Kdoctl.Schema.CliServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace Kdoctl.Schema
             this.targetType = targetType;
         }
 
-        public static BaseApiService GetApiServiceInstance(ManifestKind enm, string orgUri, string pat)
+        public static TaskBase GetApiServiceInstance(ManifestKind enm, string orgUri, string pat)
         {
             MemberInfo[] mi = enm.GetType().GetMember(enm.ToString());
             if (mi != null && mi.Length > 0)
@@ -61,7 +62,7 @@ namespace Kdoctl.Schema
                     typeof(MappedApiServiceAttribute)) as MappedApiServiceAttribute;
                 if (attr != null)
                 {
-                    return Activator.CreateInstance(attr.targetType, new object[] { orgUri, pat }) as BaseApiService;
+                    return Activator.CreateInstance(attr.targetType, new object[] { orgUri, pat }) as TaskBase;
                 }
             }
             throw new ArgumentOutOfRangeException($"No service mapped to {enm.ToString()}");
