@@ -14,7 +14,7 @@ namespace Kdoctl.CliServices
         {
         }
 
-        protected async override Task ExecuteCoreAsync(BaseSchema baseSchema, string manifestContent)
+        protected async override Task ExecuteCoreAsync(BaseSchema baseSchema, string manifestContent, string filePath)
         {
             var manifest = Deserialize<ProjectManifest>(manifestContent);
             var factory = base.Factory;
@@ -22,7 +22,7 @@ namespace Kdoctl.CliServices
             var repoService = factory.GetRepositoryService();
 
 
-            Logger.StatusBegin("Validating Manifest file...");
+            Logger.StatusBegin($"Validating Manifest file [{filePath}]...");
             if (manifest.Validate())
             {
                 Logger.StatusEndSuccess("Succeed");

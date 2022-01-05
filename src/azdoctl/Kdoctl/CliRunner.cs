@@ -20,21 +20,40 @@ namespace Kdoctl
                 .IgnoreUnmatchedProperties()
                 .Build();
 
-            foreach (var file in opts.ManifestFiles)
-            {   
-                if (File.Exists(file))
+            if (!string.IsNullOrWhiteSpace(opts.Directory))
+            {
+                if (Directory.Exists(opts.Directory))
                 {
-                    var payload = File.ReadAllText(file);
-                    var baseSchema = deserializer.Deserialize<BaseSchema>(payload);
-                    MappedApiServiceAttribute
-                        .GetApiServiceInstance(baseSchema.Kind,
-                            opts.OrganizationURL,
-                            opts.PAT)
-                        .ExecuteAsync(baseSchema, payload).Wait();
+                    foreach (var filePath in Directory.GetFiles(opts.Directory, "*.y*ml"))
+                    {
+                        ProcessSingleFileAsync(opts, deserializer, filePath);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var file in opts.ManifestFiles)
+                {
+                    ProcessSingleFileAsync(opts, deserializer, file);
                 }
             }
             Console.ResetColor();
             return 0;
+        }
+
+        private static void ProcessSingleFileAsync(
+            ApplyOptions opts, IDeserializer deserializer, string file)
+        {
+            if (File.Exists(file))
+            {
+                var payload = File.ReadAllText(file);
+                var baseSchema = deserializer.Deserialize<BaseSchema>(payload);
+                MappedApiServiceAttribute
+                    .GetApiServiceInstance(baseSchema.Kind,
+                        opts.OrganizationURL,
+                        opts.PAT)
+                    .ExecuteAsync(baseSchema, payload, file).Wait();
+            }
         }
     }
 }

@@ -29,18 +29,18 @@ namespace Kdoctl.CliServices
             return deserializer.Deserialize<TPayload>(content);
         }
 
-        public async Task ExecuteAsync(BaseSchema baseSchema, string manifest)
+        public async Task ExecuteAsync(BaseSchema baseSchema, string manifest, string filePath)
         {
             var exponentialBackoffFactor = 5000;
             var retryCount = 1;
             await ExecutionSupports.Retry(async () =>
             {
-                await ExecuteCoreAsync(baseSchema, manifest);
+                await ExecuteCoreAsync(baseSchema, manifest, filePath);
             },
             exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);
         }
 
-        protected abstract Task ExecuteCoreAsync(BaseSchema baseSchema, string manifest);
+        protected abstract Task ExecuteCoreAsync(BaseSchema baseSchema, string manifest, string filePath);
 
         protected AdoConnectionFactory Factory
         {
