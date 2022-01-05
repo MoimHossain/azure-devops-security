@@ -30,7 +30,9 @@ namespace Kdoctl
                     }
                 }
             }
-            else
+            
+
+            if(opts.ManifestFiles != null && opts.ManifestFiles.Any())
             {
                 foreach (var file in opts.ManifestFiles)
                 {
