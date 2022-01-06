@@ -2,7 +2,7 @@
   "profiles": {
     "Kdoctl": {
       "commandName": "Project",
-      "commandLineArgs": "apply -f \"C:\\GitHub\\moimhossain\\azure-devops-security\\src\\azdoctl\\Manifests\\Tribe.yml\" -d \"C:\\GitHub\\moimhossain\\azure-devops-security\\src\\azdoctl\\Manifests\""
+      "commandLineArgs": "apply -f \"C:\\GitHub\\moimhossain\\azure-devops-security\\src\\azdoctl\\Manifests\\Tribe.yml\" -d \"C:\\GitHub\\moimhossain\\Tribe-Collection\\Tribes\\BusinessLending\""
     },
     "Docker": {
       "commandName": "Docker"

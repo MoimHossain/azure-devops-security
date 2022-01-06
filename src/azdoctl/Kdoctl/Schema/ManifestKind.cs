@@ -12,11 +12,11 @@ namespace Kdoctl.Schema
     {
         [MappedApiServiceAttribute(typeof(StateSynchronizationTask))]
         Project,
+        [MappedApiServiceAttribute(typeof(StateSynchronizationTask))]
         Repository,
-        Group,
-        BuildFolder,
-        ReleaseFolder,
-        AreaPath,
-        IterationPath
+        [MappedApiServiceAttribute(typeof(StateSynchronizationTask))]
+        Permission,
+        [MappedApiServiceAttribute(typeof(StateSynchronizationTask))]
+        Team
     }
 }

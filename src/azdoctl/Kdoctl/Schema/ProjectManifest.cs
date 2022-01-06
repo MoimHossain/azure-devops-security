@@ -20,11 +20,13 @@ namespace Kdoctl.Schema
         public List<ServiceEndpointManifest> ServiceEndpoints { get; set; }
         protected override bool OnValidateCore()
         {
-            if (Template == null || string.IsNullOrWhiteSpace(Template.Name))
+            if (this.Kind == ManifestKind.Project)
             {
-                return false;
+                if(Template == null || string.IsNullOrWhiteSpace(Template.Name))
+                {
+                    return false;
+                }                
             }
-
             return base.OnValidateCore();
         }
     }
