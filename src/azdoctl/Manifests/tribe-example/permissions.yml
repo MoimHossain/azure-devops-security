@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Permission
+metadata:
+  name: TAS-Main
+permissions:
+  - name: Project Administrators
+    membership:
+      groups:
+        - name: 'ACL-ROOT'
+          id: 2dec2374-3c51-4743-b247-ad6f80ce4f0b
+      users:
+        - name: Timothy Green
+          id: 4ae3c851-6ef3-4748-bef9-4f809736d538
+        - name: Moim Hossain
+          id: d1724c62-a3be-416f-8735-77262fa93b9c
+  - name: Contributors
+    membership:
+      groups:
+        - name: 'IoT-Developers'
+          id: 00238ebc-66c1-4220-a859-ed0a00243f27
+      users:
+        - name: Timothy Green
+          id: 4ae3c851-6ef3-4748-bef9-4f809736d538
+        - name: Linda
+          id: 9c5918c7-ef03-4059-a49e-aa6e6d761423

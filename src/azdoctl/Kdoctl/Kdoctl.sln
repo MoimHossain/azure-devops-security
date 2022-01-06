@@ -11,6 +11,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manifests", "Manifests", "{
 		..\Manifests\Tribe.yml = ..\Manifests\Tribe.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tribe-example", "tribe-example", "{8940926C-DD62-46D1-8C37-B859B9F7B9B2}"
+	ProjectSection(SolutionItems) = preProject
+		..\Manifests\tribe-example\build-folders.yml = ..\Manifests\tribe-example\build-folders.yml
+		..\Manifests\tribe-example\environments.yml = ..\Manifests\tribe-example\environments.yml
+		..\Manifests\tribe-example\permissions.yml = ..\Manifests\tribe-example\permissions.yml
+		..\Manifests\tribe-example\project.yml = ..\Manifests\tribe-example\project.yml
+		..\Manifests\tribe-example\release-folders.yml = ..\Manifests\tribe-example\release-folders.yml
+		..\Manifests\tribe-example\Repository.yml = ..\Manifests\tribe-example\Repository.yml
+		..\Manifests\tribe-example\service-endpoints.yml = ..\Manifests\tribe-example\service-endpoints.yml
+		..\Manifests\tribe-example\teams.yml = ..\Manifests\tribe-example\teams.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +36,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8940926C-DD62-46D1-8C37-B859B9F7B9B2} = {50B2CA52-E689-43CA-A9D7-C905C170D2D6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A03FFF2C-FC40-43E3-AB4B-4BD438ADA82E}
