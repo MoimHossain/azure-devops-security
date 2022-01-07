@@ -37,33 +37,63 @@ namespace Kdoctl.CliServices
                                 .FirstOrDefault(pg => pg.DisplayName.Equals(permissionEntry.Name, StringComparison.OrdinalIgnoreCase));
                             if (targetGroup != null)
                             {
-                                Logger.StatusBegin($"Updating membership of [{targetGroup.PrincipalName}]...");
-                                if (permissionEntry.Membership.Groups != null && permissionEntry.Membership.Groups.Any())
-                                {
-                                    foreach (var gp in permissionEntry.Membership.Groups)
-                                    {
-                                        var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
-                                        if (groupObject != null)
-                                        {
-                                            await gService.AddMemberAsync(projectId, targetGroup.Descriptor, groupObject.Descriptor);
-                                        }
-                                    }
-
-                                    foreach (var user in permissionEntry.Membership.Users)
-                                    {
-                                        var userInfo = allUsers.Value.FirstOrDefault(u => u.OriginId.Equals(user.Id));
-                                        if (userInfo != null)
-                                        {
-                                            await gService.AddMemberAsync(projectId, targetGroup.Descriptor, userInfo.Descriptor);
-                                        }
-                                    }
-                                }
-                                Logger.StatusEndSuccess("Succeed");
+                                await ApplyGroupPermissionsAsync(factory, gService, allUsers, projectId, permissionEntry, targetGroup);
                             }
                         }
                     }
                 }
             }
+        }
+
+        private async Task ApplyGroupPermissionsAsync(
+            AdoConnectionFactory factory, 
+            GraphService gService, 
+            GroupCollection allUsers, 
+            Guid projectId, 
+            PermissionSchemaManifest permissionEntry, 
+            VstsGroup targetGroup)
+        {
+            Logger.StatusBegin($"Updating membership of [{targetGroup.PrincipalName}]...");
+            // get existing members - so later we can remove the unwanted members (no longer in yaml)
+            var outdatedMembership = await gService.GetGroupMembersAsync(targetGroup.Descriptor);
+            var survivorDescriptors = new List<string>();
+
+            if (permissionEntry.Membership.Groups != null && permissionEntry.Membership.Groups.Any())
+            {
+                foreach (var gp in permissionEntry.Membership.Groups)
+                {
+                    var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+                    if (groupObject != null)
+                    {
+                        await gService.AddMemberAsync(projectId, targetGroup.Descriptor, groupObject.Descriptor);
+                        survivorDescriptors.Add(groupObject.Descriptor);
+                    }
+                }
+
+                foreach (var user in permissionEntry.Membership.Users)
+                {
+                    var userInfo = allUsers.Value.FirstOrDefault(u => u.OriginId.Equals(user.Id));
+                    if (userInfo != null)
+                    {
+                        await gService.AddMemberAsync(projectId, targetGroup.Descriptor, userInfo.Descriptor);
+                        survivorDescriptors.Add(userInfo.Descriptor);
+                    }
+                }
+            }
+
+            if(outdatedMembership != null && outdatedMembership.Members != null && outdatedMembership.Members.Any())
+            {
+                foreach(var potentialOutdatedMember in outdatedMembership.Members)
+                {
+                    var remainValid = survivorDescriptors
+                        .Exists(s => s.Contains(potentialOutdatedMember.MemberDescriptor, StringComparison.OrdinalIgnoreCase));
+                    if(!remainValid)
+                    {
+                        await gService.RemoveMembershipAsync(projectId, targetGroup.Descriptor, potentialOutdatedMember.MemberDescriptor);
+                    }
+                }
+            }
+            Logger.StatusEndSuccess("Succeed");
         }
 
         protected async Task CreateAclsAsync(

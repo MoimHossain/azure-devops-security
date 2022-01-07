@@ -559,4 +559,22 @@ namespace Kdoctl.CliServices.AzDoServices.Dtos
         [JsonProperty("isMru")]
         public bool IsMru { get; set; }
     }
+
+    public class VstsMembershipCollection
+    {
+        [JsonProperty("count")]
+        public long Count { get; set; }
+
+        [JsonProperty("value")]
+        public VstsMembershipElement[] Members { get; set; }
+    }
+
+    public class VstsMembershipElement
+    {
+        [JsonProperty("containerDescriptor")]
+        public string ContainerDescriptor { get; set; }
+
+        [JsonProperty("memberDescriptor")]
+        public string MemberDescriptor { get; set; }
+    }
 }

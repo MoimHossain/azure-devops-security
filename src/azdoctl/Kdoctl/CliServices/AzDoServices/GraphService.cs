@@ -97,6 +97,15 @@ namespace Kdoctl.CliServices.AzDoServices
             return ep;
         }
 
+        public async Task<VstsMembershipCollection> GetGroupMembersAsync(string securityDescriptor)
+        {
+            var path = $"_apis/graph/Memberships/{securityDescriptor}?direction=Down&api-version=6.1-preview.1";
+            var memberCollection = await VsspsApi()
+                .GetRestAsync<VstsMembershipCollection>(path, await GetBearerTokenAsync());
+
+            return memberCollection;
+        }
+
         public async Task<GroupCollection> ListUsersAsync()
         {
             var path = "_apis/graph/users?subjectTypes=aad&api-version=6.1-preview.1";
@@ -117,9 +126,7 @@ namespace Kdoctl.CliServices.AzDoServices
 
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesBySidAsync(string descriptors)
         {
-            var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";
-
-            //var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode("[TEAM FOUNDATION]\\IoT-Developers")}&queryMembership=None&api-version=6.0";
+            var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";            
             var users = await VsspsApi()
                 .GetRestAsync<VstsIdentityCollection>(path, await GetBearerTokenAsync());
 
@@ -127,19 +134,16 @@ namespace Kdoctl.CliServices.AzDoServices
         }
 
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesByNameAsync(string name)
-        {
-            //var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode("[TEAM FOUNDATION]\\IoT-Developers")}&queryMembership=None&api-version=6.0";
+        {            
             var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode(name)}&queryMembership=None&api-version=6.0";
             var users = await VsspsApi()
                 .GetRestAsync<VstsIdentityCollection>(path, await GetBearerTokenAsync());
-
             return users;
         }
 
         public async Task<VstsItentitySearchResultResponse> GetIdentityWithPickerdAsync(string userAccount)
         {
             var path = $"_apis/IdentityPicker/Identities?api-version=5.1-preview.1";
-
             var response = await CoreApi()
                 .PostRestAsync<VstsItentitySearchResultResponse>(
                 path,
@@ -150,6 +154,16 @@ namespace Kdoctl.CliServices.AzDoServices
                     operationScopes = new List<object> { "ims" } 
                 },
                 await GetBearerTokenAsync());
+            return response;
+        }
+
+
+        public async Task<bool> RemoveMembershipAsync(Guid projectId, string parentDescriptor, string childDescriptor)
+        {
+            var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.1-preview.1";
+
+            var response = await VsspsApi()
+                .DeleteRestAsync(path, await GetBearerTokenAsync());
             return response;
         }
 
