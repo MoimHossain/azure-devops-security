@@ -11,7 +11,7 @@ namespace Kdoctl.CliServices.Tasks
 {
     public partial class ExportTask
     {
-        protected async Task<string> ExportProjectPermissionsAsync(AzDoServices.Dtos.Project project)
+        protected async Task ExportProjectPermissionsAsync(AzDoServices.Dtos.Project project)
         {
             var graphService = Factory.GetGroupService();
             var groups = await graphService.ListGroupsInProjectAsync(project.Id);
@@ -32,9 +32,8 @@ namespace Kdoctl.CliServices.Tasks
 
             if(manifest.Permissions.Any())
             {
-                return Serialize(manifest);
+                await this.fs.WriteManifestAsync(project, ManifestKind.Permission, Serialize(manifest));
             }            
-            return string.Empty;
         }
 
         private static async Task PopulateMembershipAsync(

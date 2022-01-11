@@ -1,6 +1,7 @@
 ﻿
 
 using Kdoctl.CliOptions;
+using Kdoctl.CliServices.Supports;
 using Kdoctl.Schema;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,12 @@ namespace Kdoctl.CliServices.Tasks
     public partial class ExportTask : TaskBase
     {
         private readonly ExportOptions opts;
+        private readonly ExportFileSystem fs;
 
         public ExportTask(string orgUri, string pat, ExportOptions opts) : base(orgUri, pat)
         {
             this.opts = opts;
+            this.fs = new ExportFileSystem(opts, base.Logger);
         }
 
         protected async override Task ExecuteCoreAsync()

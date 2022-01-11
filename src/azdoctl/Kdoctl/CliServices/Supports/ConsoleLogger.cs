@@ -32,6 +32,12 @@ namespace Kdoctl.Schema.CliServices
         public void Message(string message)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write(message);
+        }
+
+        public void NewLineMessage(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(message);
         }
 
