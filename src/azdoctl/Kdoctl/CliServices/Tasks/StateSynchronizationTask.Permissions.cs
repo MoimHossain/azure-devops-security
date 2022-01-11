@@ -69,7 +69,10 @@ namespace Kdoctl.CliServices
                         survivorDescriptors.Add(groupObject.Descriptor);
                     }
                 }
+            }
 
+            if(permissionEntry.Membership.Users != null && permissionEntry.Membership.Users.Any())
+            {
                 foreach (var user in permissionEntry.Membership.Users)
                 {
                     var userInfo = allUsers.Value.FirstOrDefault(u => u.OriginId.Equals(user.Id));
