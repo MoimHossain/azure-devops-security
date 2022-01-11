@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: Project
+metadata:
+  name: TAS-Main
+  description: Project for TAS team
+template:
+  name: Agile
+  sourceControlType: Git

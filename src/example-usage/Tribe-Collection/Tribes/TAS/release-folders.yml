@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Team
+metadata:
+  name: TAS-Main
+releaseFolders:
+  - path: '/deliveries'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        id: 04dcbbaf-614d-4614-8f08-37a54de80504
+        allowed:
+          - ViewReleaseDefinition
+          - EditReleaseDefinition
+          - ViewReleases
+          - CreateReleases
+          - EditReleaseEnvironment
+          - DeleteReleaseEnvironment
+          - ManageDeployments

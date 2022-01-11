@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Team
+metadata:
+  name: Tulsa
+  description: Project for BI Engineering team
+buildFolders:
+  - path: '/continuous-integrations'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        id: 04dcbbaf-614d-4614-8f08-37a54de80504
+        allowed:
+          - ViewBuilds
+          - QueueBuilds
+          - StopBuilds
+          - ViewBuildDefinition
+          - EditBuildDefinition
+          - DeleteBuilds
