@@ -124,6 +124,29 @@ namespace Kdoctl.CliServices.AzDoServices
             return storageKeys;
         }
 
+        public bool IsGroupDescriptor(string descriptor)
+        {
+            return !string.IsNullOrWhiteSpace(descriptor) &&
+                (descriptor.StartsWith("aadgp.", StringComparison.OrdinalIgnoreCase) 
+                    || descriptor.StartsWith("vssgp.", StringComparison.OrdinalIgnoreCase));
+        }
+
+        public async Task<VstsGroup> GetGroupByDescriptorAsync(string descriptor)
+        {            
+            var path = $"_apis/graph/groups/{descriptor}?api-version=6.1-preview.1";
+            var group = await VsspsApi()
+                .GetRestAsync<VstsGroup>(path, await GetBearerTokenAsync());
+            return group;
+        }
+
+        public async Task<VstsUser> GetUserByDescriptorAsync(string descriptor)
+        {   
+            var path = $"_apis/graph/users/{descriptor}?api-version=6.1-preview.1";
+            var user = await VsspsApi()
+                .GetRestAsync<VstsUser>(path, await GetBearerTokenAsync());
+            return user;
+        }
+
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesBySidAsync(string descriptors)
         {
             var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";            

@@ -19,6 +19,10 @@ namespace Kdoctl.CliServices
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .IgnoreUnmatchedProperties()
                 .Build();
+            this.serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .WithEmissionPhaseObjectGraphVisitor(args => new YamlIEnumerableSkipEmptyObjectGraphVisitor(args.InnerVisitor))
+                .Build();
             this.Factory = new AdoConnectionFactory(orgUri, pat);
             this.Logger = new ConsoleLogger();
         }
@@ -27,6 +31,22 @@ namespace Kdoctl.CliServices
         protected TPayload Deserialize<TPayload>(string content)
         {
             return deserializer.Deserialize<TPayload>(content);
+        }
+
+        protected string Serialize(object graph)
+        {
+            return serializer.Serialize(graph);
+        }
+
+        public async Task ExecuteAsync()
+        {
+            var exponentialBackoffFactor = 5000;
+            var retryCount = 1;
+            await ExecutionSupports.Retry(async () =>
+            {
+                await ExecuteCoreAsync();
+            },
+            exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);
         }
 
         public async Task ExecuteAsync(BaseSchema baseSchema, string manifest, string filePath)
@@ -40,6 +60,8 @@ namespace Kdoctl.CliServices
             exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);
         }
 
+        protected abstract Task ExecuteCoreAsync();
+
         protected abstract Task ExecuteCoreAsync(BaseSchema baseSchema, string manifest, string filePath);
 
         protected AdoConnectionFactory Factory
@@ -48,5 +70,6 @@ namespace Kdoctl.CliServices
         }
 
         private readonly Deserializer deserializer;
+        private readonly ISerializer serializer;
     }
 }

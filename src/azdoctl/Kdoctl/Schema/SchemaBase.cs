@@ -29,6 +29,19 @@ namespace Kdoctl.Schema
         {
             return $"{Kind}: {this.Metadata}";
         }
+
+        public static ProjectManifest GetEmpty(string projectName, ManifestKind kind)
+        {
+            return new ProjectManifest
+            {
+                ApiVersion = "apps/v1",
+                Kind = kind,
+                Metadata = new MetadataBase 
+                {
+                    Name = projectName
+                }
+            };
+        }
     }
 
     public class MetadataBase

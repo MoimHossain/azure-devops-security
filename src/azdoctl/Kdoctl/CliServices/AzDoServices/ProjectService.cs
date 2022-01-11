@@ -46,7 +46,7 @@ namespace Kdoctl.CliServices.AzDoServices
             return response;
         }
 
-        public async Task<ProjectCollection> GetProjectsAsync()
+        public async Task<ProjectCollection> ListProjectsAsync()
         {
             var path = "_apis/projects?stateFilter=All&api-version=1.0";
             var projects = await CoreApi()

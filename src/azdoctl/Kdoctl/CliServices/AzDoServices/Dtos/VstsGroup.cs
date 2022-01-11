@@ -31,13 +31,13 @@ namespace Kdoctl.CliServices.AzDoServices.Dtos
         public string Description { get; set; }
 
         [JsonProperty("createdBy")]
-        public User CreatedBy { get; set; }
+        public VstsUser CreatedBy { get; set; }
 
         [JsonProperty("createdOn")]
         public DateTimeOffset CreatedOn { get; set; }
 
         [JsonProperty("lastModifiedBy")]
-        public User LastModifiedBy { get; set; }
+        public VstsUser LastModifiedBy { get; set; }
 
         [JsonProperty("lastModifiedOn")]
         public DateTimeOffset LastModifiedOn { get; set; }
@@ -237,8 +237,29 @@ namespace Kdoctl.CliServices.AzDoServices.Dtos
 
     #region User and Groups
 
-    public partial class User
+    public partial class VstsUser
     {
+        [JsonProperty("subjectKind")]
+        public SubjectKind SubjectKind { get; set; }
+
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
+        [JsonProperty("domain")]
+        public string Domain { get; set; }
+
+        [JsonProperty("principalName")]
+        public string PrincipalName { get; set; }
+
+        [JsonProperty("mailAddress")]
+        public object MailAddress { get; set; }
+
+        [JsonProperty("origin")]
+        public IdentityOrigin Origin { get; set; }
+
+        [JsonProperty("originId")]
+        public Guid OriginId { get; set; }
+
         [JsonProperty("displayName")]
         public string DisplayName { get; set; }
 

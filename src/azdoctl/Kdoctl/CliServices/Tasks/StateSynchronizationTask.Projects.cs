@@ -16,7 +16,7 @@ namespace Kdoctl.CliServices
             ProjectManifest manifest, ProjectService projectService)
         {
             var projectCreatedJIT = false;
-            var projects = await projectService.GetProjectsAsync();
+            var projects = await projectService.ListProjectsAsync();
             var project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
                 StringComparison.OrdinalIgnoreCase));
 
@@ -42,7 +42,7 @@ namespace Kdoctl.CliServices
                 Logger.StatusBegin("Waiting on project creation...");
                 while (project == null)
                 {
-                    projects = await projectService.GetProjectsAsync();
+                    projects = await projectService.ListProjectsAsync();
                     project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
                                                 StringComparison.OrdinalIgnoreCase));
                 }

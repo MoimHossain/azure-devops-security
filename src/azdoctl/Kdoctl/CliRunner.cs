@@ -1,12 +1,11 @@
-﻿using Kdoctl.CliOptions;
+﻿
+using Kdoctl.CliOptions;
 using Kdoctl.CliServices;
+using Kdoctl.CliServices.Tasks;
 using Kdoctl.Schema;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -14,13 +13,27 @@ namespace Kdoctl
 {
     public class CliRunner
     {
-        public int RunApplyVerb(ApplyOptions opts)
+        private readonly IDeserializer deserializer;
+
+        public CliRunner()
         {
-            var deserializer = new DeserializerBuilder()
+            deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .IgnoreUnmatchedProperties()
                 .Build();
+        }
 
+        public int RunExportVerb(ExportOptions opts)
+        {
+            Console.ResetColor();
+            new ExportTask(opts.OrganizationURL, opts.PAT, opts).ExecuteAsync().Wait();
+            Console.ResetColor();
+            return 0;
+        }
+
+        public int RunApplyVerb(ApplyOptions opts)
+        {
+            Console.ResetColor();
             if (!string.IsNullOrWhiteSpace(opts.Directory))
             {
                 if (Directory.Exists(opts.Directory))

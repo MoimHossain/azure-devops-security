@@ -16,5 +16,18 @@ namespace Kdoctl.Schema
         {
             return this.Name;
         }
+
+        public static PermissionSchemaManifest Create(string name)
+        {
+            return new PermissionSchemaManifest
+            {
+                Name = name,
+                Membership = new TeamMembershipSchemaManifest
+                {
+                    Groups = new List<AadObjectSchema> { },
+                    Users = new List<AadObjectSchema> { }
+                }
+            };
+        }
     }
 }

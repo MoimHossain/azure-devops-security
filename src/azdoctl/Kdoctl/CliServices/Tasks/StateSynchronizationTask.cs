@@ -41,7 +41,10 @@ namespace Kdoctl.CliServices
                 Logger.StatusEndFailed("Failed");
             }
         }
-    }
 
-
+        protected override Task ExecuteCoreAsync()
+        {
+            throw new NotImplementedException();
+        }
+    }    
 }
