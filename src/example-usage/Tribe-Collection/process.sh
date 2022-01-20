@@ -16,5 +16,5 @@ for wl in ${workloads[@]}; do
     directorypath="${BUILD_SOURCESDIRECTORY}/Tribes/${workloadName}"
     echo "source directory $directorypath"
 
-    docker run --rm -e AzDOAADJoinedPAT="$PAT" -e AzDOAADJoinedURL="https://dev.azure.com/moim/" -v "$directorypath:/home/payload" docker.io/moimhossain/adoctl:v2 -d "/home/payload"
+    docker run --rm -e AzDOAADJoinedPAT="$PAT" -e AzDOAADJoinedURL="https://dev.azure.com/moim/" -v "$directorypath:/home/payload" docker.io/moimhossain/adoctl:v2 apply -d "/home/payload"
 done
