@@ -22,13 +22,13 @@ if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpt
     var consoleHost = new HostBuilder()
                     .ConfigureServices((hostContext, services) =>
                     {
+                        baseOpts = OptionBase.Sanitize(baseOpts);
                         services.AddSingleton<VssConnection>(
                             new VssConnection(new Uri(baseOpts.OrganizationURL), new VssBasicCredential(string.Empty, baseOpts.PAT)));
+                        
                         AzDOHttpSupports.AddHttpClients(services, OptionBase.Sanitize(baseOpts));
+                        AzDOHttpSupports.AddServices(services);
 
-                        services.AddTransient<PipelineEnvironmentService>();
-
-                        //services.AddHttpClient();
                         services.AddTransient<CliRunner>();
                     })
                     .UseConsoleLifetime()

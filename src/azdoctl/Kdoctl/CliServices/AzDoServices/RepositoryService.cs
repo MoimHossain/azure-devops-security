@@ -1,5 +1,6 @@
 ﻿using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.VisualStudio.Services.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,9 +12,9 @@ namespace Kdoctl.CliServices.AzDoServices
     {
         private GitHttpClient gitClient;
 
-        public RepositoryService(GitHttpClient gitClient)
+        public RepositoryService(VssConnection connection)
         {
-            this.gitClient = gitClient;
+            this.gitClient = connection.GetClient<GitHttpClient>();
         }
 
         public async Task<List<GitRepository>> GetRepositoryListAsync()

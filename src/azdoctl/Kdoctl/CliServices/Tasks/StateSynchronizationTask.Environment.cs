@@ -14,7 +14,7 @@ namespace Kdoctl.CliServices
     public partial class StateSynchronizationTask
     {
         protected async Task ProvisionEnvironmentPermissionsAsync(
-            AdoConnectionFactory factory,
+            
             Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             PipelineEnvironmentService peService,
             EnvironmentManifest pe, PipelineEnvironment envObject)
@@ -24,11 +24,11 @@ namespace Kdoctl.CliServices
                 foreach (var permissionObject in pe.Permissions)
                 {
                     Logger.StatusBegin($"Configuring Environment ({pe.Name}) permissions: AAD object ({permissionObject.Group}) ...");
-                    var group = await GetGroupByNameAsync(factory,
+                    var group = await GetGroupByNameAsync(
                         permissionObject.Origin, permissionObject.Group, permissionObject.Id);
                     if (group != null)
                     {
-                        var legacyIdentity = await factory.GetGroupService()
+                        var legacyIdentity = await GetGraphService()
                             .GetLegacyIdentitiesBySidAsync(group.Sid);
                         if (legacyIdentity != null && legacyIdentity.Value.Any())
                         {
@@ -47,12 +47,12 @@ namespace Kdoctl.CliServices
                 }
             }
         }
-        protected async Task ProvisionEnvironmentAsync(AdoConnectionFactory factory,
+        protected async Task ProvisionEnvironmentAsync(
             Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             PipelineEnvironmentService peService, EnvironmentManifest pe,
             string k8sNamespace, string k8sClusterName)
         {
-            var seService = factory.GetServiceEndpointService();
+            var seService = GetServiceEndpointService();
             var peColl = await peService.ListEnvironmentsAsync(project.Id);
             if (peColl != null)
             {
@@ -80,18 +80,18 @@ namespace Kdoctl.CliServices
                         }
                     }
                 }
-                await ProvisionEnvironmentPermissionsAsync(factory, project, peService, pe, envObject);
+                await ProvisionEnvironmentPermissionsAsync( project, peService, pe, envObject);
             }
         }
         protected async Task EnsureEnvironmentExistsAsync(
             ProjectManifest manifest,
-            AdoConnectionFactory factory,
+            
             Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             List<Tuple<k8s.Models.V1ServiceAccount>> k8sOutcome)
         {
             if (project != null && manifest.Environments != null && manifest.Environments.Any())
             {
-                var peService = factory.GetPipelineEnvironmentService();
+                var peService = GetPipelineEnvironmentService();
                 foreach (var pe in manifest.Environments)
                 {
                     if (pe != null && !string.IsNullOrWhiteSpace(pe.Name) && k8sOutcome != null && k8sOutcome.Count > 0)
@@ -99,7 +99,7 @@ namespace Kdoctl.CliServices
                         var item = k8sOutcome.FirstOrDefault().Item1;
                         if (item != null)
                         {
-                            await ProvisionEnvironmentAsync(factory, project, peService, pe,
+                            await ProvisionEnvironmentAsync( project, peService, pe,
                                 item.Metadata.NamespaceProperty, item.Metadata.NamespaceProperty);
                         }
                     }

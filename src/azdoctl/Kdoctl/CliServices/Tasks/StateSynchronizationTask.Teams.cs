@@ -16,15 +16,15 @@ namespace Kdoctl.CliServices
     {
         protected async Task EnsureTeamProvisionedAsync(
             ProjectManifest manifest,
-            AdoConnectionFactory factory,
+            
             ProjectService projectService,
             Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool> outcome)
         {
             if(manifest.Teams != null && manifest.Teams.Any())
             {
-                var gService = factory.GetGroupService();
-                var secService = factory.GetSecurityNamespaceService();
-                var aclService = factory.GetAclListService();
+                var gService = GetGraphService();
+                var secService = GetSecurityNamespaceService();
+                var aclService = GetAclListService();
                 var allUsers = await gService.ListUsersAsync();
                 foreach (var teamManifest in manifest.Teams)
                 {
@@ -64,12 +64,12 @@ namespace Kdoctl.CliServices
                     if (eteam != null && teamManifest.Membership != null
                         && (teamManifest.Membership.Groups != null && teamManifest.Membership.Groups.Any()))
                     {
-                        var teamGroup = await GetGroupByNameAsync(factory, IdentityOrigin.Vsts.ToString(), eteam.Name);
+                        var teamGroup = await GetGroupByNameAsync( IdentityOrigin.Vsts.ToString(), eteam.Name);
                         if (teamGroup != null)
                         {
                             foreach (var gp in teamManifest.Membership.Groups)
                             {
-                                var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+                                var groupObject = await GetGroupByNameAsync( IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
 
                                 if (groupObject != null)
                                 {

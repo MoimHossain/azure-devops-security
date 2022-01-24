@@ -14,121 +14,92 @@ namespace Kdoctl.CliServices.Supports
     public static class HttpClientExtensions
     {
         public static async Task<string> GetRestJsonAsync(
-            this Uri baseAddress, string requestPath, Action<HttpClient> configureClient)
+            this HttpClient client, string requestPath)
         {
-            using (var client = new HttpClient())
+            var response = await client.GetAsync(requestPath);
+            if (response.IsSuccessStatusCode)
             {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
-                var response = await client.GetAsync(requestPath);
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
+                return await response.Content.ReadAsStringAsync();
             }
-            return default(string);
+            return string.Empty;
         }
 
 
         public static async Task<byte[]> GetImageRestAsync(
-            this Uri baseAddress, string requestPath, Action<HttpClient> configureClient)
+            this HttpClient client, string requestPath)
         {
-            using (var client = new HttpClient())
+            var response = await client.GetAsync(requestPath);
+            if (response.IsSuccessStatusCode)
             {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
-                var response = await client.GetAsync(requestPath);
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsByteArrayAsync();
-                }
+                return await response.Content.ReadAsByteArrayAsync();
             }
-
-            return default(byte[]);
+            return default;
         }
 
         public static async Task<TPayload> GetRestAsync<TPayload>(
-            this Uri baseAddress, string requestPath, 
-            Action<HttpClient> configureClient, 
+            this HttpClient client, string requestPath,
             Action<HttpResponseMessage> processResponse = null)
         {
-            using (var client = new HttpClient())
+
+            var response = await client.GetAsync(requestPath);
+            if (response.IsSuccessStatusCode)
             {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
-                var response = await client.GetAsync(requestPath);
-                if (response.IsSuccessStatusCode)
-                {
-                    if (processResponse != null)
-                    {
-                        processResponse(response);
-                    }
-                    return await response.Content.ReadContentAsync<TPayload>();
-                }
+                processResponse?.Invoke(response);
+                return await response.Content.ReadContentAsync<TPayload>();
             }
+
             return default(TPayload);
         }
 
         public static async Task<bool> DeleteRestAsync(
-            this Uri baseAddress, string requestPath, Action<HttpClient> configureClient)
+            this HttpClient client, string requestPath)
         {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
 
-                var response = await client.DeleteAsync(requestPath);
+            var response = await client.DeleteAsync(requestPath);
 
-                return response.IsSuccessStatusCode;
-            }
+            return response.IsSuccessStatusCode;
+
         }
 
         public static async Task<string> PutRestAsync(
-            this Uri baseAddress, string requestPath, object payload, Action<HttpClient> configureClient)
+            this HttpClient client, string requestPath, object payload)
         {
-            return await PutRestAsync(baseAddress, requestPath, JsonConvert.SerializeObject(payload), configureClient);
+            return await PutRestAsync(client, requestPath, JsonConvert.SerializeObject(payload));
         }
 
         public static async Task<string> PutRestAsync(
-          this Uri baseAddress, string requestPath, string payload, Action<HttpClient> configureClient)
+          this HttpClient client, string requestPath, string payload)
         {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
 
-                var jsonContent = new StringContent(payload, Encoding.UTF8, "application/json");
-                var response = await client.PutAsync(requestPath, jsonContent);
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
+
+            var jsonContent = new StringContent(payload, Encoding.UTF8, "application/json");
+            var response = await client.PutAsync(requestPath, jsonContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
             }
+
 
             return string.Empty;
         }
 
         public static async Task<TResponsePayload> PutRestAsync<TRequestPayload, TResponsePayload>(
-           this Uri baseAddress, string requestPath, TRequestPayload payload, Action<HttpClient> configureClient)
+           this HttpClient client, string requestPath, TRequestPayload payload)
         {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
-                var jsonString = JsonConvert.SerializeObject(payload,
-                    new JsonSerializerSettings
-                    {
-                        ContractResolver = new CamelCasePropertyNamesContractResolver()
-                    });
-                var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                var response = await client.PutAsync(requestPath, jsonContent);
-                if (response.IsSuccessStatusCode)
+            var jsonString = JsonConvert.SerializeObject(payload,
+                new JsonSerializerSettings
                 {
-                    return await response.Content.ReadContentAsync<TResponsePayload>();
-                }
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            var response = await client.PutAsync(requestPath, jsonContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadContentAsync<TResponsePayload>();
             }
 
-            return default(TResponsePayload);
+
+            return default;
         }
 
         public static async Task<HttpResponseMessage> PatchAsync(
@@ -149,111 +120,87 @@ namespace Kdoctl.CliServices.Supports
         }
 
         public static async Task<string> PatchRestAsync(
-         this Uri baseAddress, string requestPath, object payload, Action<HttpClient> configureClient)
+         this HttpClient client, string requestPath, object payload)
         {
             var plString = JsonConvert.SerializeObject(payload, new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
-            return await PatchRestAsync(baseAddress, requestPath, plString, configureClient);
+            return await PatchRestAsync(client, requestPath, plString);
         }
 
-        public static async Task<string> PatchRestAsync(
-         this Uri baseAddress, string requestPath, string payload, Action<HttpClient> configureClient)
+        public static async Task<string> PatchRestAsync(this HttpClient client, string requestPath, string payload)
         {
-            using (var client = new HttpClient())
+            var jsonContent = new StringContent(payload, Encoding.UTF8, "application/json");
+            var response = await PatchAsync(client, requestPath, jsonContent);
+            if (response.IsSuccessStatusCode)
             {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
-
-                var jsonContent = new StringContent(payload, Encoding.UTF8, "application/json");
-                var response = await PatchAsync(client, requestPath, jsonContent);
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
+                return await response.Content.ReadAsStringAsync();
             }
-
             return string.Empty;
         }
 
-        public static async Task<string> PostRestAsync(
-         this Uri baseAddress, string requestPath, object payload, Action<HttpClient> configureClient)
+        public static async Task<string> PostRestAsync(this HttpClient client, string requestPath, object payload)
         {
-            using (var client = new HttpClient())
+            var jsonString = string.Empty;
+            if (payload is string)
             {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
-
-                var jsonString = string.Empty;
-                if (payload is string)
-                {
-                    jsonString = payload.ToString();
-                }
-                else
-                {
-                    jsonString = JsonConvert.SerializeObject(payload,
-                   new JsonSerializerSettings
-                   {
-                       ContractResolver = new CamelCasePropertyNamesContractResolver()
-                   });
-                }
-
-
-                var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                var response = await client.PostAsync(requestPath, jsonContent);
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
+                jsonString = payload.ToString();
             }
-
+            else
+            {
+               jsonString = JsonConvert.SerializeObject(payload,
+                                       new JsonSerializerSettings
+                                       {
+                                           ContractResolver = new CamelCasePropertyNamesContractResolver()
+                                       });
+            }
+            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(requestPath, jsonContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
             return string.Empty;
         }
 
         public static async Task<TResponseType> PostRestAsync<TResponseType>(
-         this Uri baseAddress, string requestPath, object payload, Action<HttpClient> configureClient)
+         this HttpClient client, string requestPath, object payload)
         {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = baseAddress;
-                configureClient(client);
-                var jsonString = JsonConvert.SerializeObject(payload,
-                    new JsonSerializerSettings
-                    {
-                        ContractResolver = new CamelCasePropertyNamesContractResolver()
-                    });
-                var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                var response = await client.PostAsync(requestPath, jsonContent);
-                if (response.IsSuccessStatusCode)
+            var jsonString = JsonConvert.SerializeObject(payload,
+                new JsonSerializerSettings
                 {
-                    return await response.Content.ReadContentAsync<TResponseType>();
-                }
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(requestPath, jsonContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadContentAsync<TResponseType>();
             }
-
-            return default(TResponseType);
+            return default;
         }
 
-        public async static Task<HttpResponseMessage> PostJsonAsync(this Uri uri, object body, string bearer)
-        {
-            using (var client = new HttpClient())
-            {
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = uri
-                };
-                request.Headers.AcceptCharset.Clear();
-                request.Headers.Accept.Clear();
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
-                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                request.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("UTF-8"));
+        //public async static Task<HttpResponseMessage> PostJsonAsync(this Uri uri, object body, string bearer)
+        //{
+        //    using (var client = new HttpClient())
+        //    {
+        //        var request = new HttpRequestMessage
+        //        {
+        //            Method = HttpMethod.Post,
+        //            RequestUri = uri
+        //        };
+        //        request.Headers.AcceptCharset.Clear();
+        //        request.Headers.Accept.Clear();
+        //        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
+        //        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        //        request.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("UTF-8"));
 
-                var content = JsonConvert.SerializeObject(body);
-                request.Content = new StringContent(content, Encoding.UTF8, "application/json");
-                return await client.SendAsync(request);
-            }
-        }
+        //        var content = JsonConvert.SerializeObject(body);
+        //        request.Content = new StringContent(content, Encoding.UTF8, "application/json");
+        //        return await client.SendAsync(request);
+        //    }
+        //}
 
         public static async Task<TPayload> ReadContentAsync<TPayload>(this HttpContent content)
         {

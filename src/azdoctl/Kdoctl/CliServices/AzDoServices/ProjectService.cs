@@ -5,6 +5,7 @@ using Kdoctl.Schema;
 using Microsoft.TeamFoundation.Core.WebApi;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,8 +16,7 @@ namespace Kdoctl.CliServices.AzDoServices
     {
         private readonly TeamHttpClient teamClient;
 
-        public ProjectService(TeamHttpClient teamClient, string adoUrl, string pat)
-            : base(adoUrl, pat)
+        public ProjectService(TeamHttpClient teamClient, IHttpClientFactory clientFactory) : base(clientFactory)
         {
             this.teamClient = teamClient;
         }
@@ -30,27 +30,28 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = "_apis/teams?api-version=6.1-preview.3";
             var teams = await CoreApi()
-                .GetRestAsync<VstsTeamCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsTeamCollection>(path);
 
             return teams;
         }
 
         public async Task<string> UpdateRetentionAsync(Guid projectId, ProjectRetentionSetting settings)
-        {   
-            var response = await CoreApi()
-                .PatchRestAsync(
-                $"/{GetOrganizationName()}/{projectId}/_apis/build/retention?api-version=6.0-preview.1",
-                settings,
-                await GetBearerTokenAsync());
+        {
+            throw new InvalidOperationException("Fix this api");
 
-            return response;
+            //var response = await CoreApi()
+            //    .PatchRestAsync(
+            //    $"/{GetOrganizationName()}/{projectId}/_apis/build/retention?api-version=6.0-preview.1",
+            //    settings);
+
+            //return response;
         }
 
         public async Task<ProjectCollection> ListProjectsAsync()
         {
             var path = "_apis/projects?stateFilter=All&api-version=1.0";
             var projects = await CoreApi()
-                .GetRestAsync<ProjectCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<ProjectCollection>(path);
 
             return projects;
         }
@@ -59,8 +60,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = "_apis/process/processes?api-version=6.1-preview.1";
             var processes = await CoreApi()
-                .GetRestAsync<ProcessTemplateCollection>(path, await GetBearerTokenAsync());
-
+                .GetRestAsync<ProcessTemplateCollection>(path);
             return processes;
         }
 
@@ -86,8 +86,7 @@ namespace Kdoctl.CliServices.AzDoServices
                             templateTypeId = tempalte.Id
                         }
                     }
-                },
-                await GetBearerTokenAsync());
+                });
             return response;
         }
     }

@@ -13,10 +13,9 @@ namespace Kdoctl.CliServices
 {
     public partial class StateSynchronizationTask
     {
-        protected async Task<VstsGroup> GetGroupByNameAsync(
-            AdoConnectionFactory factory, string origin, string groupName, Guid? id = null)
+        protected async Task<VstsGroup> GetGroupByNameAsync(string origin, string groupName, Guid? id = null)
         {
-            var gService = factory.GetGroupService();
+            var gService = this.GetGraphService();
             var groups = await gService.ListGroupsAsync();
             var group = groups.Value
                 .FirstOrDefault(g =>

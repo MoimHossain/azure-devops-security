@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Kdoctl.CliServices.AzDoServices.LowLevels;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,59 +12,39 @@ namespace Kdoctl.CliServices.Abstract
 {
     public abstract class RestServiceBase
     {
-        private readonly IServiceProvider services;
-        
+        private readonly IHttpClientFactory clientFactory;
 
-        public RestServiceBase(IServiceProvider services)
+
+        public RestServiceBase(IHttpClientFactory clientFactory)
         {
-            this.services = services;
+            this.clientFactory = clientFactory;
         }
 
-        //#region Helper methods
+
 
         //protected string GetOrganizationName()
         //{
         //    return CoreApi().AbsolutePath.Replace("/", string.Empty);
         //}
 
-        //protected Uri VsaexApi()
-        //{
-        //    var organizationName = GetOrganizationName();
-        //    return new Uri($"https://vsaex.dev.azure.com/{organizationName}/");
-        //}
+        protected HttpClient VsaexApi()
+        {
+            return clientFactory.CreateClient(AzDOHttpSupports.API.VSAEX);
+        }
 
-        //protected Uri VsspsApi()
-        //{
-        //    var organizationName = GetOrganizationName();
-        //    return new Uri($"https://vssps.dev.azure.com/{organizationName}/");
-        //}
+        protected HttpClient VsspsApi()
+        {
+            return clientFactory.CreateClient(AzDOHttpSupports.API.VSSPS);
+        }
 
-        //protected Uri VsrmApi()
-        //{
-            
-        //    services.GetRequiredService
-        //    var organizationName = GetOrganizationName();
-        //    return new Uri($"https://vsrm.dev.azure.com/{organizationName}/");
-        //}
+        protected HttpClient VsrmApi()
+        {
+            return clientFactory.CreateClient(AzDOHttpSupports.API.VSRM);
+        }
 
-        //protected Uri CoreApi()
-        //{
-        //    return new Uri(this.adoUrl);
-        //}
-
-        ////protected async Task<Action<HttpClient>> GetBearerTokenAsync()
-        ////{
-        ////    await Task.Delay(0);
-        ////    return new Action<HttpClient>((httpClient) =>
-        ////    {
-        ////        var credentials =
-        ////        Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(
-        ////            string.Format("{0}:{1}", "", this.pat)));
-        ////        httpClient.DefaultRequestHeaders.Accept.Clear();
-        ////        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        ////        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
-        ////    });
-        ////}
-        //#endregion
+        protected HttpClient CoreApi()
+        {
+            return clientFactory.CreateClient(AzDOHttpSupports.API.CORE);
+        }
     }
 }

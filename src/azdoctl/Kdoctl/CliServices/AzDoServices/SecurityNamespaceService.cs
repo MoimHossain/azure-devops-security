@@ -15,11 +15,7 @@ namespace Kdoctl.CliServices.AzDoServices
 {
     public class SecurityNamespaceService : RestServiceBase
     {
-        public SecurityNamespaceService(string adoUrl, string pat) 
-            : base(adoUrl, pat)
-        {
-
-        }
+        public SecurityNamespaceService(IHttpClientFactory clientFactory) : base(clientFactory) { }
 
         public async Task<VstsSecurityNamespace> GetNamespaceAsync(SecurityNamespaceConstants securityNamespace)
         {
@@ -47,7 +43,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = "_apis/securitynamespaces?api-version=6.0";
             var namespaces = await CoreApi()
-                .GetRestAsync<VstsSecurityNamespaceCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsSecurityNamespaceCollection>(path);
 
             return namespaces;
         }
@@ -130,8 +126,7 @@ namespace Kdoctl.CliServices.AzDoServices
                             serviceprincipalkey = secret
                         }
                     }
-                },
-                await GetBearerTokenAsync());
+                });
             return response;
         }
 
@@ -169,7 +164,7 @@ namespace Kdoctl.CliServices.AzDoServices
                         type = "environment",
                         id = envId.ToString()
                     }
-                }, await GetBearerTokenAsync());
+                });
             return response;
         }
 
@@ -177,8 +172,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var groups = await VsspsApi()
                 .GetRestAsync<GroupCollection>(
-                $"_apis/graph/groups?api-version=5.1-preview.1",
-                await GetBearerTokenAsync());
+                $"_apis/graph/groups?api-version=5.1-preview.1");
             return groups.Value;
         }
 
@@ -195,8 +189,7 @@ namespace Kdoctl.CliServices.AzDoServices
                                 @namespace = kubernetesNamespace,
                                 clusterName = kubernetesClusterName,
                                 serviceEndpointId = endpointId
-                            },
-                            await GetBearerTokenAsync());
+                            });
             return link;
         }
 
@@ -244,8 +237,7 @@ namespace Kdoctl.CliServices.AzDoServices
                             }
                         }
                     }
-                },
-                await GetBearerTokenAsync());
+                });
             return ep;
         }
 
@@ -259,8 +251,7 @@ namespace Kdoctl.CliServices.AzDoServices
                 {
                     name = envName,
                     description = envDesc
-                },
-                await GetBearerTokenAsync());
+                });
 
             return env;
         }
@@ -269,7 +260,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = $"{project}/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2";
             var types = await CoreApi()
-                .GetRestAsync<EndpointCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<EndpointCollection>(path);
 
             return types;
         }
@@ -278,7 +269,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = "_apis/serviceendpoint/types?api-version=5.1-preview.1";
             var types = await CoreApi()
-                .GetRestJsonAsync(path, await GetBearerTokenAsync());
+                .GetRestJsonAsync(path);
 
             return types;
         }
@@ -287,7 +278,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = "_apis/projects?stateFilter=All&api-version=1.0";
             var projects = await CoreApi()
-                .GetRestAsync<ProjectCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<ProjectCollection>(path);
 
             return projects;
         }
@@ -296,8 +287,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var envs = await CoreApi()
                 .GetRestAsync<PipelineEnvironmentCollection>(
-                $"{project}/_apis/distributedtask/environments",
-                await GetBearerTokenAsync());
+                $"{project}/_apis/distributedtask/environments");
 
             return envs;
         }

@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -13,17 +14,12 @@ namespace Kdoctl.CliServices.AzDoServices
 {
     public class AclListService : RestServiceBase
     {
-        public AclListService(string adoUrl, string pat)
-            : base(adoUrl, pat)
-        {
-
-        }
+        public AclListService(IHttpClientFactory clientFactory) : base(clientFactory) { }
 
         public async Task<VstsAclList> GetAllAclsAsync(Guid namespaceId)
         {
             var path = $"_apis/accesscontrollists/{namespaceId}?api-version=6.0";
-            var aclList = await CoreApi()
-                .GetRestAsync<VstsAclList>(path, await GetBearerTokenAsync());
+            var aclList = await CoreApi()                .GetRestAsync<VstsAclList>(path);
 
             return aclList;
         }
@@ -32,7 +28,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = $"_apis/accesscontrollists/{namespaceId}?token={HttpUtility.UrlEncode(token)}&api-version=6.0";
             var aclList = await CoreApi()
-                .GetRestAsync<VstsAclList>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsAclList>(path);
 
             return aclList;
         }
@@ -54,8 +50,7 @@ namespace Kdoctl.CliServices.AzDoServices
             await CoreApi()
                .PostRestAsync<object>(
                $"_apis/accesscontrollists/{namespaceId}?api-version=6.0",
-               payload,
-               await GetBearerTokenAsync());
+               payload);
         }
     }
 }

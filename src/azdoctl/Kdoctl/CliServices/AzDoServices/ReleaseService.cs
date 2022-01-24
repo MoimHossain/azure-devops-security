@@ -4,6 +4,7 @@ using Kdoctl.CliServices.Supports;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -11,17 +12,13 @@ namespace Kdoctl.CliServices.AzDoServices
 {
     public class ReleaseService : RestServiceBase
     {
-        public ReleaseService(string adoUrl, string pat)
-            : base(adoUrl, pat)
-        {
-
-        }
+        public ReleaseService(IHttpClientFactory clientFactory) : base(clientFactory) { }    
 
         public async Task<VstsFolderCollection> ListFoldersAsync(Guid projectId, string path = "")
         {
             var requestPath = $"{projectId}/_apis/release/folders/{path}?api-version=6.0-preview.2";
             var folders = await VsrmApi()
-                .GetRestAsync<VstsFolderCollection>(requestPath, await GetBearerTokenAsync());
+                .GetRestAsync<VstsFolderCollection>(requestPath);
 
             return folders;
         }
@@ -35,8 +32,7 @@ namespace Kdoctl.CliServices.AzDoServices
                 new
                 {
                     path = path
-                },
-                await GetBearerTokenAsync());
+                });
 
             return JsonConvert.DeserializeObject<VstsFolder>(response);
         }
