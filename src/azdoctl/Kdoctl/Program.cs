@@ -17,18 +17,15 @@ using System.Linq;
 var parsedObject = Parser.Default.ParseArguments<ApplyOptions, ExportOptions>(args);
 
 if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpts)
-{
+{    
     #pragma warning disable CA1416 // Validate platform compatibility
     var consoleHost = new HostBuilder()
                     .ConfigureServices((hostContext, services) =>
                     {
                         baseOpts = OptionBase.Sanitize(baseOpts);
-                        services.AddSingleton<VssConnection>(
-                            new VssConnection(new Uri(baseOpts.OrganizationURL), new VssBasicCredential(string.Empty, baseOpts.PAT)));
-                        
-                        AzDOHttpSupports.AddHttpClients(services, OptionBase.Sanitize(baseOpts));
-                        AzDOHttpSupports.AddServices(services);
-
+                        services.AddServicesFromClientLib(baseOpts);
+                        services.AddHttpClients(baseOpts);
+                        services.AddServices();
                         services.AddTransient<CliRunner>();
                     })
                     .UseConsoleLifetime()

@@ -14,6 +14,10 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Net.Http.Headers;
 using System.Net.Http;
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.VisualStudio.Services.WebApi;
+using Microsoft.TeamFoundation.Core.WebApi;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
 
 namespace Kdoctl.CliServices.AzDoServices.LowLevels
 {
@@ -40,6 +44,15 @@ namespace Kdoctl.CliServices.AzDoServices.LowLevels
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+        }
+
+        public static void AddServicesFromClientLib(this IServiceCollection services, OptionBase opts)
+        {
+            var connection = new VssConnection(new Uri(opts.OrganizationURL), new VssBasicCredential(string.Empty, opts.PAT));
+            
+            services.AddSingleton(connection);
+            services.AddSingleton(connection.GetClient<TeamHttpClient>());
+            services.AddSingleton(connection.GetClient<GitHttpClient>());            
         }
 
         public static void AddHttpClients(this IServiceCollection services, OptionBase opts)
