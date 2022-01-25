@@ -3,14 +3,9 @@
 using CommandLine;
 using Kdoctl;
 using Kdoctl.CliOptions;
-using Kdoctl.CliServices;
-using Kdoctl.CliServices.AzDoServices;
 using Kdoctl.CliServices.AzDoServices.LowLevels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.VisualStudio.Services.Common;
-using Microsoft.VisualStudio.Services.WebApi;
-using System;
 using System.Linq;
 
 
