@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 
-
 var parsedObject = Parser.Default.ParseArguments<ApplyOptions, ExportOptions>(args);
 
 if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpts)
