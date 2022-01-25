@@ -16,7 +16,7 @@ namespace Kdoctl.CliServices
     public partial class StateSynchronizationTask
     {
         protected async Task EnsureRepositoriesExistsAsync(
-            ProjectManifest manifest, AdoConnectionFactory factory,
+            ProjectManifest manifest, 
             RepositoryService repoService,
             Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             bool projectWasAbsent)
@@ -42,7 +42,7 @@ namespace Kdoctl.CliServices
                             Logger.StatusEndSuccess("Succeed");
                         }
                         Logger.StatusBegin($"Setting up permissions for repository {repo.Name}...");
-                        await EnsureRepositoryPermissionsAsync(factory, project, repo, repository);
+                        await EnsureRepositoryPermissionsAsync( project, repo, repository);
                         Logger.StatusEndSuccess("Succeed");
                     }
                 }
@@ -51,21 +51,21 @@ namespace Kdoctl.CliServices
         }
 
         protected async Task EnsureRepositoryPermissionsAsync(
-            AdoConnectionFactory factory, Kdoctl.CliServices.AzDoServices.Dtos.Project project,
+            Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             RepositoryManifest repo, Microsoft.TeamFoundation.SourceControl.WebApi.GitRepository repository)
         {
             if (repository != null && repo.Permissions != null && repo.Permissions.Any())
             {
-                var secService = factory.GetSecurityNamespaceService();
+                var secService = GetSecurityNamespaceService();
                 var gitNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Git_Repositories);
                 var gitSecurityNamespaceId = gitNamespace.NamespaceId;
                 var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
-                await CreateAclsAsync(factory, typeof(GitRepositories), repo.Permissions, aclDictioanry);
+                await CreateAclsAsync(typeof(GitRepositories), repo.Permissions, aclDictioanry);
 
                 if (aclDictioanry.Count > 0)
                 {
                     var repositorySecurityToken = $"repoV2/{project.Id}/{repository.Id}";
-                    var aclService = factory.GetAclListService();
+                    var aclService = GetAclListService();
                     await aclService.SetAclsAsync(gitSecurityNamespaceId, repositorySecurityToken, aclDictioanry, false);
                 }
             }

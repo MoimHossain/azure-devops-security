@@ -13,7 +13,7 @@ namespace Kdoctl.CliServices.Tasks
     {
         protected async Task ExportProjectPermissionsAsync(AzDoServices.Dtos.Project project)
         {
-            var graphService = Factory.GetGroupService();
+            var graphService = GetGraphService();
             var groups = await graphService.ListGroupsInProjectAsync(project.Id);
             var manifest = BaseSchema.GetEmpty(project.Name, ManifestKind.Permission);
             manifest.Permissions = new List<PermissionSchemaManifest>();

@@ -1,67 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
+
+using Kdoctl.CliServices.AzDoServices.LowLevels;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kdoctl.CliServices.Abstract
 {
     public abstract class RestServiceBase
     {
-        private readonly string pat;
-        private readonly string adoUrl;
+        private readonly IHttpClientFactory clientFactory;
 
-        public RestServiceBase(string uri, string pat)
+
+        public RestServiceBase(IHttpClientFactory clientFactory)
         {
-            this.adoUrl = uri;
-            this.pat = pat;
+            this.clientFactory = clientFactory;
         }
 
-        #region Helper methods
-
-        protected string GetOrganizationName()
+        protected HttpClient VsaexApi()
         {
-            return CoreApi().AbsolutePath.Replace("/", string.Empty);
+            return clientFactory.CreateClient(AzDOHttpSupports.API.VSAEX);
         }
 
-        protected Uri VsaexApi()
+        protected HttpClient VsspsApi()
         {
-            var organizationName = GetOrganizationName();
-            return new Uri($"https://vsaex.dev.azure.com/{organizationName}/");
+            return clientFactory.CreateClient(AzDOHttpSupports.API.VSSPS);
         }
 
-        protected Uri VsspsApi()
+        protected HttpClient VsrmApi()
         {
-            var organizationName = GetOrganizationName();
-            return new Uri($"https://vssps.dev.azure.com/{organizationName}/");
+            return clientFactory.CreateClient(AzDOHttpSupports.API.VSRM);
         }
 
-        protected Uri VsrmApi()
+        protected HttpClient CoreApi()
         {
-            var organizationName = GetOrganizationName();
-            return new Uri($"https://vsrm.dev.azure.com/{organizationName}/");
+            return clientFactory.CreateClient(AzDOHttpSupports.API.CORE);
         }
-
-        protected Uri CoreApi()
-        {
-            return new Uri(this.adoUrl);
-        }
-
-        protected async Task<Action<HttpClient>> GetBearerTokenAsync()
-        {
-            await Task.Delay(0);
-            return new Action<HttpClient>((httpClient) =>
-            {
-                var credentials =
-                Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(
-                    string.Format("{0}:{1}", "", this.pat)));
-                httpClient.DefaultRequestHeaders.Accept.Clear();
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
-            });
-        }
-        #endregion
     }
 }

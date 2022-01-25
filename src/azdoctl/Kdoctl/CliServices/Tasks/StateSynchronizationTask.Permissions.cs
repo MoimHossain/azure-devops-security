@@ -16,13 +16,12 @@ namespace Kdoctl.CliServices
     {
         protected async Task ProcessPermissionsAsync(
             ProjectManifest manifest,
-            AdoConnectionFactory factory,
             ProjectService projectService,
             Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool> outcome)
         {
             if (manifest.Permissions != null && manifest.Permissions.Any())
             {
-                var gService = factory.GetGroupService();
+                var gService = GetGraphService();
                 var allUsers = await gService.ListUsersAsync();
                 var projectId = outcome.Item1.Id;
 
@@ -37,7 +36,7 @@ namespace Kdoctl.CliServices
                                 .FirstOrDefault(pg => pg.DisplayName.Equals(permissionEntry.Name, StringComparison.OrdinalIgnoreCase));
                             if (targetGroup != null)
                             {
-                                await ApplyGroupPermissionsAsync(factory, gService, allUsers, projectId, permissionEntry, targetGroup);
+                                await ApplyGroupPermissionsAsync( gService, allUsers, projectId, permissionEntry, targetGroup);
                             }
                         }
                     }
@@ -45,8 +44,7 @@ namespace Kdoctl.CliServices
             }
         }
 
-        private async Task ApplyGroupPermissionsAsync(
-            AdoConnectionFactory factory, 
+        private async Task ApplyGroupPermissionsAsync(            
             GraphService gService, 
             GroupCollection allUsers, 
             Guid projectId, 
@@ -62,7 +60,7 @@ namespace Kdoctl.CliServices
             {
                 foreach (var gp in permissionEntry.Membership.Groups)
                 {
-                    var groupObject = await GetGroupByNameAsync(factory, IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+                    var groupObject = await GetGroupByNameAsync(IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
                     if (groupObject != null)
                     {
                         await gService.AddMemberAsync(projectId, targetGroup.Descriptor, groupObject.Descriptor);
@@ -99,8 +97,7 @@ namespace Kdoctl.CliServices
             Logger.StatusEndSuccess("Succeed");
         }
 
-        protected async Task CreateAclsAsync(
-            AdoConnectionFactory factory,
+        protected async Task CreateAclsAsync(            
             Type enumType,
             List<PermissionManifest> permissions, Dictionary<string, VstsAcesDictionaryEntry> aclDictioanry)
         {
@@ -108,7 +105,7 @@ namespace Kdoctl.CliServices
             {
                 if (permission.Allowed != null && permission.Allowed.Any())
                 {
-                    var group = await GetGroupByNameAsync(factory, permission.Origin, permission.Group);
+                    var group = await GetGroupByNameAsync( permission.Origin, permission.Group);
 
                     if (group != null)
                     {

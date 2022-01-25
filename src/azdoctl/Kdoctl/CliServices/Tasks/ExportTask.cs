@@ -16,7 +16,7 @@ namespace Kdoctl.CliServices.Tasks
         private readonly ExportOptions opts;
         private readonly ExportFileSystem fs;
 
-        public ExportTask(string orgUri, string pat, ExportOptions opts) : base(orgUri, pat)
+        public ExportTask(IServiceProvider services, ExportOptions opts) : base(services)
         {
             this.opts = opts;
             this.fs = new ExportFileSystem(opts, base.Logger);
@@ -24,7 +24,7 @@ namespace Kdoctl.CliServices.Tasks
 
         protected async override Task ExecuteCoreAsync()
         {
-            var projectService = Factory.GetProjectService();
+            var projectService = GetProjectService();
             var projectCollection = await projectService.ListProjectsAsync();
 
             if (projectCollection != null && projectCollection.Value != null)

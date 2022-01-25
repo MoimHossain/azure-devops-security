@@ -1,10 +1,10 @@
-﻿using Kdoctl.CliServices.Supports;
+﻿
+
+using Kdoctl.CliServices.Supports;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 
 
 namespace Kdoctl.CliServices.AzDoServices.Dtos

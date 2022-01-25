@@ -17,8 +17,7 @@ namespace Kdoctl.CliServices
     {
         protected async Task<List<Tuple<k8s.Models.V1ServiceAccount>>> EnsureServiceEndpointExistsAsync(
             ProjectManifest manifest,
-            ProjectService projectService,
-            AdoConnectionFactory factory,
+            ProjectService projectService,            
             Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool> outcome)
         {
             List<Tuple<k8s.Models.V1ServiceAccount>> producedK8sInfo = new List<Tuple<k8s.Models.V1ServiceAccount>>();
@@ -52,7 +51,7 @@ namespace Kdoctl.CliServices
                                 {
                                     var secret = await K8sService.Cluster.GetSecretAsync(sa);
 
-                                    await EnsureServiceEndpointForKubernetesAsync(manifest, seManifest, factory, projectService, secret, outcome);
+                                    await EnsureServiceEndpointForKubernetesAsync(manifest, seManifest,  projectService, secret, outcome);
 
                                     producedK8sInfo.Add(new Tuple<k8s.Models.V1ServiceAccount>(sa));
                                 }
@@ -67,12 +66,12 @@ namespace Kdoctl.CliServices
         protected async Task EnsureServiceEndpointForKubernetesAsync(
             ProjectManifest manifest,
             ServiceEndpointManifest seManifest,
-            AdoConnectionFactory factory,
+            
             ProjectService projectService,
             k8s.Models.V1Secret secret,
             Tuple<Kdoctl.CliServices.AzDoServices.Dtos.Project, bool> outcome)
         {
-            var seService = factory.GetServiceEndpointService();
+            var seService = GetServiceEndpointService();
             var project = outcome.Item1;
 
             var eps = await seService.ListServiceEndpointsAsync(project.Id);

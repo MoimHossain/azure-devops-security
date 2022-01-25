@@ -15,11 +15,11 @@ namespace Kdoctl.CliServices
     public partial class StateSynchronizationTask
     {
         protected async Task EnsureReleaseFoldersAsync(ProjectManifest manifest,
-          AdoConnectionFactory factory, Kdoctl.CliServices.AzDoServices.Dtos.Project project)
+           Kdoctl.CliServices.AzDoServices.Dtos.Project project)
         {
             if (manifest.ReleaseFolders != null && manifest.ReleaseFolders.Any())
             {
-                var releaseService = factory.GetReleaseService();
+                var releaseService = GetReleaseService();
                 var releasePaths = await releaseService.ListFoldersAsync(project.Id);
                 foreach (var rp in manifest.ReleaseFolders)
                 {
@@ -31,30 +31,29 @@ namespace Kdoctl.CliServices
                         existingItem = await releaseService.CreateFolderAsync(project.Id, rp.Path);
                     }
                     Logger.StatusBegin($"Creating permissions {rp.Path}...");
-                    await ProvisionReleasePathPermissionsAsync(factory, project, rp, existingItem);
+                    await ProvisionReleasePathPermissionsAsync( project, rp, existingItem);
                     Logger.StatusEndSuccess("Succeed");
                 }
             }
         }
 
-        protected async Task ProvisionReleasePathPermissionsAsync(
-             AdoConnectionFactory factory,
+        protected async Task ProvisionReleasePathPermissionsAsync(             
              Kdoctl.CliServices.AzDoServices.Dtos.Project project, PipelineFolder rp, VstsFolder existingItem)
         {
             if (existingItem != null)
             {
-                var secService = factory.GetSecurityNamespaceService();
+                var secService = GetSecurityNamespaceService();
                 var buildNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.ReleaseManagement,
                     ReleaseManagementEx.AdministerReleasePermissions.ToString());
                 var namespaceId = buildNamespace.NamespaceId;
                 var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
-                await CreateAclsAsync(factory, typeof(ReleaseManagementEx), rp.Permissions, aclDictioanry);
+                await CreateAclsAsync( typeof(ReleaseManagementEx), rp.Permissions, aclDictioanry);
 
                 if (aclDictioanry.Count > 0)
                 {
                     var fpath = rp.Path.TrimStart("\\/".ToCharArray()).Replace("\\", "/");
                     var token = $"{project.Id}/{fpath}";
-                    var aclService = factory.GetAclListService();
+                    var aclService = GetAclListService();
                     await aclService.SetAclsAsync(namespaceId, token, aclDictioanry, false);
                 }
             }

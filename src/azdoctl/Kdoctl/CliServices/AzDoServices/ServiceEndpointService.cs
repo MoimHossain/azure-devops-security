@@ -5,6 +5,7 @@ using Kdoctl.CliServices.Supports;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,8 +14,8 @@ namespace Kdoctl.CliServices.AzDoServices
 {
     public class ServiceEndpointService : RestServiceBase
     {
-        public ServiceEndpointService(string adoUrl, string pat)
-            : base(adoUrl, pat)
+        public ServiceEndpointService(IHttpClientFactory clientFactory)
+            : base(clientFactory)
         {
 
         }
@@ -23,7 +24,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var requestPath = $"{projectId}/_apis/serviceendpoint/endpoints?api-version=6.1-preview.4";
             var endpoints = await CoreApi()
-                .GetRestAsync<VstsServiceEndpointCollection>(requestPath, await GetBearerTokenAsync());
+                .GetRestAsync<VstsServiceEndpointCollection>(requestPath);
 
             return endpoints;
         }
@@ -51,8 +52,7 @@ namespace Kdoctl.CliServices.AzDoServices
                         roleName = permission.ToString(),
                         userId = localId
                     }
-                },
-                await GetBearerTokenAsync());
+                });
             return JsonConvert.DeserializeObject<VstsServiceEndpointAccessControlCollection>(response);
         }
 
@@ -70,8 +70,7 @@ namespace Kdoctl.CliServices.AzDoServices
                         roleName = ServiceEndpointPermissions.Administrator.ToString(), // only admin supported for this level
                         userId = localId
                     }
-                },
-                await GetBearerTokenAsync());
+                });
             return JsonConvert.DeserializeObject<VstsServiceEndpointAccessControlCollection>(response);
         }
 
@@ -88,8 +87,7 @@ namespace Kdoctl.CliServices.AzDoServices
                                 @namespace = kubernetesNamespace,
                                 clusterName = kubernetesClusterName,
                                 serviceEndpointId = endpointId
-                            },
-                            await GetBearerTokenAsync());
+                            });
             return link;
         }
 
@@ -138,8 +136,7 @@ namespace Kdoctl.CliServices.AzDoServices
                             }
                         }
                     }
-                },
-                await GetBearerTokenAsync());
+                });
             return ep;
         }
 
@@ -190,8 +187,7 @@ namespace Kdoctl.CliServices.AzDoServices
                             }
                         }
                     }
-                },
-                await GetBearerTokenAsync());
+                });
 
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(ep);
             return endpoint;

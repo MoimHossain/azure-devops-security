@@ -1,14 +1,14 @@
-﻿using Kdoctl.CliServices.Abstract;
+﻿
+
+using Kdoctl.CliServices.Abstract;
 using Kdoctl.CliServices.AzDoServices.Dtos;
 using Kdoctl.CliServices.Supports;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace Kdoctl.CliServices.AzDoServices
 {
@@ -16,11 +16,7 @@ namespace Kdoctl.CliServices.AzDoServices
     {
         private static GroupCollection cachedCopy;
 
-        public GraphService(string adoUrl, string pat)
-            : base(adoUrl, pat)
-        {
-
-        }
+        public GraphService(IHttpClientFactory clientFactory) : base(clientFactory) { }
 
         private async Task<GroupCollection> ListAllGroupsFromOrganizationCoreAsync()
         {
@@ -41,8 +37,7 @@ namespace Kdoctl.CliServices.AzDoServices
 
             var path = "_apis/graph/groups?api-version=6.1-preview.1";
             var groups = await VsspsApi()
-                .GetRestAsync<GroupCollection>(path,
-                    await GetBearerTokenAsync(),
+                .GetRestAsync<GroupCollection>(path,                    
                     response =>
                     {
                         nextPageToken = extractToken(response);
@@ -53,8 +48,7 @@ namespace Kdoctl.CliServices.AzDoServices
             {
                 var nextPath = $"{path}&continuationToken={nextPageToken}";
                 groups = await VsspsApi()
-                    .GetRestAsync<GroupCollection>(nextPath,
-                        await GetBearerTokenAsync(),
+                    .GetRestAsync<GroupCollection>(nextPath,                        
                         response =>
                         {
                             nextPageToken = extractToken(response);
@@ -90,8 +84,7 @@ namespace Kdoctl.CliServices.AzDoServices
                 new
                 {
                     originId = aadObjectId
-                },
-                await GetBearerTokenAsync());
+                });
             // invalidate cache 
             cachedCopy = null;
             return ep;
@@ -101,7 +94,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = $"_apis/graph/Memberships/{securityDescriptor}?direction=Down&api-version=6.1-preview.1";
             var memberCollection = await VsspsApi()
-                .GetRestAsync<VstsMembershipCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsMembershipCollection>(path);
 
             return memberCollection;
         }
@@ -110,19 +103,19 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = "_apis/graph/users?subjectTypes=aad&api-version=6.1-preview.1";
             var users = await VsspsApi()
-                .GetRestAsync<GroupCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<GroupCollection>(path);
 
             return users;
         }
 
-        public async Task<string> GetStorageKey(Uri storageKeyUrl)
-        {
-            var path = string.Empty;
-            var storageKeys = await storageKeyUrl
-                .GetRestAsync<string>(path, await GetBearerTokenAsync());
+        //public async Task<string> GetStorageKey(Uri storageKeyUrl)
+        //{
+        //    var path = string.Empty;
+        //    var storageKeys = await storageKeyUrl
+        //        .GetRestAsync<string>(path);
 
-            return storageKeys;
-        }
+        //    return storageKeys;
+        //}
 
         public bool IsGroupDescriptor(string descriptor)
         {
@@ -135,7 +128,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {            
             var path = $"_apis/graph/groups/{descriptor}?api-version=6.1-preview.1";
             var group = await VsspsApi()
-                .GetRestAsync<VstsGroup>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsGroup>(path);
             return group;
         }
 
@@ -143,7 +136,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {   
             var path = $"_apis/graph/users/{descriptor}?api-version=6.1-preview.1";
             var user = await VsspsApi()
-                .GetRestAsync<VstsUser>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsUser>(path);
             return user;
         }
 
@@ -151,7 +144,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";            
             var users = await VsspsApi()
-                .GetRestAsync<VstsIdentityCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsIdentityCollection>(path);
 
             return users;
         }
@@ -160,7 +153,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {            
             var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode(name)}&queryMembership=None&api-version=6.0";
             var users = await VsspsApi()
-                .GetRestAsync<VstsIdentityCollection>(path, await GetBearerTokenAsync());
+                .GetRestAsync<VstsIdentityCollection>(path);
             return users;
         }
 
@@ -175,8 +168,7 @@ namespace Kdoctl.CliServices.AzDoServices
                     query = userAccount, 
                     identityTypes = new List<string> { "user", "group" }, 
                     operationScopes = new List<object> { "ims" } 
-                },
-                await GetBearerTokenAsync());
+                });
             return response;
         }
 
@@ -186,7 +178,7 @@ namespace Kdoctl.CliServices.AzDoServices
             var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.1-preview.1";
 
             var response = await VsspsApi()
-                .DeleteRestAsync(path, await GetBearerTokenAsync());
+                .DeleteRestAsync(path);
             return response;
         }
 
@@ -197,8 +189,7 @@ namespace Kdoctl.CliServices.AzDoServices
             var response = await VsspsApi()
                 .PutRestAsync(
                 path,
-                string.Empty,
-                await GetBearerTokenAsync());
+                string.Empty);
             return response;
         }
 
@@ -207,7 +198,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var path = $"_apis/userentitlements/{userId}?api-version=5.0-preview.2";
 
-            var response = await VsaexApi().GetRestJsonAsync(path, await GetBearerTokenAsync());
+            var response = await VsaexApi().GetRestJsonAsync(path);
             return response;
         }
     }

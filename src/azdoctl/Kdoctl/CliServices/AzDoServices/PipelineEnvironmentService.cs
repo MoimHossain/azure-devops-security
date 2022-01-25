@@ -5,18 +5,15 @@ using Kdoctl.CliServices.Supports;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Kdoctl.CliServices.AzDoServices
 {
     public class PipelineEnvironmentService : RestServiceBase
     {
-        public PipelineEnvironmentService(string adoUrl, string pat)
-            : base(adoUrl, pat)
-        {
+        public PipelineEnvironmentService(IHttpClientFactory clientFactory) : base(clientFactory) { }
 
-        }
         public enum PipelineEnvironmentPermissions
         {
             Administrator,
@@ -28,8 +25,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var envs = await CoreApi()
                   .GetRestAsync<PipelineEnvironmentCollection>(
-                  $"{projectId}/_apis/distributedtask/environments",
-                  await GetBearerTokenAsync());
+                  $"{projectId}/_apis/distributedtask/environments");
 
             return envs;
         }
@@ -44,8 +40,7 @@ namespace Kdoctl.CliServices.AzDoServices
                 {
                     name = envName,
                     description = envDesc
-                },
-                await GetBearerTokenAsync());
+                });
 
             return env;
         }
@@ -66,8 +61,7 @@ namespace Kdoctl.CliServices.AzDoServices
                         roleName = permission.ToString(),
                         userId = localId
                     }
-                },
-                await GetBearerTokenAsync());
+                });
             return JsonConvert.DeserializeObject<VstsServiceEndpointAccessControlCollection>(response);
         }
     }

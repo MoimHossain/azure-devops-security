@@ -10,16 +10,15 @@ namespace Kdoctl.CliServices
 {
     public partial class StateSynchronizationTask : TaskBase
     {
-        public StateSynchronizationTask(string orgUri, string pat) : base(orgUri, pat)
+        public StateSynchronizationTask(IServiceProvider services) : base(services)
         {
         }
 
         protected async override Task ExecuteCoreAsync(BaseSchema baseSchema, string manifestContent, string filePath)
         {
-            var manifest = Deserialize<ProjectManifest>(manifestContent);
-            var factory = base.Factory;
-            var projectService = factory.GetProjectService();
-            var repoService = factory.GetRepositoryService();
+            var manifest = Deserialize<ProjectManifest>(manifestContent);            
+            var projectService = GetProjectService();
+            var repoService = GetRepositoryService();
 
 
             Logger.StatusBegin($"Validating Manifest file [{filePath}]...");
@@ -28,13 +27,13 @@ namespace Kdoctl.CliServices
                 Logger.StatusEndSuccess("Succeed");
                 var outcome = await EnsureProjectExistsAsync(manifest, projectService);
 
-                await ProcessPermissionsAsync(manifest, factory, projectService, outcome);
-                await EnsureTeamProvisionedAsync(manifest, factory, projectService, outcome);
-                await EnsureRepositoriesExistsAsync(manifest, factory, repoService, outcome.Item1, outcome.Item2);
-                var seOutcome = await EnsureServiceEndpointExistsAsync(manifest, projectService, factory, outcome);
-                await EnsureEnvironmentExistsAsync(manifest, factory, outcome.Item1, seOutcome);
-                await EnsureBuildFoldersAsync(manifest, factory, outcome.Item1);
-                await EnsureReleaseFoldersAsync(manifest, factory, outcome.Item1);
+                await ProcessPermissionsAsync(manifest,  projectService, outcome);
+                await EnsureTeamProvisionedAsync(manifest,  projectService, outcome);
+                await EnsureRepositoriesExistsAsync(manifest,  repoService, outcome.Item1, outcome.Item2);
+                var seOutcome = await EnsureServiceEndpointExistsAsync(manifest, projectService,  outcome);
+                await EnsureEnvironmentExistsAsync(manifest,  outcome.Item1, seOutcome);
+                await EnsureBuildFoldersAsync(manifest,  outcome.Item1);
+                await EnsureReleaseFoldersAsync(manifest,  outcome.Item1);
             }
             else
             {

@@ -15,13 +15,12 @@ namespace Kdoctl.CliServices
     public partial class StateSynchronizationTask
     {
         protected async Task EnsureBuildFoldersAsync(
-            ProjectManifest manifest,
-            AdoConnectionFactory factory,
+            ProjectManifest manifest,            
             Kdoctl.CliServices.AzDoServices.Dtos.Project project)
         {
             if (manifest.BuildFolders != null && manifest.BuildFolders.Any())
             {
-                var buildService = factory.GetBuildService();
+                var buildService = this.GetBuildService();
                 var buildPaths = await buildService.ListFoldersAsync(project.Id);
                 foreach (var bp in manifest.BuildFolders)
                 {
@@ -33,31 +32,31 @@ namespace Kdoctl.CliServices
                         existingItem = await buildService.CreateFolderAsync(project.Id, bp.Path);
                     }
                     Logger.StatusBegin($"Creating permissions {bp.Path}...");
-                    await ProvisionBuildPathPermissionsAsync(factory, project, bp, existingItem);
+                    await ProvisionBuildPathPermissionsAsync( project, bp, existingItem);
                     Logger.StatusEndSuccess("Succeed");
                 }
             }
         }
 
         protected async Task ProvisionBuildPathPermissionsAsync(
-            AdoConnectionFactory factory,
+            
             Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             PipelineFolder bp,
             VstsFolder existingItem)
         {
             if (existingItem != null)
             {
-                var secService = factory.GetSecurityNamespaceService();
+                var secService = GetSecurityNamespaceService();
                 var buildNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Build);
                 var namespaceId = buildNamespace.NamespaceId;
                 var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
-                await CreateAclsAsync(factory, typeof(Build), bp.Permissions, aclDictioanry);
+                await CreateAclsAsync( typeof(Build), bp.Permissions, aclDictioanry);
 
                 if (aclDictioanry.Count > 0)
                 {
                     var fpath = bp.Path.TrimStart("\\/".ToCharArray()).Replace("\\", "/");
                     var token = $"{project.Id}/{fpath}";
-                    var aclService = factory.GetAclListService();
+                    var aclService = GetAclListService();
                     await aclService.SetAclsAsync(namespaceId, token, aclDictioanry, false);
                 }
             }

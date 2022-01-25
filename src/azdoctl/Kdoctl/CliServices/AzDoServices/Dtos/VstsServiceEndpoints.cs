@@ -2,8 +2,6 @@
 
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Kdoctl.CliServices.AzDoServices.Dtos
 {
