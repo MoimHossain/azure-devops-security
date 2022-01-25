@@ -14,6 +14,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Login to github packages
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u moimhossain --password-stdin
     - name: Build the Docker image
       working-directory: ./src/azdoctl/Kdoctl
       run: docker build . --file Dockerfile --tag azdoctl:$(date +%s)
