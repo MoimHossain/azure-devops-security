@@ -38,14 +38,12 @@ namespace Kdoctl.CliServices.AzDoServices
 
         public async Task<string> UpdateRetentionAsync(Guid projectId, ProjectRetentionSetting settings)
         {
-            throw new InvalidOperationException("Fix this api");
+            var response = await CoreApi()
+               .PatchRestAsync(
+               $"{projectId}/_apis/build/retention?api-version=6.0-preview.1",
+               settings);
 
-            //var response = await CoreApi()
-            //    .PatchRestAsync(
-            //    $"/{GetOrganizationName()}/{projectId}/_apis/build/retention?api-version=6.0-preview.1",
-            //    settings);
-
-            //return response;
+            return response;
         }
 
         public async Task<ProjectCollection> ListProjectsAsync()
