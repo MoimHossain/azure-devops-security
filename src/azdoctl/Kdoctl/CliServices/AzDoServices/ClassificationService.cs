@@ -4,9 +4,7 @@ using Kdoctl.CliServices.Abstract;
 using Kdoctl.CliServices.AzDoServices.Dtos;
 using Kdoctl.CliServices.Supports;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 

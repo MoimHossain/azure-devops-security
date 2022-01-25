@@ -1,12 +1,7 @@
-﻿using Kdoctl.CliServices.AzDoServices.LowLevels;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
+
+using Kdoctl.CliServices.AzDoServices.LowLevels;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kdoctl.CliServices.Abstract
 {
@@ -19,13 +14,6 @@ namespace Kdoctl.CliServices.Abstract
         {
             this.clientFactory = clientFactory;
         }
-
-
-
-        //protected string GetOrganizationName()
-        //{
-        //    return CoreApi().AbsolutePath.Replace("/", string.Empty);
-        //}
 
         protected HttpClient VsaexApi()
         {

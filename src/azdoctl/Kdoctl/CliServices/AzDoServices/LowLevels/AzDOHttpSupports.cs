@@ -1,23 +1,15 @@
 ﻿
 
-
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using CommandLine;
-using Kdoctl;
 using Kdoctl.CliOptions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Net.Http.Headers;
-using System.Net.Http;
-using Microsoft.VisualStudio.Services.Common;
-using Microsoft.VisualStudio.Services.WebApi;
 using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.VisualStudio.Services.WebApi;
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace Kdoctl.CliServices.AzDoServices.LowLevels
 {
