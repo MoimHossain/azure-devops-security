@@ -4,6 +4,7 @@ using CommandLine;
 using Kdoctl;
 using Kdoctl.CliOptions;
 using Kdoctl.CliServices.AzDoServices.LowLevels;
+using Kdoctl.CliServices.Supports;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
@@ -23,6 +24,8 @@ if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpt
                         services.AddServicesFromClientLib(baseOpts);
                         services.AddHttpClients(baseOpts);
                         services.AddServices();
+
+                        services.AddSingleton<PatternMatchAssistant>();
                         services.AddTransient<CliRunner>();
                     })
                     .UseConsoleLifetime()

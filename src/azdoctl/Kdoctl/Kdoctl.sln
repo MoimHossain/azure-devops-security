@@ -23,6 +23,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tribe-example", "tribe-exam
 		..\Manifests\tribe-example\teams.yml = ..\Manifests\tribe-example\teams.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", "{16FA3081-A4BA-40CD-897D-72392F96B361}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\example-usage\Migrations\workitems.yaml = ..\..\example-usage\Migrations\workitems.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +44,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8940926C-DD62-46D1-8C37-B859B9F7B9B2} = {50B2CA52-E689-43CA-A9D7-C905C170D2D6}
+		{16FA3081-A4BA-40CD-897D-72392F96B361} = {50B2CA52-E689-43CA-A9D7-C905C170D2D6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A03FFF2C-FC40-43E3-AB4B-4BD438ADA82E}

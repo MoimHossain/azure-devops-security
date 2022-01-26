@@ -30,6 +30,11 @@ namespace Kdoctl.CliServices
             this.services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
+        protected PatternMatchAssistant GetPatternMatchAssistant()
+        {
+            return services.GetRequiredService<PatternMatchAssistant>();
+        }
+
         protected ProjectService GetProjectService()
         {
             return services.GetRequiredService<ProjectService>();

@@ -3,6 +3,7 @@ using Kdoctl.CliOptions;
 using Kdoctl.CliServices;
 using Kdoctl.CliServices.Tasks;
 using Kdoctl.Schema;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Kdoctl
 
         public int RunWorkItemMigrateVerb(WorkItemMigrateOptions opts)
         {
-            Console.ResetColor();
+            Console.ResetColor();            
             new WorkItemMigrationTask(services, opts).ExecuteAsync().Wait();
             Console.ResetColor();
             return 0;

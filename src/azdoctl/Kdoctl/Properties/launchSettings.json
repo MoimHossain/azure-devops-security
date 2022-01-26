@@ -2,7 +2,7 @@
   "profiles": {
     "Kdoctl": {
       "commandName": "Project",
-      "commandLineArgs": "migrate-workitems"
+      "commandLineArgs": "migrate-workitems -s C:\\GitHub\\moimhossain\\azure-devops-security\\src\\example-usage\\Migrations\\workitems.yaml"
     },
     "Docker": {
       "commandName": "Docker"

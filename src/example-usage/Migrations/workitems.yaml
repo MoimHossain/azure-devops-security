@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+source:
+  projectName: Tulsa
+  query:
+    SELECT [System.Id] 
+               FROM workitems 
+               WHERE [System.TeamProject] = "Tulsa" 
+               ORDER BY [System.ChangedDate] DESC
+destination:
+  projectName: DestinationProject
+fieldMaps:
+  areaPath:
+    default: DestinationProject
+    rules:
+      - sourcePattern: 'Tu*'
+        destination: DestinationProject\MigratedFrom
+      - sourcePattern: 'Xu*'
+        destination: DestinationProject\MigratedFrom
+  iterationPath:
+    default: DestinationProject
+    rules:
+      - sourcePattern: 'Tu*'
+        destination: DestinationProject\Sprint 5
+  workItemType:
+    default: Product Backlog Item
+    rules:
+      - sourcePattern: 'User Story'
+        destination: Product Backlog Item
+  state:
+    default: New
