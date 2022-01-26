@@ -12,25 +12,23 @@ namespace Kdoctl.CliOptions
         [Option('p', "pat", Required = false, HelpText = "Azure DevOps Personal Access Token.")]
         public string PAT { get; set; }
 
-        public static T Sanitize<T>(T opts) where T : OptionBase
+        public virtual void Sanitize()
         {
-            if (!string.IsNullOrWhiteSpace(opts.OrganizationURL))
+            if (!string.IsNullOrWhiteSpace(this.OrganizationURL))
             {
-                if (!opts.OrganizationURL.EndsWith("/"))
+                if (!this.OrganizationURL.EndsWith("/"))
                 {
-                    opts.OrganizationURL = $"{opts.OrganizationURL}/";
+                    this.OrganizationURL = $"{this.OrganizationURL}/";
                 }
             }
             else
             {
-                opts.OrganizationURL = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");
+                this.OrganizationURL = System.Environment.GetEnvironmentVariable("AzDOAADJoinedURL");
             }
-            if (string.IsNullOrWhiteSpace(opts.PAT))
+            if (string.IsNullOrWhiteSpace(this.PAT))
             {
-                opts.PAT = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
+                this.PAT = System.Environment.GetEnvironmentVariable("AzDOAADJoinedPAT");
             }
-
-            return opts;
         }
     }
 }

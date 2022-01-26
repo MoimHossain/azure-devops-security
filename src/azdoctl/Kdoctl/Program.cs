@@ -8,7 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 
-var parsedObject = Parser.Default.ParseArguments<ApplyOptions, ExportOptions>(args);
+var parsedObject = Parser.Default.ParseArguments<
+    ApplyOptions, 
+    ExportOptions, 
+    WorkItemMigrateOptions>(args);
 
 if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpts)
 {    
@@ -16,7 +19,7 @@ if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpt
     var consoleHost = new HostBuilder()
                     .ConfigureServices((hostContext, services) =>
                     {
-                        baseOpts = OptionBase.Sanitize(baseOpts);
+                        baseOpts.Sanitize();
                         services.AddServicesFromClientLib(baseOpts);
                         services.AddHttpClients(baseOpts);
                         services.AddServices();
@@ -26,16 +29,15 @@ if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpt
                 #pragma warning restore CA1416 // Validate platform compatibility
                 .Build();
 
-
     using (var serviceScope = consoleHost.Services.CreateScope())
     {
         var services = serviceScope.ServiceProvider;
         var runner = services.GetRequiredService<CliRunner>();
 
-        return Parser.Default.ParseArguments<ApplyOptions, ExportOptions>(args)
-            .MapResult(
-            (ApplyOptions applyOpts) => { return runner.RunApplyVerb(OptionBase.Sanitize(applyOpts)); },
-            (ExportOptions exportOpts) => { return runner.RunExportVerb(OptionBase.Sanitize(exportOpts)); },
+        return parsedObject.MapResult(
+            (ApplyOptions applyOpts) => { return runner.RunApplyVerb(applyOpts); },
+            (ExportOptions exportOpts) => { return runner.RunExportVerb(exportOpts); },
+            (WorkItemMigrateOptions wiMigrateOpts) => { return runner.RunWorkItemMigrateVerb(wiMigrateOpts); },
             errs => 1);
     }
 }

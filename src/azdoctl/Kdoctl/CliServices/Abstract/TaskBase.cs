@@ -27,12 +27,17 @@ namespace Kdoctl.CliServices
                 .WithEmissionPhaseObjectGraphVisitor(args => new YamlIEnumerableSkipEmptyObjectGraphVisitor(args.InnerVisitor))
                 .Build();            
             this.Logger = new ConsoleLogger();
-            this.services = services;
+            this.services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         protected ProjectService GetProjectService()
         {
             return services.GetRequiredService<ProjectService>();
+        }
+
+        protected WorkItemService GetWorkItemService()
+        {
+            return services.GetRequiredService<WorkItemService>();
         }
 
         protected RepositoryService GetRepositoryService()

@@ -4,6 +4,7 @@ using Kdoctl.CliOptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using Microsoft.VisualStudio.Services.WebApi;
 using System;
@@ -41,9 +42,10 @@ namespace Kdoctl.CliServices.AzDoServices.LowLevels
         public static void AddServicesFromClientLib(this IServiceCollection services, OptionBase opts)
         {
             var connection = new VssConnection(new Uri(opts.OrganizationURL), new VssBasicCredential(string.Empty, opts.PAT));
-            
+
             services.AddSingleton(connection);
             services.AddSingleton(connection.GetClient<TeamHttpClient>());
+            services.AddSingleton(connection.GetClient<WorkItemTrackingHttpClient>());
             services.AddSingleton(connection.GetClient<GitHttpClient>());            
         }
 
@@ -67,6 +69,7 @@ namespace Kdoctl.CliServices.AzDoServices.LowLevels
             services.AddTransient<RepositoryService>();
             services.AddTransient<SecurityNamespaceService>();
             services.AddTransient<ServiceEndpointService>();
+            services.AddTransient<WorkItemService>();
         }
     }
 }

@@ -25,6 +25,14 @@ namespace Kdoctl
             this.services = services;
         }
 
+        public int RunWorkItemMigrateVerb(WorkItemMigrateOptions opts)
+        {
+            Console.ResetColor();
+            new WorkItemMigrationTask(services, opts).ExecuteAsync().Wait();
+            Console.ResetColor();
+            return 0;
+        }
+
         public int RunExportVerb(ExportOptions opts)
         {
             Console.ResetColor();
