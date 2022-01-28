@@ -18,7 +18,7 @@ namespace Kdoctl.CliServices
                         
         }
         protected async override Task ExecuteCoreAsync()
-        {
+        {            
             await PrepareMigrationAsync();
 
             foreach(var migrationItem in await ListMigrationItemsAsync())

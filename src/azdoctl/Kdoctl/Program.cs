@@ -5,6 +5,9 @@ using Kdoctl;
 using Kdoctl.CliOptions;
 using Kdoctl.CliServices.AzDoServices.LowLevels;
 using Kdoctl.CliServices.Supports;
+using Kdoctl.CliServices.Supports.Instrumentations;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
@@ -21,10 +24,10 @@ if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpt
                     .ConfigureServices((hostContext, services) =>
                     {
                         baseOpts.Sanitize();
+                        services.AddTelemetryServices(baseOpts);
                         services.AddServicesFromClientLib(baseOpts);
                         services.AddHttpClients(baseOpts);
-                        services.AddServices();
-
+                        services.AddServices();                        
                         services.AddSingleton<PatternMatchAssistant>();
                         services.AddTransient<CliRunner>();
                     })
@@ -34,8 +37,7 @@ if (parsedObject.Errors.Count() <= 0 && parsedObject.Value is OptionBase baseOpt
 
     using (var serviceScope = consoleHost.Services.CreateScope())
     {
-        var services = serviceScope.ServiceProvider;
-        var runner = services.GetRequiredService<CliRunner>();
+        var runner = serviceScope.ServiceProvider.GetRequiredService<CliRunner>();
 
         return parsedObject.MapResult(
             (ApplyOptions applyOpts) => { return runner.RunApplyVerb(applyOpts); },

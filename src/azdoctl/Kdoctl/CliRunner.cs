@@ -1,9 +1,9 @@
 ﻿
 using Kdoctl.CliOptions;
 using Kdoctl.CliServices;
+using Kdoctl.CliServices.Supports.Instrumentations;
 using Kdoctl.CliServices.Tasks;
 using Kdoctl.Schema;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
@@ -15,22 +15,32 @@ namespace Kdoctl
     public class CliRunner
     {
         private readonly IDeserializer deserializer;
+        private readonly InstrumentationClient instrumentationClient;
         private readonly IServiceProvider services;
 
-        public CliRunner(IServiceProvider services)
+        public CliRunner(
+            InstrumentationClient instrumentationClient,
+            IServiceProvider services)
         {
+            if (instrumentationClient is null)
+            {
+                throw new ArgumentNullException(nameof(instrumentationClient));
+            }
             deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .IgnoreUnmatchedProperties()
                 .Build();
-            this.services = services;
+            this.instrumentationClient = instrumentationClient;
+            this.services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         public int RunWorkItemMigrateVerb(WorkItemMigrateOptions opts)
         {
+            instrumentationClient.InitializeSession(nameof(WorkItemMigrationTask));
             Console.ResetColor();            
             new WorkItemMigrationTask(services, opts).ExecuteAsync().Wait();
             Console.ResetColor();
+            instrumentationClient.FlushAsync().Wait();
             return 0;
         }
 

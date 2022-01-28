@@ -66,9 +66,6 @@ namespace Kdoctl.CliServices.Tasks
                     spec.FieldMaps.State,
                     SingleMigrationWorkItem.SystemProperties.State));
         }
-
-
-
         protected async override Task<bool> MigrateItemAsync(SingleMigrationWorkItem migrationItem)
         {
             await client.UpdateWorkItemFieldsAsync(migrationItem.WorkItemRef.Id, migrationItem.Fields);
@@ -81,8 +78,8 @@ namespace Kdoctl.CliServices.Tasks
             {
                 throw new ArgumentException($"'{nameof(options.SpecPath)}' points to a file ({options.SpecPath}) that doesn't exist.");
             }
-            this.spec = Deserialize<WorkItemMigrationSpec>(File.ReadAllText(options.SpecPath));
-            this.client = GetWorkItemService();
+            spec = Deserialize<WorkItemMigrationSpec>(File.ReadAllText(options.SpecPath));
+            client = GetWorkItemService();
             await Task.CompletedTask;
         }
 
@@ -121,8 +118,8 @@ namespace Kdoctl.CliServices.Tasks
 
         public SingleMigrationWorkItem(WorkItemReference actualItemRef)
         {
-            this.WorkItemRef = actualItemRef;
-            this.Fields = new Dictionary<string, object>();
+            WorkItemRef = actualItemRef;
+            Fields = new Dictionary<string, object>();
         }
         public WorkItemReference WorkItemRef { get; private set; }
         public Dictionary<string, object> Fields { get; private set; }
