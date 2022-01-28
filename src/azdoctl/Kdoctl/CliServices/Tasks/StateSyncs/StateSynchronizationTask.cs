@@ -21,7 +21,7 @@ namespace Kdoctl.CliServices
             var repoService = GetRepositoryService();
 
 
-            using var op = Logger.Begin($"Validating Manifest file [{filePath}]...", "Validation");
+            using var op = Insights.BeginOperation($"Validating Manifest file [{filePath}]...", "Validation");
             if (manifest.Validate())
             {   
                 var outcome = await EnsureProjectExistsAsync(manifest, projectService);

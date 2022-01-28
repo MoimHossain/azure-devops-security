@@ -33,16 +33,16 @@ namespace Kdoctl.CliServices
 
                         if (repository == null)
                         {
-                            using var op = Logger.Begin($"Creating Repository {repo.Name}...", "Repository");
+                            using var op = Insights.BeginOperation($"Creating Repository {repo.Name}...", "Repository");
                             await ExecutionSupports.Retry(async () =>
                             {
                                 repository = await repoService.CreateAsync(project.Id, repo.Name);
                             },
-                                exception => { Logger.Error(exception); });
+                                exception => { Insights.TrackException(exception); });
                             op.EndWithSuccess("Succeed");
                         }
 
-                        using var opPermissions = Logger.Begin($"Setting up permissions for repository {repo.Name}...", "RepoPermissions");
+                        using var opPermissions = Insights.BeginOperation($"Setting up permissions for repository {repo.Name}...", "RepoPermissions");
                         await EnsureRepositoryPermissionsAsync( project, repo, repository);                        
                     }
                 }

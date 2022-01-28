@@ -35,7 +35,7 @@ namespace Kdoctl.CliServices
 
                     if (eteam == null)
                     {
-                        using var op = Logger.Begin($"Creating team [{teamManifest.Name}]...", "Team");
+                        using var op = Insights.BeginOperation($"Creating team [{teamManifest.Name}]...", "Team");
                         var team = await projectService.CreateTeamAsync(
                             new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
                             {

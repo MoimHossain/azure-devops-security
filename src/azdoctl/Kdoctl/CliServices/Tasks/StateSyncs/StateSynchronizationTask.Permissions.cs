@@ -51,7 +51,7 @@ namespace Kdoctl.CliServices
             PermissionSchemaManifest permissionEntry, 
             VstsGroup targetGroup)
         {
-            using var op = Logger.Begin($"Updating membership of [{targetGroup.PrincipalName}]...", "GroupPermissions");
+            using var op = Insights.BeginOperation($"Updating membership of [{targetGroup.PrincipalName}]...", "GroupPermissions");
             // get existing members - so later we can remove the unwanted members (no longer in yaml)
             var outdatedMembership = await gService.GetGroupMembersAsync(targetGroup.Descriptor);
             var survivorDescriptors = new List<string>();

@@ -34,7 +34,7 @@ namespace Kdoctl.CliServices.Supports
         public async Task WriteManifestAsync(AzDoServices.Dtos.Project project, ManifestKind manifest, string content)
         {
             var filePath = GetFilePath(project.Name, manifest);
-            using var op = IcClient.Begin($"Writing file [{filePath}] ...");            
+            using var op = IcClient.BeginOperation($"Writing file [{filePath}] ...");            
 
             await EnsureProjectDirectory(project);
             if(File.Exists(filePath))
@@ -48,7 +48,7 @@ namespace Kdoctl.CliServices.Supports
         private async Task EnsureProjectDirectory(Project project)
         {   
             var rootPath = GetProjectRootDirectory(project.Name);
-            using var op = IcClient.Begin($"Ensure directory [{rootPath}] ...");
+            using var op = IcClient.BeginOperation($"Ensure directory [{rootPath}] ...");
             var directory = new DirectoryInfo(rootPath);
             if(!directory.Exists)
             {

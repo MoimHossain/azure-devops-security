@@ -76,7 +76,7 @@ namespace Kdoctl.CliServices
                 var endpoint = eps.Value.FirstOrDefault(ep => ep.Name.Equals(seManifest.Name, StringComparison.OrdinalIgnoreCase));
                 if (endpoint == null)
                 {
-                    using var op = Logger.Begin($"Creating Kubernetes Service Endpoint '{seManifest.Name}' ...");
+                    using var op = Insights.BeginOperation($"Creating Kubernetes Service Endpoint '{seManifest.Name}' ...");
                     var newEndpoint = await seService.CreateKubernetesEndpointAsync(
                         project.Id, project.Name,
                         seManifest.Name, seManifest.Description,
@@ -88,7 +88,7 @@ namespace Kdoctl.CliServices
                 }
                 else
                 {
-                    using var op = Logger.Begin($"Kubernetes Service Endpoint '{seManifest.Name}' ...");
+                    using var op = Insights.BeginOperation($"Kubernetes Service Endpoint '{seManifest.Name}' ...");
                     var updatedEndpoint = await seService.UpdateKubernetesEndpointAsync(
                          endpoint.Id,
                          project.Id, project.Name,

@@ -31,7 +31,7 @@ namespace Kdoctl.CliServices
                     {
                         existingItem = await buildService.CreateFolderAsync(project.Id, bp.Path);
                     }
-                    using var op = Logger.Begin($"Creating permissions {bp.Path}...", "Build-Folder-Permissions");
+                    using var op = Insights.BeginOperation($"Creating permissions {bp.Path}...", "Build-Folder-Permissions");
                     await ProvisionBuildPathPermissionsAsync( project, bp, existingItem);                    
                 }
             }

@@ -30,7 +30,7 @@ namespace Kdoctl.CliServices
                     {
                         existingItem = await releaseService.CreateFolderAsync(project.Id, rp.Path);
                     }
-                    using var op  = Logger.Begin($"Creating permissions {rp.Path}...", "ReleaseFolderPermissions");
+                    using var op  = Insights.BeginOperation($"Creating permissions {rp.Path}...", "ReleaseFolderPermissions");
                     await ProvisionReleasePathPermissionsAsync( project, rp, existingItem);                    
                 }
             }

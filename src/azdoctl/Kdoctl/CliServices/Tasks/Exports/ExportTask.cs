@@ -19,7 +19,7 @@ namespace Kdoctl.CliServices.Tasks
         public ExportTask(IServiceProvider services, ExportOptions opts) : base(services)
         {
             this.opts = opts;
-            this.fs = new ExportFileSystem(opts, base.Logger);
+            this.fs = new ExportFileSystem(opts, base.Insights);
         }
 
         protected async override Task ExecuteCoreAsync()

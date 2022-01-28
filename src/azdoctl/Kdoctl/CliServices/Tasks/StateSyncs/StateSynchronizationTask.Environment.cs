@@ -23,7 +23,7 @@ namespace Kdoctl.CliServices
             {
                 foreach (var permissionObject in pe.Permissions)
                 {
-                    using var op = Logger.Begin($"Configuring Environment ({pe.Name}) permissions: AAD object ({permissionObject.Group}) ...", "Envrionment");
+                    using var op = Insights.BeginOperation($"Configuring Environment ({pe.Name}) permissions: AAD object ({permissionObject.Group}) ...", "Envrionment");
                     var group = await GetGroupByNameAsync(
                         permissionObject.Origin, permissionObject.Group, permissionObject.Id);
                     if (group != null)

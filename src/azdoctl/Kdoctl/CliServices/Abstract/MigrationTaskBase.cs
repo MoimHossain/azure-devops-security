@@ -18,20 +18,25 @@ namespace Kdoctl.CliServices
                         
         }
         protected async override Task ExecuteCoreAsync()
-        {            
+        {
+            using var migrationSession = Insights.BeginOperation("WorkItem-Migration");
             await PrepareMigrationAsync();
 
-            foreach(var migrationItem in await ListMigrationItemsAsync())
-            {   
+            var successItemCount = 0;
+            var failedItemCount = 0;
+
+            foreach (var migrationItem in await ListMigrationItemsAsync())
+            {
                 await MapMigrationFieldsAsync(migrationItem);
                 await EnrichMigrationFieldsAsync(migrationItem);
-                await MigrateItemAsync(migrationItem);
+                var status = await MigrateItemAsync(migrationItem);
+                if (status) { ++successItemCount; } else { ++failedItemCount; }
             }
+            Insights.TrackMetric("TotalWorkItemCount", successItemCount + failedItemCount);
+            Insights.TrackMetric("SuceededWorkItemCount", successItemCount );
+            Insights.TrackMetric("FailedWorkItemCount", failedItemCount);
         }
-
-
-
-        protected abstract Task MigrateItemAsync(MigrationItem migrationItem);
+        protected abstract Task<bool> MigrateItemAsync(MigrationItem migrationItem);
         protected abstract Task<IEnumerable<MigrationItem>> ListMigrationItemsAsync();
         protected async virtual Task EnrichMigrationFieldsAsync(MigrationItem migrationItem)
         {

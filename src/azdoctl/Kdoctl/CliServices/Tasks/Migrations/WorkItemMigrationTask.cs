@@ -2,6 +2,7 @@
 
 using Kdoctl.CliOptions;
 using Kdoctl.CliServices.AzDoServices;
+using Kdoctl.CliServices.Supports;
 using Kdoctl.Schema;
 using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
 using System;
@@ -68,8 +69,16 @@ namespace Kdoctl.CliServices.Tasks
         }
         protected async override Task<bool> MigrateItemAsync(SingleMigrationWorkItem migrationItem)
         {
-            await client.UpdateWorkItemFieldsAsync(migrationItem.WorkItemRef.Id, migrationItem.Fields);
-            return true;
+            var sucessFlag = false;
+            var exponentialBackoffFactor = 5000;
+            var retryCount = 3;
+            await ExecutionSupports.Retry(async () =>
+            {
+                await client.UpdateWorkItemFieldsAsync(migrationItem.WorkItemRef.Id, migrationItem.Fields);
+                sucessFlag = true;
+            },
+            exception => { Insights.TrackException(exception); sucessFlag = false; }, exponentialBackoffFactor, retryCount);
+            return sucessFlag;
         }
 
         protected async override Task PrepareMigrationAsync()

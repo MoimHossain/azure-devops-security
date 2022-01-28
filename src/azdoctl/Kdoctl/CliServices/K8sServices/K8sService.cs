@@ -33,7 +33,7 @@ namespace Kdoctl.CliServices.K8sServices
         public async Task EnsureNamespaceExistsAsync(
             KubernetesEndpointManifest clusterInfo)
         {
-            using var operation = Logger.Begin($"Checking Kubernetes namespace '{clusterInfo.Namespace.Metadata.Name}' ...", "K8SNamespace");
+            using var operation = Logger.BeginOperation($"Checking Kubernetes namespace '{clusterInfo.Namespace.Metadata.Name}' ...", "K8SNamespace");
             var found = await GetNamespaceAsync(clusterInfo);
             if (found == null)
             {   
@@ -42,7 +42,7 @@ namespace Kdoctl.CliServices.K8sServices
             }
             else
             {
-                using var subOp = Logger.Begin($"Updating Kubernetes namespace '{clusterInfo.Namespace.Metadata.Name}' ...");                
+                using var subOp = Logger.BeginOperation($"Updating Kubernetes namespace '{clusterInfo.Namespace.Metadata.Name}' ...");                
                 await k8s.ReplaceNamespaceAsync(clusterInfo.Namespace, clusterInfo.Namespace.Metadata.Name);
                 subOp.EndWithSuccess("Namespace updated");
             }
@@ -70,7 +70,7 @@ namespace Kdoctl.CliServices.K8sServices
             clusterInfo.ServiceAccount.Role.Metadata.NamespaceProperty = clusterInfo.Namespace.Metadata.Name;
             clusterInfo.ServiceAccount.Binding.Metadata.NamespaceProperty = clusterInfo.Namespace.Metadata.Name;
             
-            using var operation = Logger.Begin($"Preparing Kubernetes service account '{clusterInfo.ServiceAccount.Spec.Metadata.Name}' ...", "Ensure-K8S-ServiceAccount");
+            using var operation = Logger.BeginOperation($"Preparing Kubernetes service account '{clusterInfo.ServiceAccount.Spec.Metadata.Name}' ...", "Ensure-K8S-ServiceAccount");
 
             foreach (var item in clusterInfo.ServiceAccount.Binding.Subjects)
             {
@@ -85,7 +85,7 @@ namespace Kdoctl.CliServices.K8sServices
             }
             else
             {
-                using var op = Logger.Begin($"Updating Kubernetes service account '{clusterInfo.ServiceAccount.Spec.Metadata.Name}' ...", "Update-K8S-SA");
+                using var op = Logger.BeginOperation($"Updating Kubernetes service account '{clusterInfo.ServiceAccount.Spec.Metadata.Name}' ...", "Update-K8S-SA");
                 _ = await k8s.ReplaceNamespacedServiceAccountAsync(clusterInfo.ServiceAccount.Spec,
                     clusterInfo.ServiceAccount.Spec.Metadata.Name,
                     clusterInfo.Namespace.Metadata.Name);
@@ -99,7 +99,7 @@ namespace Kdoctl.CliServices.K8sServices
 
         public async Task EnsureRoleBindingExistsAsync(KubernetesEndpointManifest clusterInfo)
         {
-            using var op = Logger.Begin($"Preparing Role binding '{clusterInfo.ServiceAccount.Binding.Metadata.Name}' ...", "RoleBinding");
+            using var op = Logger.BeginOperation($"Preparing Role binding '{clusterInfo.ServiceAccount.Binding.Metadata.Name}' ...", "RoleBinding");
             var all = await k8s.ListNamespacedRoleBindingAsync(clusterInfo.Namespace.Metadata.Name);
             var found = all.Items.FirstOrDefault(al => al.Metadata.Name.Equals(clusterInfo.ServiceAccount.Binding.Metadata.Name));
             if (found == null)
@@ -119,7 +119,7 @@ namespace Kdoctl.CliServices.K8sServices
 
         public async Task EnsureRoleExistsAsync(KubernetesEndpointManifest clusterInfo)
         {
-            using var op = Logger.Begin($"Preparing Role '{clusterInfo.ServiceAccount.Role.Metadata.Name}' ...", "K8S-Role");
+            using var op = Logger.BeginOperation($"Preparing Role '{clusterInfo.ServiceAccount.Role.Metadata.Name}' ...", "K8S-Role");
             var all = await k8s.ListNamespacedRoleAsync(clusterInfo.Namespace.Metadata.Name);
             var found = all.Items.FirstOrDefault(al => al.Metadata.Name.Equals(clusterInfo.ServiceAccount.Role.Metadata.Name));
             if (found == null)

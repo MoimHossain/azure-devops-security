@@ -22,7 +22,7 @@ namespace Kdoctl.CliServices
 
             if (project == null)
             {
-                using var op = Logger.Begin("Creating project, reading Process templates...", "Project");
+                using var op = Insights.BeginOperation("Creating project, reading Process templates...", "Project");
                 var templates = await projectService.ListProcessAsync();
                 var tempalte = templates.Value.FirstOrDefault(t => t.Name.Equals(manifest.Template.Name, StringComparison.InvariantCulture));
                 if (tempalte == null)

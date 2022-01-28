@@ -34,13 +34,17 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
             client.TrackEvent("ExecutionStarted");
         }
 
+        public void TrackMetric(string metricName, double metricValue)
+        {
+            client.TrackMetric(new MetricTelemetry(metricName, metricValue));
+        }
 
-        public void Error(Exception exception)
+        public void TrackException(Exception exception)
         {
             client.TrackException(exception);
         }
 
-        public GenericOperation Begin(string message, string operationName = "NewOp")
+        public GenericOperation BeginOperation(string message, string operationName = "NewOp")
         {
             return new GenericOperation(client, operationName).Begin(message);
         }

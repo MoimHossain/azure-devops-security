@@ -2,7 +2,7 @@
   "profiles": {
     "Kdoctl": {
       "commandName": "Project",
-      "commandLineArgs": "apply -f \"C:\\GitHub\\moimhossain\\azure-devops-security\\src\\azdoctl\\Manifests\\Tribe.yml\" -d \"C:\\GitHub\\moimhossain\\Tribe-Collection\\Tribes\\BusinessLending\"",
+      "commandLineArgs": "migrate-workitems -s C:\\GitHub\\moimhossain\\azure-devops-security\\src\\example-usage\\Migrations\\workitems.yaml",
       "environmentVariables": {
         "AI_CONNECTION": "InstrumentationKey=783bba66-93c7-49f0-8b3d-67fad4ac4071;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/"
       }

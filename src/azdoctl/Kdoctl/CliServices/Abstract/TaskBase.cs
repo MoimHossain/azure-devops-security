@@ -27,10 +27,10 @@ namespace Kdoctl.CliServices
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .WithEmissionPhaseObjectGraphVisitor(args => new YamlIEnumerableSkipEmptyObjectGraphVisitor(args.InnerVisitor))
                 .Build();
-            this.Logger = services.GetRequiredService<InstrumentationClient>();            
+            this.Insights = services.GetRequiredService<InstrumentationClient>();            
             this.services = services ?? throw new ArgumentNullException(nameof(services));
         }
-        protected InstrumentationClient Logger { get; private set; } 
+        protected InstrumentationClient Insights { get; private set; } 
 
 
         public async Task ExecuteAsync()
@@ -41,7 +41,7 @@ namespace Kdoctl.CliServices
             {
                 await ExecuteCoreAsync();
             },
-            exception => { Logger.Error(exception); }, exponentialBackoffFactor, retryCount);
+            exception => { Insights.TrackException(exception); }, exponentialBackoffFactor, retryCount);
         }
 
         public async Task ExecuteAsync(BaseSchema baseSchema, string manifest, string filePath)
@@ -52,7 +52,7 @@ namespace Kdoctl.CliServices
             {
                 await ExecuteCoreAsync(baseSchema, manifest, filePath);
             },
-            exception => { Logger.Error(exception); }, exponentialBackoffFactor, retryCount);
+            exception => { Insights.TrackException(exception); }, exponentialBackoffFactor, retryCount);
         }
 
         protected abstract Task ExecuteCoreAsync();
