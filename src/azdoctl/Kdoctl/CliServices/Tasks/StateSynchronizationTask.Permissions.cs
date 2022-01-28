@@ -51,7 +51,7 @@ namespace Kdoctl.CliServices
             PermissionSchemaManifest permissionEntry, 
             VstsGroup targetGroup)
         {
-            Logger.StatusBegin($"Updating membership of [{targetGroup.PrincipalName}]...");
+            using var op = Logger.Begin($"Updating membership of [{targetGroup.PrincipalName}]...", "GroupPermissions");
             // get existing members - so later we can remove the unwanted members (no longer in yaml)
             var outdatedMembership = await gService.GetGroupMembersAsync(targetGroup.Descriptor);
             var survivorDescriptors = new List<string>();
@@ -93,8 +93,7 @@ namespace Kdoctl.CliServices
                         await gService.RemoveMembershipAsync(projectId, targetGroup.Descriptor, potentialOutdatedMember.MemberDescriptor);
                     }
                 }
-            }
-            Logger.StatusEndSuccess("Succeed");
+            }            
         }
 
         protected async Task CreateAclsAsync(            

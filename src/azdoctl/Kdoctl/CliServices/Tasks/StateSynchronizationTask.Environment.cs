@@ -14,7 +14,7 @@ namespace Kdoctl.CliServices
     public partial class StateSynchronizationTask
     {
         protected async Task ProvisionEnvironmentPermissionsAsync(
-            
+
             Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             PipelineEnvironmentService peService,
             EnvironmentManifest pe, PipelineEnvironment envObject)
@@ -23,7 +23,7 @@ namespace Kdoctl.CliServices
             {
                 foreach (var permissionObject in pe.Permissions)
                 {
-                    Logger.StatusBegin($"Configuring Environment ({pe.Name}) permissions: AAD object ({permissionObject.Group}) ...");
+                    using var op = Logger.Begin($"Configuring Environment ({pe.Name}) permissions: AAD object ({permissionObject.Group}) ...", "Envrionment");
                     var group = await GetGroupByNameAsync(
                         permissionObject.Origin, permissionObject.Group, permissionObject.Id);
                     if (group != null)
@@ -37,12 +37,11 @@ namespace Kdoctl.CliServices
                             {
                                 await peService.SetPermissionAsync(project.Id, envObject.Id, localId, role);
                             }
-                            Logger.StatusEndSuccess("Succeeded");
                         }
                     }
                     else
                     {
-                        Logger.StatusEndFailed("Failed (Not found in AAD)");
+                        op.EndWithFailure("Failed (Not found in AAD)");
                     }
                 }
             }
@@ -80,12 +79,12 @@ namespace Kdoctl.CliServices
                         }
                     }
                 }
-                await ProvisionEnvironmentPermissionsAsync( project, peService, pe, envObject);
+                await ProvisionEnvironmentPermissionsAsync(project, peService, pe, envObject);
             }
         }
         protected async Task EnsureEnvironmentExistsAsync(
             ProjectManifest manifest,
-            
+
             Kdoctl.CliServices.AzDoServices.Dtos.Project project,
             List<Tuple<k8s.Models.V1ServiceAccount>> k8sOutcome)
         {
@@ -99,7 +98,7 @@ namespace Kdoctl.CliServices
                         var item = k8sOutcome.FirstOrDefault().Item1;
                         if (item != null)
                         {
-                            await ProvisionEnvironmentAsync( project, peService, pe,
+                            await ProvisionEnvironmentAsync(project, peService, pe,
                                 item.Metadata.NamespaceProperty, item.Metadata.NamespaceProperty);
                         }
                     }

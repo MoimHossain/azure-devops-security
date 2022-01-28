@@ -2,6 +2,7 @@
 
 using Kdoctl.CliOptions;
 using Kdoctl.CliServices.AzDoServices.Dtos;
+using Kdoctl.CliServices.Supports.Instrumentations;
 using Kdoctl.Schema;
 using Kdoctl.Schema.CliServices;
 using System.IO;
@@ -12,12 +13,12 @@ namespace Kdoctl.CliServices.Supports
     public class ExportFileSystem
     {
         private readonly ExportOptions exOpts;
-        private readonly ConsoleLogger Logger;
+        private readonly InstrumentationClient IcClient;
 
-        public ExportFileSystem(ExportOptions exOpts, ConsoleLogger logger)
+        public ExportFileSystem(ExportOptions exOpts, InstrumentationClient logger)
         {
             this.exOpts = exOpts;
-            this.Logger = logger;
+            this.IcClient = logger;
         }
 
         private string GetProjectRootDirectory(string projectName)
@@ -33,25 +34,25 @@ namespace Kdoctl.CliServices.Supports
         public async Task WriteManifestAsync(AzDoServices.Dtos.Project project, ManifestKind manifest, string content)
         {
             var filePath = GetFilePath(project.Name, manifest);
-            Logger.StatusBegin($"Writing file [{filePath}] ...");            
+            using var op = IcClient.Begin($"Writing file [{filePath}] ...");            
 
             await EnsureProjectDirectory(project);
             if(File.Exists(filePath))
             {
-                Logger.Message("Deleting existing file...");
+                op.Message("Deleting existing file...");
                 File.Delete(filePath);
             }
             await File.WriteAllTextAsync(filePath, content);
-            Logger.StatusEndSuccess("Success");
         }
 
         private async Task EnsureProjectDirectory(Project project)
-        {
-            var rootPath = GetProjectRootDirectory(project.Name);            
+        {   
+            var rootPath = GetProjectRootDirectory(project.Name);
+            using var op = IcClient.Begin($"Ensure directory [{rootPath}] ...");
             var directory = new DirectoryInfo(rootPath);
             if(!directory.Exists)
             {
-                Logger.Message("Creating Directory...");
+                op.Message("Creating Directory...");
                 directory.Create();
             }
             await Task.CompletedTask;

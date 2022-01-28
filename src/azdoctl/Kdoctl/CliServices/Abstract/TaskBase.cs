@@ -2,6 +2,7 @@
 
 
 using Kdoctl.CliServices.AzDoServices;
+using Kdoctl.CliServices.K8sServices;
 using Kdoctl.CliServices.Supports;
 using Kdoctl.CliServices.Supports.Instrumentations;
 using Kdoctl.Schema;
@@ -26,13 +27,10 @@ namespace Kdoctl.CliServices
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .WithEmissionPhaseObjectGraphVisitor(args => new YamlIEnumerableSkipEmptyObjectGraphVisitor(args.InnerVisitor))
                 .Build();
-            this.Telemetry = services.GetRequiredService<InstrumentationClient>();
-            this.Logger = new ConsoleLogger();
+            this.Logger = services.GetRequiredService<InstrumentationClient>();            
             this.services = services ?? throw new ArgumentNullException(nameof(services));
         }
-        protected InstrumentationClient Telemetry { get; private set; }     
-
-        protected ConsoleLogger Logger { get; }
+        protected InstrumentationClient Logger { get; private set; } 
 
 
         public async Task ExecuteAsync()
@@ -43,7 +41,7 @@ namespace Kdoctl.CliServices
             {
                 await ExecuteCoreAsync();
             },
-            exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);
+            exception => { Logger.Error(exception); }, exponentialBackoffFactor, retryCount);
         }
 
         public async Task ExecuteAsync(BaseSchema baseSchema, string manifest, string filePath)
@@ -54,7 +52,7 @@ namespace Kdoctl.CliServices
             {
                 await ExecuteCoreAsync(baseSchema, manifest, filePath);
             },
-            exception => { Logger.Error(exception.Message); }, exponentialBackoffFactor, retryCount);
+            exception => { Logger.Error(exception); }, exponentialBackoffFactor, retryCount);
         }
 
         protected abstract Task ExecuteCoreAsync();
@@ -129,6 +127,11 @@ namespace Kdoctl.CliServices
         protected PipelineEnvironmentService GetPipelineEnvironmentService()
         {
             return services.GetRequiredService<PipelineEnvironmentService>();
+        }
+
+        protected K8sService GetK8sService()
+        {
+            return services.GetRequiredService<K8sService>();
         }
         #endregion
     }

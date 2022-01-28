@@ -1,6 +1,7 @@
 ﻿
 
 using Kdoctl.CliOptions;
+using Kdoctl.CliServices.K8sServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
@@ -59,6 +60,8 @@ namespace Kdoctl.CliServices.AzDoServices.LowLevels
 
         public static void AddServices(this IServiceCollection services)
         {
+            services.AddSingleton<K8sService>();
+
             services.AddTransient<AclListService>();
             services.AddTransient<BuildService>();
             services.AddTransient<ClassificationService>();

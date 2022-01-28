@@ -34,6 +34,12 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
             client.TrackEvent("ExecutionStarted");
         }
 
+
+        public void Error(Exception exception)
+        {
+            client.TrackException(exception);
+        }
+
         public GenericOperation Begin(string message, string operationName = "NewOp")
         {
             return new GenericOperation(client, operationName).Begin(message);
@@ -49,6 +55,7 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
             return success;
         }
 
+
         public class GenericOperation : IDisposable
         {
             private readonly TelemetryClient client;            
@@ -62,6 +69,11 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
                 this.client = client;
                 this.operationID = Guid.NewGuid().ToString("N");
                 this.operationName = operationName;
+            }
+
+            public void Message(string message)
+            {
+                CreateTraceWithOpContext(message);
             }
 
             private void EndCore(string message, bool success)
@@ -79,12 +91,12 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
                 }
             }
 
-            public void EndWithFailure(string message)
+            public void EndWithFailure(string message = "")
             {
                 EndCore(message, false);
             }
 
-            public void EndWithSuccess(string message)
+            public void EndWithSuccess(string message = "Successfully completed")
             {
                 EndCore(message, true);
             }

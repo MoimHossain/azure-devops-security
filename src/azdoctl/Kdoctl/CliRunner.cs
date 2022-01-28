@@ -46,14 +46,17 @@ namespace Kdoctl
 
         public int RunExportVerb(ExportOptions opts)
         {
+            instrumentationClient.InitializeSession(nameof(ExportTask));
             Console.ResetColor();
             new ExportTask(services, opts).ExecuteAsync().Wait();
             Console.ResetColor();
+            instrumentationClient.FlushAsync().Wait();
             return 0;
         }
 
         public int RunApplyVerb(ApplyOptions opts)
         {
+            instrumentationClient.InitializeSession(nameof(StateSynchronizationTask));
             Console.ResetColor();
             if (!string.IsNullOrWhiteSpace(opts.Directory))
             {
@@ -77,6 +80,7 @@ namespace Kdoctl
                 }
             }
             Console.ResetColor();
+            instrumentationClient.FlushAsync().Wait();
             return 0;
         }      
 

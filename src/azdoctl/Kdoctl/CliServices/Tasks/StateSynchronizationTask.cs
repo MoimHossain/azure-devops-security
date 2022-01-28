@@ -21,10 +21,9 @@ namespace Kdoctl.CliServices
             var repoService = GetRepositoryService();
 
 
-            Logger.StatusBegin($"Validating Manifest file [{filePath}]...");
+            using var op = Logger.Begin($"Validating Manifest file [{filePath}]...", "Validation");
             if (manifest.Validate())
-            {
-                Logger.StatusEndSuccess("Succeed");
+            {   
                 var outcome = await EnsureProjectExistsAsync(manifest, projectService);
 
                 await ProcessPermissionsAsync(manifest,  projectService, outcome);
@@ -37,7 +36,7 @@ namespace Kdoctl.CliServices
             }
             else
             {
-                Logger.StatusEndFailed("Failed");
+                op.EndWithFailure("Invalid manifest file!");
             }
         }
 

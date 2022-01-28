@@ -43,16 +43,12 @@ namespace Kdoctl.CliServices
                             {
                                 //Logger.StatusBegin($"Creating Service endpoint '{seManifest.Name}' to deploy in Kubernetes namespace..");
 
-                                await K8sService.Cluster
-                                    .EnsureNamespaceExistsAsync(seManifest.ClusterInfo, Logger);
-                                var sa = await K8sService.Cluster
-                                    .EnsureServiceAccountExists(seManifest.ClusterInfo, Logger);
+                                await GetK8sService().EnsureNamespaceExistsAsync(seManifest.ClusterInfo);
+                                var sa = await GetK8sService().EnsureServiceAccountExists(seManifest.ClusterInfo);
                                 if (sa != null)
                                 {
-                                    var secret = await K8sService.Cluster.GetSecretAsync(sa);
-
+                                    var secret = await GetK8sService().GetSecretAsync(sa);
                                     await EnsureServiceEndpointForKubernetesAsync(manifest, seManifest,  projectService, secret, outcome);
-
                                     producedK8sInfo.Add(new Tuple<k8s.Models.V1ServiceAccount>(sa));
                                 }
                             }
@@ -80,29 +76,29 @@ namespace Kdoctl.CliServices
                 var endpoint = eps.Value.FirstOrDefault(ep => ep.Name.Equals(seManifest.Name, StringComparison.OrdinalIgnoreCase));
                 if (endpoint == null)
                 {
-                    Logger.StatusBegin($"Creating Kubernetes Service Endpoint '{seManifest.Name}' ...");
+                    using var op = Logger.Begin($"Creating Kubernetes Service Endpoint '{seManifest.Name}' ...");
                     var newEndpoint = await seService.CreateKubernetesEndpointAsync(
                         project.Id, project.Name,
                         seManifest.Name, seManifest.Description,
-                        K8sService.Cluster.GetClusterAPIUri().ToString(),
+                        GetK8sService().GetClusterAPIUri().ToString(),
                         Convert.ToBase64String(secret.Data["ca.crt"]),
                         Convert.ToBase64String(secret.Data["token"]));
 
-                    if (newEndpoint != null) { Logger.StatusEndSuccess("Succeed"); } else { Logger.StatusEndFailed("Failed"); }
+                    if (newEndpoint != null) { op.EndWithSuccess(); } else { op.EndWithFailure(); }
                 }
                 else
                 {
-                    Logger.StatusBegin($"Updating Kubernetes Service Endpoint '{seManifest.Name}' ...");
+                    using var op = Logger.Begin($"Kubernetes Service Endpoint '{seManifest.Name}' ...");
                     var updatedEndpoint = await seService.UpdateKubernetesEndpointAsync(
                          endpoint.Id,
                          project.Id, project.Name,
                          seManifest.Name, seManifest.Description,
-                         K8sService.Cluster.GetClusterAPIUri().ToString(),
+                         GetK8sService().GetClusterAPIUri().ToString(),
                          Convert.ToBase64String(secret.Data["ca.crt"]),
                          Convert.ToBase64String(secret.Data["token"]));
 
 
-                    if (updatedEndpoint != null) { Logger.StatusEndSuccess("Succeed"); } else { Logger.StatusEndFailed("Failed"); }
+                    if (updatedEndpoint != null) { op.EndWithSuccess(); } else { op.EndWithFailure(); }
                 }
             }
         }

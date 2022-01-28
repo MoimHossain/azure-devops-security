@@ -1,6 +1,6 @@
 ﻿
 
-migrate-workitems
+migrate-workitems -s C:\GitHub\moimhossain\azure-devops-security\src\example-usage\Migrations\workitems.yaml
 
 apply -f "C:\GitHub\moimhossain\azure-devops-security\src\azdoctl\Manifests\Tribe.yml" -d "C:\GitHub\moimhossain\Tribe-Collection\Tribes\BusinessLending"
 

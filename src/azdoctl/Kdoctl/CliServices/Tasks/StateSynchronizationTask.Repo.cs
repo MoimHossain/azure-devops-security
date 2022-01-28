@@ -33,17 +33,17 @@ namespace Kdoctl.CliServices
 
                         if (repository == null)
                         {
-                            Logger.StatusBegin($"Creating Repository {repo.Name}...");
+                            using var op = Logger.Begin($"Creating Repository {repo.Name}...", "Repository");
                             await ExecutionSupports.Retry(async () =>
                             {
                                 repository = await repoService.CreateAsync(project.Id, repo.Name);
                             },
-                                exception => { Logger.SilentError(exception.Message); });
-                            Logger.StatusEndSuccess("Succeed");
+                                exception => { Logger.Error(exception); });
+                            op.EndWithSuccess("Succeed");
                         }
-                        Logger.StatusBegin($"Setting up permissions for repository {repo.Name}...");
-                        await EnsureRepositoryPermissionsAsync( project, repo, repository);
-                        Logger.StatusEndSuccess("Succeed");
+
+                        using var opPermissions = Logger.Begin($"Setting up permissions for repository {repo.Name}...", "RepoPermissions");
+                        await EnsureRepositoryPermissionsAsync( project, repo, repository);                        
                     }
                 }
                 await DeleteDefaultRepoAsync(repoService, project, projectWasAbsent);

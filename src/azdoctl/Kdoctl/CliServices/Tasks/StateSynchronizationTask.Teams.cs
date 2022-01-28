@@ -35,7 +35,7 @@ namespace Kdoctl.CliServices
 
                     if (eteam == null)
                     {
-                        Logger.StatusBegin($"Creating team [{teamManifest.Name}]...");
+                        using var op = Logger.Begin($"Creating team [{teamManifest.Name}]...", "Team");
                         var team = await projectService.CreateTeamAsync(
                             new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
                             {
@@ -55,10 +55,10 @@ namespace Kdoctl.CliServices
 
                             if (++breakOut > 10)
                             {
+                                op.EndWithFailure($"Team [{teamManifest.Name}] was not retrieved on time.");
                                 throw new InvalidOperationException($"Team [{teamManifest.Name}] was not retrieved on time.");
                             }
-                        }
-                        Logger.StatusEndSuccess("Succeed");
+                        }                        
                     }
 
                     if (eteam != null && teamManifest.Membership != null
