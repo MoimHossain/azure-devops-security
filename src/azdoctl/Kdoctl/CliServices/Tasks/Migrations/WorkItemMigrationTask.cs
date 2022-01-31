@@ -75,6 +75,8 @@ namespace Kdoctl.CliServices.Tasks
             await ExecutionSupports.Retry(async () =>
             {
                 await client.UpdateWorkItemFieldsAsync(migrationItem.WorkItemRef.Id, migrationItem.Fields);
+                Insights.Trace($"{migrationItem.WorkItemRef.Id}", migrationItem.Fields);
+
                 sucessFlag = true;
             },
             exception => { Insights.TrackException(exception); sucessFlag = false; }, exponentialBackoffFactor, retryCount);

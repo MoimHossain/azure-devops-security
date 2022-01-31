@@ -33,6 +33,15 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
             context.GlobalProperties.Add("SessionID", context.Session.Id);
             client.TrackEvent("ExecutionStarted");
         }
+        public void Trace(string message, Dictionary<string, object> fields)
+        {
+            var tt = new TraceTelemetry(message);
+            if(fields != null )
+            {
+                foreach (var item in fields) tt.Properties.Add(item.Key, item.Value.ToString());
+            }
+            client.TrackTrace(tt);
+        }
 
         public void TrackMetric(string metricName, double metricValue)
         {

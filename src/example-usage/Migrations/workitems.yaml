@@ -26,5 +26,9 @@ fieldMaps:
     rules:
       - sourcePattern: 'User Story'
         destination: Product Backlog Item
+      - sourcePattern: 'Epic'
+        destination: Epic
+      - sourcePattern: 'Feature'
+        destination: Feature
   state:
     default: New
