@@ -79,6 +79,7 @@ namespace Kdoctl.CliServices.Tasks
                 await client.UpdateWorkItemFieldsAsync(migrationItem.WorkItemRef.Id, migrationItem.Fields);
                 Insights.Trace($"{migrationItem.WorkItemRef.Id}", migrationItem.Fields);
 
+                Insights.Debug("$Migrated item: {migrationItem.WorkItemRef.Id}");
                 sucessFlag = true;
             },
             exception => { Insights.TrackException(exception); sucessFlag = false; }, exponentialBackoffFactor, retryCount);
@@ -99,12 +100,15 @@ namespace Kdoctl.CliServices.Tasks
             }
             
             if(!string.IsNullOrWhiteSpace(options.Base64Content))
-            {
+            {                
                 var interopPayload = Deserialize<INTEROP_Payload>(
                     UTF8Encoding.UTF8.GetString(
                         Convert.FromBase64String(options.Base64Content)));
                 spec = interopPayload.ConvertToSpec();
                 sessionId = interopPayload.Id;
+
+                Insights.Debug($"Base64Content parsed: Session ID: {interopPayload.Id}");
+                Insights.Debug($"Body: {UTF8Encoding.UTF8.GetString(Convert.FromBase64String(options.Base64Content))}");
             }
             Insights.InitializeSession(sessionId);
             client = GetWorkItemService();
