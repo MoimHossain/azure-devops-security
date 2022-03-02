@@ -35,8 +35,7 @@ namespace Kdoctl
         }
 
         public int RunWorkItemMigrateVerb(WorkItemMigrateOptions opts)
-        {
-            instrumentationClient.InitializeSession(nameof(WorkItemMigrationTask));
+        {   
             Console.ResetColor();            
             new WorkItemMigrationTask(services, opts).ExecuteAsync().Wait();
             Console.ResetColor();

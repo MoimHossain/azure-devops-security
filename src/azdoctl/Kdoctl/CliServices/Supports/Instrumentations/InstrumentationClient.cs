@@ -25,12 +25,12 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
             this.client = new TelemetryClient(configuration);            
         }
 
-        public void InitializeSession(string taskName)
+        public void InitializeSession(string sessionId)
         {
             var context = client.Context;
-            context.Session.Id = $"{taskName.ToUpperInvariant()}-{DateTime.UtcNow.ToString("yyyy-MMM-dd-HH-mm")}";
+            context.Session.Id = sessionId;
             context.User.Id = $"{nameof(Kdoctl)}-AutomationAccount";
-            context.GlobalProperties.Add("SessionID", context.Session.Id);
+            context.GlobalProperties.Add("SessionID", sessionId);
             client.TrackEvent("ExecutionStarted");
         }
         public void Trace(string message, Dictionary<string, object> fields)

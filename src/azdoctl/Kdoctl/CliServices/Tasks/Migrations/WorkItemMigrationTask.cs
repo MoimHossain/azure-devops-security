@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 
 namespace Kdoctl.CliServices.Tasks
@@ -85,11 +87,26 @@ namespace Kdoctl.CliServices.Tasks
 
         protected async override Task PrepareMigrationAsync()
         {
-            if (!File.Exists(options.SpecPath))
+            var sessionId = string.Empty;
+            if (!string.IsNullOrWhiteSpace(options.SpecPath))
             {
-                throw new ArgumentException($"'{nameof(options.SpecPath)}' points to a file ({options.SpecPath}) that doesn't exist.");
+                if (!File.Exists(options.SpecPath))
+                {
+                    throw new ArgumentException($"'{nameof(options.SpecPath)}' points to a file ({options.SpecPath}) that doesn't exist.");
+                }
+                spec = Deserialize<WorkItemMigrationSpec>(File.ReadAllText(options.SpecPath));
+                sessionId = $"{nameof(WorkItemMigrationTask)}:{Guid.NewGuid()}";
             }
-            spec = Deserialize<WorkItemMigrationSpec>(File.ReadAllText(options.SpecPath));
+            
+            if(!string.IsNullOrWhiteSpace(options.Base64Content))
+            {
+                var interopPayload = Deserialize<INTEROP_Payload>(
+                    UTF8Encoding.UTF8.GetString(
+                        Convert.FromBase64String(options.Base64Content)));
+                spec = interopPayload.ConvertToSpec();
+                sessionId = interopPayload.Id;
+            }
+            Insights.InitializeSession(sessionId);
             client = GetWorkItemService();
             await Task.CompletedTask;
         }
