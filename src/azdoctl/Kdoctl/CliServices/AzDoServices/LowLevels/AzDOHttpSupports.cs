@@ -47,7 +47,7 @@ namespace Kdoctl.CliServices.AzDoServices.LowLevels
             services.AddSingleton(connection);
             services.AddSingleton(connection.GetClient<TeamHttpClient>());
             services.AddSingleton(connection.GetClient<WorkItemTrackingHttpClient>());
-            services.AddSingleton(connection.GetClient<GitHttpClient>());            
+            services.AddSingleton(connection.GetClient<GitHttpClient>());               
         }
 
         public static void AddHttpClients(this IServiceCollection services, OptionBase opts)

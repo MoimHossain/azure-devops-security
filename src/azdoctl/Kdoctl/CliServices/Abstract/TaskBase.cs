@@ -80,6 +80,11 @@ namespace Kdoctl.CliServices
             return services.GetRequiredService<PatternMatchAssistant>();
         }
 
+        protected ClassificationService GetClasssificationService()
+        {
+            return services.GetRequiredService<ClassificationService>();
+        }
+
         protected ProjectService GetProjectService()
         {
             return services.GetRequiredService<ProjectService>();
