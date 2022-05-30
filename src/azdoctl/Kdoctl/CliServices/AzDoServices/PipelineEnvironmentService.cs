@@ -48,7 +48,7 @@ namespace Kdoctl.CliServices.AzDoServices
         public async Task<VstsServiceEndpointAccessControlCollection> SetPermissionAsync(
             Guid projectId, 
             long envId, 
-            Guid localId,
+            Guid userId,
             PipelineEnvironmentPermissions permission)
         {
             var response = await CoreApi()
@@ -59,10 +59,28 @@ namespace Kdoctl.CliServices.AzDoServices
                     new 
                     {
                         roleName = permission.ToString(),
-                        userId = localId
+                        userId = userId
                     }
                 });
             return JsonConvert.DeserializeObject<VstsServiceEndpointAccessControlCollection>(response);
+        }
+
+
+        public async Task<bool> SetGlobalPermissionsAsync(Guid projetId, Guid userId, PipelineEnvironmentPermissions permission)
+        {
+            var response = await CoreApi()
+                .PutRestAsync(
+                $"_apis/securityroles/scopes/distributedtask.globalenvironmentreferencerole/roleassignments/resources/{projetId}?api-version=5.0-preview.1",
+                new List<object>
+                {
+                    new
+                    {
+                        roleName = permission.ToString(),
+                        userId = userId
+                    }
+                });
+
+            return true;
         }
     }
 }

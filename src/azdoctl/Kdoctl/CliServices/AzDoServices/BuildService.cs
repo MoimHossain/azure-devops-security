@@ -40,5 +40,29 @@ namespace Kdoctl.CliServices.AzDoServices
 
             return JsonConvert.DeserializeObject<VstsFolder>(response);
         }
+
+        public async Task<VstsPipelineCollection> ListPipelinesAsync(Guid projectId)
+        {   
+            var requestPath = $"{projectId}/_apis/pipelines?api-version=6.0-preview.1";
+            var pipelines = await CoreApi().GetRestAsync<VstsPipelineCollection>(requestPath);
+
+            return pipelines;
+        }
+
+        public async Task<VstsBuildDefinitionCollection> ListBuildDefinitionsAsync(Guid projectId)
+        {
+            var requestPath = $"{projectId}/_apis/build/definitions?api-version=6.0";
+            var defs = await CoreApi().GetRestAsync<VstsBuildDefinitionCollection>(requestPath);
+
+            return defs;
+        }        
+
+        public async Task<VstsBuildDefinition> GetBuildDefinitionsAsync(Guid projectId, long definitionId)
+        {
+            var requestPath = $"{projectId}/_apis/build/definitions/{definitionId}?api-version=6.0";
+            var defs = await CoreApi().GetRestAsync<VstsBuildDefinition>(requestPath);
+
+            return defs;
+        }
     }
 }
