@@ -7,18 +7,20 @@ template:
   name: Agile
   sourceControlType: Git
 teams:
-  - name: TulsaPeople
+  - name: Lollyd-001
     description: The A Team
     admins:
       - name: Timothy Green
         id: 4ae3c851-6ef3-4748-bef9-4f809736d538
-      - name: Linda
-        id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
+      - name: Scrum
+        id: e393e305-3ead-4fbd-87f7-76e32c73f36f
     membership:
       groups:
         - name: 'Kubernetes-Admins'
           id: a2931c86-e975-4220-aa89-dc3f952290f4
       users:
+        - name: Scrum
+          id: e393e305-3ead-4fbd-87f7-76e32c73f36f
         - name: Timothy Green
           id: 4ae3c851-6ef3-4748-bef9-4f809736d538
         - name: Linda

@@ -1,14 +1,21 @@
 ﻿
 
+using k8s.KubeConfigModels;
+using k8s.Util.Informer.Cache;
 using Kdoctl.CliServices.Abstract;
 using Kdoctl.CliServices.AzDoServices.Dtos;
+using Kdoctl.CliServices.Constants;
 using Kdoctl.CliServices.Supports;
+using Microsoft.TeamFoundation.WorkItemTracking.Process.WebApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
 using System.Web;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace Kdoctl.CliServices.AzDoServices
 {
@@ -101,21 +108,39 @@ namespace Kdoctl.CliServices.AzDoServices
 
         public async Task<GroupCollection> ListUsersAsync()
         {
-            var path = "_apis/graph/users?subjectTypes=aad&api-version=6.1-preview.1";
-            var users = await VsspsApi()
-                .GetRestAsync<GroupCollection>(path);
+            var continuationTokenHeader = "x-ms-continuationtoken";
+            
+            var cToken = string.Empty;
+            var allItems = new List<VstsGroup>();
+            do
+            {
+                var path = "_apis/graph/users?subjectTypes=aad&api-version=6.1-preview.1";
 
-            return users;
+                if(!string.IsNullOrWhiteSpace(cToken))
+                {
+                    path = $"{path}&continuationToken={cToken}";
+                }
+
+                var users = await VsspsApi()
+                .GetRestAsync<GroupCollection>(path,
+                response =>
+                {
+                    if (response.Headers.TryGetValues(continuationTokenHeader, out var values))
+                    {
+                        if (values != null && values.Any())
+                        {
+                            cToken = values.FirstOrDefault();
+                        }
+                    }
+                });
+                if(users != null && users.Value != null)
+                {
+                    allItems.AddRange(users.Value);
+                }
+
+            } while (!string.IsNullOrEmpty(cToken));
+            return new GroupCollection { Value = allItems.ToArray(), Count = allItems.Count };
         }
-
-        //public async Task<string> GetStorageKey(Uri storageKeyUrl)
-        //{
-        //    var path = string.Empty;
-        //    var storageKeys = await storageKeyUrl
-        //        .GetRestAsync<string>(path);
-
-        //    return storageKeys;
-        //}
 
         public bool IsGroupDescriptor(string descriptor)
         {
