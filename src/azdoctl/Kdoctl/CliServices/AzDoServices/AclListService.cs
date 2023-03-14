@@ -34,7 +34,7 @@ namespace Kdoctl.CliServices.AzDoServices
             return aclList;
         }
 
-        public async Task SetAclsAsync(
+        public async Task<bool> SetAclsAsync(
             Guid namespaceId, string token,
             Dictionary<string, VstsAcesDictionaryEntry> aces, bool inherit = true)
         {
@@ -45,11 +45,7 @@ namespace Kdoctl.CliServices.AzDoServices
                     new VstsAclEntry { Token = token, AcesDictionary = aces, InheritPermissions = inherit }
                 }
             };
-
-            var sample = JsonConvert.SerializeObject(payload);
-
-            await CoreApi()
-               .PostRestAsync<object>(
+            return await CoreApi().PostWithoutResponseBodyAsync(
                $"_apis/accesscontrollists/{namespaceId}?api-version=6.0",
                payload);
         }

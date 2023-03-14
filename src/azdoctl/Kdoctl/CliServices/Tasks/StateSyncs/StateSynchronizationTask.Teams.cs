@@ -101,10 +101,9 @@ namespace Kdoctl.CliServices
                             //    });
                             //}
                         }
-                        await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
+                        var result = await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
+                        ConsoleLogger.NewLineMessage($"Added admins to {eteam.Name} was {(result ? "Successfull" : "Failed")}");
                     }
-                    return;
-
 
                     if (eteam != null && teamManifest.Membership != null)
                     {

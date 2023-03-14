@@ -179,26 +179,18 @@ namespace Kdoctl.CliServices.Supports
             return default;
         }
 
-        //public async static Task<HttpResponseMessage> PostJsonAsync(this Uri uri, object body, string bearer)
-        //{
-        //    using (var client = new HttpClient())
-        //    {
-        //        var request = new HttpRequestMessage
-        //        {
-        //            Method = HttpMethod.Post,
-        //            RequestUri = uri
-        //        };
-        //        request.Headers.AcceptCharset.Clear();
-        //        request.Headers.Accept.Clear();
-        //        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
-        //        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        //        request.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("UTF-8"));
-
-        //        var content = JsonConvert.SerializeObject(body);
-        //        request.Content = new StringContent(content, Encoding.UTF8, "application/json");
-        //        return await client.SendAsync(request);
-        //    }
-        //}
+        public static async Task<bool> PostWithoutResponseBodyAsync(this HttpClient client, 
+            string requestPath, object payload)
+        {
+            var jsonString = JsonConvert.SerializeObject(payload,
+                new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+            var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(requestPath, jsonContent);            
+            return response.IsSuccessStatusCode;
+        }
 
         public static async Task<TPayload> ReadContentAsync<TPayload>(this HttpContent content)
         {
