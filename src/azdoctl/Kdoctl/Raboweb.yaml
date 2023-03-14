@@ -7,7 +7,7 @@ template:
   name: Agile
   sourceControlType: Git
 teams:
-  - name: SQUAD-Demo-A
+  - name: Demo-Team-002
     description: The A Team
     admins:
       - name: Wassink, EC (Edwin)

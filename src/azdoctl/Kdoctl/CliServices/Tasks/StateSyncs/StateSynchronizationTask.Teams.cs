@@ -63,49 +63,6 @@ namespace Kdoctl.CliServices
                                 throw new InvalidOperationException($"Team [{teamManifest.Name}] was not retrieved on time.");
                             }
                         }                        
-                    }
-
-                    if (eteam != null && teamManifest.Membership != null)
-                    {
-                        var teamGroupIdentity = await gService.GetIdentityObjectAsync(eteam.Id);
-                        
-                        if (teamGroupIdentity != null)
-                        {
-                            if(teamManifest.Membership.Groups != null)
-                            {
-                                foreach (var gp in teamManifest.Membership.Groups)
-                                {
-                                    var groupObject = await GetGroupByNameAsync(IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
-
-                                    if (groupObject != null)
-                                    {
-                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, groupObject.Descriptor);
-                                    }
-                                }
-                            }
-                            
-                            if(teamManifest.Membership.Users != null)
-                            {
-                                foreach (var user in teamManifest.Membership.Users)
-                                {
-                                    var loadedUserObject = await gService.GetUserByPrincipalNameAsync(user.Principal);
-                                    if (loadedUserObject != null)
-                                    {
-                                        ConsoleLogger.NewLineMessage($"Adding member {user.Principal}");
-                                        var operationResult = await gService.AddMemberAsync(
-                                            eteam.ProjectId, 
-                                            teamGroupIdentity.SubjectDescriptor,
-                                            loadedUserObject.Descriptor);
-
-                                        ConsoleLogger.NewLineMessage($"Adding member {user.Principal} was {(operationResult ? "successful" : "failed")}");
-                                    }
-                                    else
-                                    {
-                                        ConsoleLogger.NewLineMessage($"Failed to find member in identity: {user.Name}");
-                                    }
-                                }
-                            }                            
-                        }
                     }                                       
 
                     if (eteam != null &&
@@ -122,13 +79,16 @@ namespace Kdoctl.CliServices
                             var loadedUserObject = await gService.GetUserByPrincipalNameAsync(adminUser.Principal);
                             if(loadedUserObject != null)
                             {
-                                aclDictioanry.Add(loadedUserObject.Descriptor, new VstsAcesDictionaryEntry
+                                var securityDescriptor = gService.GetSecurityDescriptorForUser(loadedUserObject);
+                                aclDictioanry.Add(securityDescriptor, new VstsAcesDictionaryEntry
                                 {
                                     Allow = 31,
                                     Deny = 0,
-                                    Descriptor = loadedUserObject.Descriptor
+                                    Descriptor = securityDescriptor
                                 });
                             }
+
+                            // the following code works but I am trying the above approach
                             //var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUser.Name);
                             //if (matches != null && matches.Count > 0)
                             //{
@@ -143,6 +103,54 @@ namespace Kdoctl.CliServices
                         }
                         await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
                     }
+                    return;
+
+
+                    if (eteam != null && teamManifest.Membership != null)
+                    {
+                        var teamGroupIdentity = await gService.GetIdentityObjectAsync(eteam.Id);
+
+                        if (teamGroupIdentity != null)
+                        {
+                            if (teamManifest.Membership.Groups != null)
+                            {
+                                foreach (var gp in teamManifest.Membership.Groups)
+                                {
+                                    var groupObject = await GetGroupByNameAsync(IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+
+                                    if (groupObject != null)
+                                    {
+                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, groupObject.Descriptor);
+                                    }
+                                }
+                            }
+
+                            if (teamManifest.Membership.Users != null)
+                            {
+                                foreach (var user in teamManifest.Membership.Users)
+                                {
+                                    var loadedUserObject = await gService.GetUserByPrincipalNameAsync(user.Principal);
+                                    if (loadedUserObject != null)
+                                    {
+                                        ConsoleLogger.NewLineMessage($"Adding member {user.Principal}");
+                                        var operationResult = await gService.AddMemberAsync(
+                                            eteam.ProjectId,
+                                            teamGroupIdentity.SubjectDescriptor,
+                                            loadedUserObject.Descriptor);
+
+                                        ConsoleLogger.NewLineMessage($"Adding member {user.Principal} was {(operationResult ? "successful" : "failed")}");
+                                    }
+                                    else
+                                    {
+                                        ConsoleLogger.NewLineMessage($"Failed to find member in identity: {user.Name}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+
                 }
             }
         }

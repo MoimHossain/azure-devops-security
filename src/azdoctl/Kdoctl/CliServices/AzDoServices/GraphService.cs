@@ -46,6 +46,13 @@ namespace Kdoctl.CliServices.AzDoServices
             return null;
         }
 
+        //public Guid GetUserIdFromDescriptor(string descriptor)
+        //{
+        //    var id = UTF8Encoding.UTF8.GetString(Convert.FromBase64String(descriptor.Replace("aad.", string.Empty)));
+
+        //    return Guid.Parse(id);
+        //}
+
         private async Task<GroupCollection> ListAllGroupsFromOrganizationCoreAsync()
         {
             var extractToken = new Func<HttpResponseMessage, string>((response) =>
@@ -257,6 +264,11 @@ namespace Kdoctl.CliServices.AzDoServices
                 return response.Items.First().User;
             }
             return null;
+        }
+
+        public string GetSecurityDescriptorForUser(VstsUserInfo user)
+        {
+            return $"Microsoft.IdentityModel.Claims.ClaimsIdentity;{user.Domain}\\{user.PrincipalName}";
         }
     }
 }
