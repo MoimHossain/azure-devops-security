@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31313.79
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kdoctl", "Kdoctl.csproj", "{9ABD19EF-B18F-4048-BE85-2036A4F6DDD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manifests", "Manifests", "{50B2CA52-E689-43CA-A9D7-C905C170D2D6}"
 	ProjectSection(SolutionItems) = preProject
 		..\Manifests\Project.yml = ..\Manifests\Project.yml
+		Raboweb.yaml = Raboweb.yaml
+		sample-yaml-referebce.yaml = sample-yaml-referebce.yaml
 		..\Manifests\Tribe.yml = ..\Manifests\Tribe.yml
 	EndProjectSection
 EndProject

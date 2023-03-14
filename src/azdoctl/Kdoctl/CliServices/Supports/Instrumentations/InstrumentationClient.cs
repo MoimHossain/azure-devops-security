@@ -1,10 +1,12 @@
 ﻿
 
+using Kdoctl.Schema.CliServices;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Microsoft.TeamFoundation.Test.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +45,7 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
 
         public void Trace(string message, Dictionary<string, object> fields)
         {
+            ConsoleLogger.NewLineMessage(message);
             var tt = new TraceTelemetry(message);
             if(fields != null )
             {
@@ -53,16 +56,19 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
 
         public void TrackMetric(string metricName, double metricValue)
         {
+            ConsoleLogger.Message($"{metricName} {metricValue}");
             client.TrackMetric(new MetricTelemetry(metricName, metricValue));
         }
 
         public void TrackException(Exception exception)
         {
+            ConsoleLogger.Error(exception.Message);
             client.TrackException(exception);
         }
 
         public GenericOperation BeginOperation(string message, string operationName = "NewOp")
         {
+            ConsoleLogger.NewLineMessage($"{message} {operationName}");
             return new GenericOperation(client, operationName).Begin(message);
         }
 
@@ -94,12 +100,14 @@ namespace Kdoctl.CliServices.Supports.Instrumentations
 
             public void Message(string message)
             {
+                ConsoleLogger.NewLineMessage(message);
                 CreateTraceWithOpContext(message);
             }
 
             private void EndCore(string message, bool success)
             {
-                if(!disposed)
+                ConsoleLogger.NewLineMessage($"{message} {success}");
+                if (!disposed)
                 {
                     disposed = true;
                     CreateTraceWithOpContext(message);

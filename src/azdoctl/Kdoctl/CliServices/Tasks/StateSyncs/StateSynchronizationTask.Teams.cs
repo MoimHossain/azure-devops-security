@@ -4,6 +4,7 @@ using Kdoctl.CliServices.AzDoServices;
 using Kdoctl.CliServices.AzDoServices.Dtos;
 using Kdoctl.CliServices.Constants;
 using Kdoctl.Schema;
+using Kdoctl.Schema.CliServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,19 +23,21 @@ namespace Kdoctl.CliServices
         {
             if(manifest.Teams != null && manifest.Teams.Any())
             {
+                var currentProject = outcome.Item1;
                 var gService = GetGraphService();
                 var secService = GetSecurityNamespaceService();
                 var aclService = GetAclListService();
-                var allUsers = await gService.ListUsersAsync();
+               // var allUsers = await gService.ListUsersAsync();
                 foreach (var teamManifest in manifest.Teams)
                 {
-                    var tc = await projectService.GetTeamsAsync();
+                    var tc = await projectService.GetTeamsAsync(currentProject.Id);
                     var eteam = tc.Value
                         .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
                         StringComparison.OrdinalIgnoreCase));
 
                     if (eteam == null)
                     {
+                        ConsoleLogger.NewLineMessage($"Creating team [{teamManifest.Name}]...");
                         using var op = Insights.BeginOperation($"Creating team [{teamManifest.Name}]...", "Team");
                         var team = await projectService.CreateTeamAsync(
                             new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
@@ -48,7 +51,7 @@ namespace Kdoctl.CliServices
                         var breakOut = 0;
                         while (eteam == null)
                         {
-                            tc = await projectService.GetTeamsAsync();
+                            tc = await projectService.GetTeamsAsync(currentProject.Id);
                             eteam = tc.Value
                                 .FirstOrDefault(tc => tc.Name.Equals(teamManifest.Name,
                                 StringComparison.OrdinalIgnoreCase));
@@ -61,33 +64,48 @@ namespace Kdoctl.CliServices
                         }                        
                     }
 
-                    if (eteam != null && teamManifest.Membership != null
-                        && (teamManifest.Membership.Groups != null && teamManifest.Membership.Groups.Any()))
+                    if (eteam != null && teamManifest.Membership != null)
                     {
-                        var teamGroup = await GetGroupByNameAsync( IdentityOrigin.Vsts.ToString(), eteam.Name);
-                        if (teamGroup != null)
+                        var teamGroupIdentity = await gService.GetIdentityObjectAsync(eteam.Id);
+                        
+                        if (teamGroupIdentity != null)
                         {
-                            foreach (var gp in teamManifest.Membership.Groups)
+                            if(teamManifest.Membership.Groups != null)
                             {
-                                var groupObject = await GetGroupByNameAsync( IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
-
-                                if (groupObject != null)
+                                foreach (var gp in teamManifest.Membership.Groups)
                                 {
-                                    await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, groupObject.Descriptor);
+                                    var groupObject = await GetGroupByNameAsync(IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+
+                                    if (groupObject != null)
+                                    {
+                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, groupObject.Descriptor);
+                                    }
                                 }
                             }
-
-
-                            foreach (var user in teamManifest.Membership.Users)
+                            
+                            if(teamManifest.Membership.Users != null)
                             {
-                                var userInfo = allUsers.Value.FirstOrDefault(u => u.OriginId.Equals(user.Id));
-                                if (userInfo != null)
+                                foreach (var user in teamManifest.Membership.Users)
                                 {
-                                    await gService.AddMemberAsync(eteam.ProjectId, teamGroup.Descriptor, userInfo.Descriptor);
+                                    
+
+                                    var matches = await gService.GetLegacyIdentitiesByNameAsync(user.Name);
+                                    if (matches != null && matches.Count > 0)
+                                    {
+                                        ConsoleLogger.NewLineMessage($"Adding member {user.Name}");
+
+                                        var memberUserInfo = matches.Value.First();
+                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, memberUserInfo.Descriptor);
+                                    }else
+                                    {
+                                        ConsoleLogger.NewLineMessage($"Failed to find member in identity: {user.Name}");
+                                    }
                                 }
-                            }
+                            }                            
                         }
                     }
+
+                   
 
                     if (eteam != null &&
                         teamManifest.Admins != null &&

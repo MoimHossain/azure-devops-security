@@ -25,24 +25,6 @@ teams:
           id: 4ae3c851-6ef3-4748-bef9-4f809736d538
         - name: Linda
           id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
-  - name: SRE-TEAM-2
-    description: The A Team
-    admins:
-      - name: Timothy Green
-        id: 4ae3c851-6ef3-4748-bef9-4f809736d538
-      - name: Scrum
-        id: e393e305-3ead-4fbd-87f7-76e32c73f36f
-    membership:
-      groups:
-        - name: 'Kubernetes-Admins'
-          id: a2931c86-e975-4220-aa89-dc3f952290f4
-      users:
-        - name: Scrum
-          id: e393e305-3ead-4fbd-87f7-76e32c73f36f
-        - name: Timothy Green
-          id: 4ae3c851-6ef3-4748-bef9-4f809736d538
-        - name: Linda
-          id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
 repositories:
   - name: Temp
     permissions:
@@ -72,7 +54,7 @@ environments:
         roles: 
           - User
 buildFolders:
-  - path: '/AKSBuildsXX-test'
+  - path: '/AKSBuilds'
     permissions:
       - group: 'Database-Adninistrators'
         origin: aad
@@ -85,7 +67,7 @@ buildFolders:
           - EditBuildDefinition
           - DeleteBuilds
 releaseFolders:
-  - path: '/AksReleasesX'
+  - path: '/AksReleases'
     permissions:
       - group: 'Database-Adninistrators'
         origin: aad
@@ -98,49 +80,49 @@ releaseFolders:
           - EditReleaseEnvironment
           - DeleteReleaseEnvironment
           - ManageDeployments
-#serviceEndpoints:
-#  - name: UnprEndpoint
-#    description: K8S service endpoint
-#    kind: Kubernetes
-#    clusterInfo:
-#      namespace:
-#        apiVersion: v1
-#        kind: Namespace
-#        metadata:
-#          name: tulsa
-#          annotations:
-#            workload: didactic
-#            purpose: cloud-delivery
-#          labels:
-#            workload: didactic
-#            purpose: cloud-delivery
-#      serviceAccount: 
-#        spec:
-#          apiVersion: v1
-#          kind: ServiceAccount
-#          metadata:
-#            name: cicd-account
-#            labels:
-#              purpose: cloud-delivery
-#              workload: didactic
-#        role:
-#          apiVersion: rbac.authorization.k8s.io/v1
-#          kind: Role
-#          metadata:
-#            name: cicd-account-role
-#          rules:
-#          - apiGroups: ["*"]
-#            resources: ["*"]
-#            verbs: ["*"]
-#        binding:
-#          apiVersion: rbac.authorization.k8s.io/v1
-#          kind: RoleBinding
-#          metadata:
-#            name: cicd-account-rolebinding
-#          roleRef:
-#            apiGroup: rbac.authorization.k8s.io
-#            kind: Role
-#            name: cicd-account-role
-#          subjects:
-#          - kind: ServiceAccount
-#            name: cicd-account
+serviceEndpoints:
+  - name: UnprEndpoint
+    description: K8S service endpoint
+    kind: Kubernetes
+    clusterInfo:
+      namespace:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: tulsa
+          annotations:
+            workload: didactic
+            purpose: cloud-delivery
+          labels:
+            workload: didactic
+            purpose: cloud-delivery
+      serviceAccount: 
+        spec:
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: cicd-account
+            labels:
+              purpose: cloud-delivery
+              workload: didactic
+        role:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: Role
+          metadata:
+            name: cicd-account-role
+          rules:
+          - apiGroups: ["*"]
+            resources: ["*"]
+            verbs: ["*"]
+        binding:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: RoleBinding
+          metadata:
+            name: cicd-account-rolebinding
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: Role
+            name: cicd-account-role
+          subjects:
+          - kind: ServiceAccount
+            name: cicd-account

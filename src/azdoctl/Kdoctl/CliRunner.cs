@@ -4,6 +4,7 @@ using Kdoctl.CliServices;
 using Kdoctl.CliServices.Supports.Instrumentations;
 using Kdoctl.CliServices.Tasks;
 using Kdoctl.Schema;
+using Kdoctl.Schema.CliServices;
 using System;
 using System.IO;
 using System.Linq;
@@ -54,7 +55,15 @@ namespace Kdoctl
         }
 
         public int RunApplyVerb(ApplyOptions opts)
-        {
+        {            
+            ConsoleLogger.NewLineMessage("Syncing manifest files");
+            if(opts != null )
+            {
+                ConsoleLogger.NewLineMessage($"ORG URI = {opts.OrganizationURL}");
+                ConsoleLogger.NewLineMessage($"PAT Length = {opts.PAT.Length}");
+                ConsoleLogger.NewLineMessage($"AppInsight present = {!string.IsNullOrWhiteSpace(opts.AppInsightConnectionString)}");
+            }
+
             instrumentationClient.InitializeSession(nameof(StateSynchronizationTask));
             Console.ResetColor();
             if (!string.IsNullOrWhiteSpace(opts.Directory))
@@ -74,6 +83,7 @@ namespace Kdoctl
             {
                 foreach (var file in opts.ManifestFiles)
                 {
+                    ConsoleLogger.NewLineMessage($"Processing manifest file {file}");
                     var spec = GetMetadata(opts, services, deserializer, file);
                     ProcessSpec(spec.Item3, spec.Item4, spec.Item1, spec.Item2);
                 }

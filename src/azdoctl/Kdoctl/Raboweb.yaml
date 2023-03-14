@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Project
+metadata:
+  name: APF opt2
+  description: Project for experimenting with Project as code
+template:
+  name: Agile
+  sourceControlType: Git
+teams:
+  - name: Demo-Team
+    description: The A Team
+    admins:
+      - name: Wassink, EC (Edwin)
+        id: c16f5d58-6b59-47e7-b5d1-13f08ebb01d9
+    membership:
+      users:
+        - name: Hossain, M (Moim)
+          id: e6ef3df6-78fd-4ec7-9682-4b8844337d1e
+        - name: Wassink, EC (Edwin)
+          id: c16f5d58-6b59-47e7-b5d1-13f08ebb01d9

@@ -2,6 +2,7 @@
 
 using k8s.KubeConfigModels;
 using k8s.Util.Informer.Cache;
+using Kdoctl.CliOptions;
 using Kdoctl.CliServices.Abstract;
 using Kdoctl.CliServices.AzDoServices.Dtos;
 using Kdoctl.CliServices.Constants;
@@ -9,10 +10,13 @@ using Kdoctl.CliServices.Supports;
 using Microsoft.TeamFoundation.WorkItemTracking.Process.WebApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection.PortableExecutable;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
@@ -21,9 +25,26 @@ namespace Kdoctl.CliServices.AzDoServices
 {
     public class GraphService : RestServiceBase
     {
+        private OptionBase baseOpts;
         private static GroupCollection cachedCopy;
 
-        public GraphService(IHttpClientFactory clientFactory) : base(clientFactory) { }
+        public GraphService(OptionBase baseOpts, IHttpClientFactory clientFactory) : base(clientFactory) 
+        {
+            this.baseOpts = baseOpts;
+        }
+
+        public async Task<VstsIdentity> GetIdentityObjectAsync(Guid id)
+        {
+            var path = $"_apis/identities?identityIds={id}&api-version=7.0";
+
+            var identityCOll = await VsspsApi().GetRestAsync<VstsIdentityCollection>(path);
+
+            if(identityCOll != null && identityCOll.Value != null )
+            {
+                return identityCOll.Value.FirstOrDefault();
+            }
+            return null;
+        }
 
         private async Task<GroupCollection> ListAllGroupsFromOrganizationCoreAsync()
         {

@@ -9,6 +9,8 @@ namespace Kdoctl.CliServices.Abstract
     {
         private readonly IHttpClientFactory clientFactory;
 
+        protected IHttpClientFactory ClientFactory { get { return clientFactory; } }
+
 
         public RestServiceBase(IHttpClientFactory clientFactory)
         {

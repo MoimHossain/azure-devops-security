@@ -27,9 +27,9 @@ namespace Kdoctl.CliServices.AzDoServices
             return await teamClient.CreateTeamAsync(team, projectId.ToString());
         }
 
-        public async Task<VstsTeamCollection> GetTeamsAsync()
-        {
-            var path = "_apis/teams?api-version=6.1-preview.3";
+        public async Task<VstsTeamCollection> GetTeamsAsync(Guid projectId)
+        {            
+            var path = $"_apis/projects/{projectId}/teams?api-version=7.0";
             var teams = await CoreApi()
                 .GetRestAsync<VstsTeamCollection>(path);
 
