@@ -60,7 +60,7 @@ namespace Kdoctl.CliServices
             {
                 foreach (var gp in permissionEntry.Membership.Groups)
                 {
-                    var groupObject = await GetGroupByNameAsync(IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+                    var groupObject = await GetOrMaterializeGroupAsync(gp.Name, gp.Id);
                     if (groupObject != null)
                     {
                         await gService.AddMemberAsync(projectId, targetGroup.Descriptor, groupObject.Descriptor);
@@ -104,7 +104,7 @@ namespace Kdoctl.CliServices
             {
                 if (permission.Allowed != null && permission.Allowed.Any())
                 {
-                    var group = await GetGroupByNameAsync( permission.Origin, permission.Group);
+                    var group = await GetOrMaterializeGroupAsync(permission.Group);
 
                     if (group != null)
                     {

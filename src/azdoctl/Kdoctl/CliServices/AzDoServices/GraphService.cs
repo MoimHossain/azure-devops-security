@@ -9,6 +9,7 @@ using Kdoctl.CliServices.Constants;
 using Kdoctl.CliServices.Supports;
 using Microsoft.TeamFoundation.WorkItemTracking.Process.WebApi.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using static Microsoft.VisualStudio.Services.Graph.Constants;
 
 namespace Kdoctl.CliServices.AzDoServices
 {
@@ -91,6 +93,22 @@ namespace Kdoctl.CliServices.AzDoServices
                 allGroups.AddRange(groups.Value);
             }
             return new GroupCollection { Value = allGroups.ToArray(), Count = allGroups.Count };
+        }
+
+        public async Task<VstsGroup> GetGroupByNameAsync(string groupName)
+        {
+            var path = "_apis/graph/subjectquery?api-version=7.0-preview.1";
+            var groups = await VsspsApi().PostRestAsync<GroupCollection>(path,
+            new
+            {
+                query = groupName,
+                subjectKind = new List<string> { "Group" }
+            });
+            if(groups != null && groups.Value != null && groups.Value.Length > 0)
+            {
+                return groups.Value.FirstOrDefault();
+            }
+            return null;
         }
 
         public async Task<GroupCollection> ListGroupsAsync()

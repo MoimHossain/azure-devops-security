@@ -64,7 +64,7 @@ namespace Kdoctl.CliServices
                             }
                         }                        
                     }                                       
-
+                    
                     if (eteam != null &&
                         teamManifest.Admins != null &&
                         teamManifest.Admins.Any())
@@ -104,7 +104,7 @@ namespace Kdoctl.CliServices
                         var result = await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
                         ConsoleLogger.NewLineMessage($"Added admins to {eteam.Name} was {(result ? "Successfull" : "Failed")}");
                     }
-
+                    
                     if (eteam != null && teamManifest.Membership != null)
                     {
                         var teamGroupIdentity = await gService.GetIdentityObjectAsync(eteam.Id);
@@ -115,11 +115,16 @@ namespace Kdoctl.CliServices
                             {
                                 foreach (var gp in teamManifest.Membership.Groups)
                                 {
-                                    var groupObject = await GetGroupByNameAsync(IdentityOrigin.Aad.ToString(), gp.Name, gp.Id);
+                                    var groupObject = await GetOrMaterializeGroupAsync(gp.Name, gp.Id);
 
                                     if (groupObject != null)
                                     {
-                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, groupObject.Descriptor);
+                                        var operationResult = await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, groupObject.Descriptor);
+                                        ConsoleLogger.NewLineMessage($"Adding group {groupObject.DisplayName} was {(operationResult ? "successful" : "failed")}");
+                                    }
+                                    else
+                                    {
+                                        ConsoleLogger.NewLineMessage($"Failed to find group in identity: {gp.Name}");
                                     }
                                 }
                             }

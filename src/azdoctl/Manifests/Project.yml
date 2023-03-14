@@ -16,8 +16,8 @@ teams:
         principal: Scrum@cloudoven.onmicrosoft.com
     membership:
       groups:
-        - name: 'Kubernetes-Admins'
-          id: a2931c86-e975-4220-aa89-dc3f952290f4
+        - name: 'SRE-People'
+          id: 0dabe415-0990-471d-b0ec-f1208ee315e1
       users:
         - name: Scrum
           principal: Scrum@cloudoven.onmicrosoft.com

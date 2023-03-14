@@ -20,20 +20,23 @@ namespace Kdoctl.CliServices
     {
 
 
-        protected async Task<VstsGroup> GetGroupByNameAsync(string origin, string groupName, Guid? id = null)
+        protected async Task<VstsGroup> GetOrMaterializeGroupAsync(string groupName, Guid? id = null)
         {
             var gService = this.GetGraphService();
-            var groups = await gService.ListGroupsAsync();
-            var group = groups.Value
-                .FirstOrDefault(g =>
-                g.Origin.ToString().Equals(origin, StringComparison.OrdinalIgnoreCase) &&
-                g.PrincipalName.Contains(groupName, StringComparison.OrdinalIgnoreCase));
 
-            if (group == null && id.HasValue)
+            var existingGroup = await gService.GetGroupByNameAsync(groupName);
+
+            if(existingGroup != null)
             {
-                group = await gService.CreateAadGroupByObjectId(id.Value);
+                return existingGroup;
             }
-            return group;
+
+            if (existingGroup == null && id.HasValue)
+            {
+                var group = await gService.CreateAadGroupByObjectId(id.Value);
+                return group;
+            }
+            return null;
         }
     }
 }
