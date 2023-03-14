@@ -7,25 +7,14 @@ template:
   name: Agile
   sourceControlType: Git
 teams:
-  - name: SQUAD-B
-    description: The A Team
-    admins:
-      - name: Moim Hossain
-        id: e6ef3df6-78fd-4ec7-9682-4b8844337d1e
-    membership:
-      users:
-        - name: Moim Hossain
-          id: e6ef3df6-78fd-4ec7-9682-4b8844337d1e
-        - name: Wassink, EC (Edwin)
-          id: c16f5d58-6b59-47e7-b5d1-13f08ebb01d9
-  - name: Demo-Team
+  - name: SQUAD-Demo-A
     description: The A Team
     admins:
       - name: Wassink, EC (Edwin)
-        id: c16f5d58-6b59-47e7-b5d1-13f08ebb01d9
+        principal: edwin.wassink@rabobank.nl
     membership:
       users:
         - name: Moim Hossain
-          id: e6ef3df6-78fd-4ec7-9682-4b8844337d1e
+          principal: moim.hossain@rabobank.nl
         - name: Wassink, EC (Edwin)
-          id: c16f5d58-6b59-47e7-b5d1-13f08ebb01d9
+          principal: edwin.wassink@rabobank.nl

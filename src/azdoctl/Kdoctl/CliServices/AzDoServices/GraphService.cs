@@ -203,20 +203,20 @@ namespace Kdoctl.CliServices.AzDoServices
             return users;
         }
 
-        public async Task<VstsItentitySearchResultResponse> GetIdentityWithPickerdAsync(string userAccount)
-        {
-            var path = $"_apis/IdentityPicker/Identities?api-version=5.1-preview.1";
-            var response = await CoreApi()
-                .PostRestAsync<VstsItentitySearchResultResponse>(
-                path,
-                new
-                { 
-                    query = userAccount, 
-                    identityTypes = new List<string> { "user", "group" }, 
-                    operationScopes = new List<object> { "ims" } 
-                });
-            return response;
-        }
+        //public async Task<VstsItentitySearchResultResponse> GetIdentityWithPickerdAsync(string userAccount)
+        //{
+        //    var path = $"_apis/IdentityPicker/Identities?api-version=5.1-preview.1";
+        //    var response = await CoreApi()
+        //        .PostRestAsync<VstsItentitySearchResultResponse>(
+        //        path,
+        //        new
+        //        { 
+        //            query = userAccount, 
+        //            identityTypes = new List<string> { "user", "group" }, 
+        //            operationScopes = new List<object> { "ims" } 
+        //        });
+        //    return response;
+        //}
 
 
         public async Task<bool> RemoveMembershipAsync(Guid projectId, string parentDescriptor, string childDescriptor)
@@ -228,7 +228,7 @@ namespace Kdoctl.CliServices.AzDoServices
             return response;
         }
 
-        public async Task<string> AddMemberAsync(Guid projectId, string parentDescriptor, string childDescriptor)
+        public async Task<bool> AddMemberAsync(Guid projectId, string parentDescriptor, string childDescriptor)
         {            
             var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.0-preview.1";
 
@@ -236,7 +236,7 @@ namespace Kdoctl.CliServices.AzDoServices
                 .PutRestAsync(
                 path,
                 string.Empty);
-            return response;
+            return !string.IsNullOrWhiteSpace(response);
         }
 
         // User ID must be a GUID given by AzDO system after adding an user entitlement
@@ -246,6 +246,17 @@ namespace Kdoctl.CliServices.AzDoServices
 
             var response = await VsaexApi().GetRestJsonAsync(path);
             return response;
+        }
+
+        public async Task<VstsUserInfo> GetUserByPrincipalNameAsync(string principalName)
+        {
+            var path = $"_apis/UserEntitlements?$filter=name eq '{principalName}'&$orderBy=name Ascending";
+            var response = await VsaexApi().GetRestAsync<VstsUserEntitlementCollection>(path);
+            if(response != null && response.Items != null && response.Items.Count > 0)
+            {
+                return response.Items.First().User;
+            }
+            return null;
         }
     }
 }

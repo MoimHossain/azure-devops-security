@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Kdoctl.CliServices
@@ -87,46 +88,58 @@ namespace Kdoctl.CliServices
                             {
                                 foreach (var user in teamManifest.Membership.Users)
                                 {
-                                    var matches = await gService.GetLegacyIdentitiesByNameAsync(user.Name);
-                                    if (matches != null && matches.Count > 0)
+                                    var loadedUserObject = await gService.GetUserByPrincipalNameAsync(user.Principal);
+                                    if (loadedUserObject != null)
                                     {
-                                        ConsoleLogger.NewLineMessage($"Adding member {user.Name}");
+                                        ConsoleLogger.NewLineMessage($"Adding member {user.Principal}");
+                                        var operationResult = await gService.AddMemberAsync(
+                                            eteam.ProjectId, 
+                                            teamGroupIdentity.SubjectDescriptor,
+                                            loadedUserObject.Descriptor);
 
-                                        var memberUserInfo = matches.Value.First();
-                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, memberUserInfo.SubjectDescriptor);
-                                    }else
+                                        ConsoleLogger.NewLineMessage($"Adding member {user.Principal} was {(operationResult ? "successful" : "failed")}");
+                                    }
+                                    else
                                     {
                                         ConsoleLogger.NewLineMessage($"Failed to find member in identity: {user.Name}");
                                     }
                                 }
                             }                            
                         }
-                    }
-
-                   
+                    }                                       
 
                     if (eteam != null &&
                         teamManifest.Admins != null &&
                         teamManifest.Admins.Any())
                     {
                         var token = $"{eteam.ProjectId}\\{eteam.Id}";
-                        var releaseNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
-                        var secNamespaceId = releaseNamespace.NamespaceId;
+                        var securityNamespace = await secService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
+                        var secNamespaceId = securityNamespace.NamespaceId;
                         var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
 
-                        foreach (var adminUserName in teamManifest.Admins)
+                        foreach (var adminUser in teamManifest.Admins)
                         {
-                            var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUserName.Name);
-                            if (matches != null && matches.Count > 0)
+                            var loadedUserObject = await gService.GetUserByPrincipalNameAsync(adminUser.Principal);
+                            if(loadedUserObject != null)
                             {
-                                var adminUserInfo = matches.Value.First();
-                                aclDictioanry.Add(adminUserInfo.Descriptor, new VstsAcesDictionaryEntry
+                                aclDictioanry.Add(loadedUserObject.Descriptor, new VstsAcesDictionaryEntry
                                 {
                                     Allow = 31,
                                     Deny = 0,
-                                    Descriptor = adminUserInfo.Descriptor
+                                    Descriptor = loadedUserObject.Descriptor
                                 });
                             }
+                            //var matches = await gService.GetLegacyIdentitiesByNameAsync(adminUser.Name);
+                            //if (matches != null && matches.Count > 0)
+                            //{
+                            //    var adminUserInfo = matches.Value.First();
+                            //    aclDictioanry.Add(adminUserInfo.Descriptor, new VstsAcesDictionaryEntry
+                            //    {
+                            //        Allow = 31,
+                            //        Deny = 0,
+                            //        Descriptor = adminUserInfo.Descriptor
+                            //    });
+                            //}
                         }
                         await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
                     }

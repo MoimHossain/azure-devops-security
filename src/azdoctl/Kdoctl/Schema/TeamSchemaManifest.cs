@@ -31,5 +31,6 @@ namespace Kdoctl.Schema
     {
         public string Name { get; set; }
         public Guid Id { get; set; }
+        public string Principal { get; set; }
     }
 }

@@ -11,7 +11,62 @@ using Newtonsoft.Json.Converters;
 
 namespace Kdoctl.CliServices.AzDoServices.Dtos
 {
-    
+
+    public class VstsUserEntitlementInfo
+    {
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        public VstsUserInfo User { get; set; }
+    }
+
+    public class VstsUserEntitlementCollection
+    {
+        [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
+        public List<VstsUserEntitlementInfo> Items { get; set; }
+    }
+
+    public class VstsUserInfo
+    {
+        [JsonProperty("subjectKind", NullValueHandling = NullValueHandling.Ignore)]
+        public string SubjectKind { get; set; }
+
+        [JsonProperty("metaType", NullValueHandling = NullValueHandling.Ignore)]
+        public string MetaType { get; set; }
+
+        [JsonProperty("directoryAlias", NullValueHandling = NullValueHandling.Ignore)]
+        public string DirectoryAlias { get; set; }
+
+        [JsonProperty("domain", NullValueHandling = NullValueHandling.Ignore)]
+        public string Domain { get; set; }
+
+        [JsonProperty("principalName", NullValueHandling = NullValueHandling.Ignore)]
+        public string PrincipalName { get; set; }
+
+        [JsonProperty("mailAddress", NullValueHandling = NullValueHandling.Ignore)]
+        public string MailAddress { get; set; }
+
+        [JsonProperty("origin", NullValueHandling = NullValueHandling.Ignore)]
+        public string Origin { get; set; }
+
+        [JsonProperty("originId", NullValueHandling = NullValueHandling.Ignore)]
+        public string OriginId { get; set; }
+
+        [JsonProperty("displayName", NullValueHandling = NullValueHandling.Ignore)]
+        public string DisplayName { get; set; }
+
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; set; }
+
+        [JsonProperty("descriptor", NullValueHandling = NullValueHandling.Ignore)]
+        public string Descriptor { get; set; }
+    }
+
+
+
+
+
+
+
+
     public partial class VstsIdentityCollection
     {
         [JsonProperty("count")]
