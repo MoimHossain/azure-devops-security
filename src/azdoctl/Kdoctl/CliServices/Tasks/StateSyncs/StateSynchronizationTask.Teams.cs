@@ -87,15 +87,13 @@ namespace Kdoctl.CliServices
                             {
                                 foreach (var user in teamManifest.Membership.Users)
                                 {
-                                    
-
                                     var matches = await gService.GetLegacyIdentitiesByNameAsync(user.Name);
                                     if (matches != null && matches.Count > 0)
                                     {
                                         ConsoleLogger.NewLineMessage($"Adding member {user.Name}");
 
                                         var memberUserInfo = matches.Value.First();
-                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, memberUserInfo.Descriptor);
+                                        await gService.AddMemberAsync(eteam.ProjectId, teamGroupIdentity.SubjectDescriptor, memberUserInfo.SubjectDescriptor);
                                     }else
                                     {
                                         ConsoleLogger.NewLineMessage($"Failed to find member in identity: {user.Name}");

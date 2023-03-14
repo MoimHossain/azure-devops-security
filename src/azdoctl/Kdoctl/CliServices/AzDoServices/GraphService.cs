@@ -196,7 +196,7 @@ namespace Kdoctl.CliServices.AzDoServices
         }
 
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesByNameAsync(string name)
-        {            
+        {
             var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode(name)}&queryMembership=None&api-version=6.0";
             var users = await VsspsApi()
                 .GetRestAsync<VstsIdentityCollection>(path);
@@ -229,7 +229,7 @@ namespace Kdoctl.CliServices.AzDoServices
         }
 
         public async Task<string> AddMemberAsync(Guid projectId, string parentDescriptor, string childDescriptor)
-        {
+        {            
             var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.0-preview.1";
 
             var response = await VsspsApi()
