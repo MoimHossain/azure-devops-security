@@ -13,6 +13,9 @@ namespace Kdoctl.CliServices.Tasks
     {
         protected async Task ExportProjectPermissionsAsync(AzDoServices.Dtos.Project project)
         {
+            // this needs to be fixed later, the listgroupsfromprojects won't scale when there are lot of groups
+            await Task.CompletedTask;
+            /*
             var graphService = GetGraphService();
             var groups = await graphService.ListGroupsInProjectAsync(project.Id);
             var manifest = BaseSchema.GetEmpty(project.Name, ManifestKind.Permission);
@@ -33,7 +36,7 @@ namespace Kdoctl.CliServices.Tasks
             if(manifest.Permissions.Any())
             {
                 await this.fs.WriteManifestAsync(project, ManifestKind.Permission, Serialize(manifest));
-            }            
+            }  */          
         }
 
         private static async Task PopulateMembershipAsync(

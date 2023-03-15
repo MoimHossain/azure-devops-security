@@ -21,23 +21,19 @@ namespace Kdoctl.CliServices
         {
             if (manifest.Permissions != null && manifest.Permissions.Any())
             {
-                var gService = GetGraphService();
-                var allUsers = await gService.ListUsersAsync();
+                var gService = GetGraphService();                
                 var projectId = outcome.Item1.Id;
+                var projectName = outcome.Item1.Name;
 
                 foreach (var permissionEntry in manifest.Permissions)
                 {
                     if (!string.IsNullOrWhiteSpace(permissionEntry.Name) && permissionEntry.Membership != null)
                     {
-                        var projectGroups = await gService.ListGroupsInProjectAsync(projectId);
-                        if (projectGroups != null)
+                        var builtInGroup = await gService.GetBuiltInGroupByNameFromScopeAsync(projectName, permissionEntry.Name);
+
+                        if (builtInGroup != null)
                         {
-                            var targetGroup = projectGroups
-                                .FirstOrDefault(pg => pg.DisplayName.Equals(permissionEntry.Name, StringComparison.OrdinalIgnoreCase));
-                            if (targetGroup != null)
-                            {
-                                await ApplyGroupPermissionsAsync( gService, allUsers, projectId, permissionEntry, targetGroup);
-                            }
+                            await ApplyGroupPermissionsAsync(gService, projectId, permissionEntry, builtInGroup);
                         }
                     }
                 }
@@ -45,8 +41,7 @@ namespace Kdoctl.CliServices
         }
 
         private async Task ApplyGroupPermissionsAsync(            
-            GraphService gService, 
-            GroupCollection allUsers, 
+            GraphService gService,             
             Guid projectId, 
             PermissionSchemaManifest permissionEntry, 
             VstsGroup targetGroup)
@@ -73,7 +68,7 @@ namespace Kdoctl.CliServices
             {
                 foreach (var user in permissionEntry.Membership.Users)
                 {
-                    var userInfo = allUsers.Value.FirstOrDefault(u => u.OriginId.Equals(user.Id));
+                    var userInfo = await gService.GetUserByPrincipalNameAsync(user.Principal);                    
                     if (userInfo != null)
                     {
                         await gService.AddMemberAsync(projectId, targetGroup.Descriptor, userInfo.Descriptor);

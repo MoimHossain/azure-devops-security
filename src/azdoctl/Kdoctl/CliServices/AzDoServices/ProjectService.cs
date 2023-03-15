@@ -9,7 +9,7 @@ using Microsoft.TeamFoundation.Core.WebApi;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-
+using System.Web;
 
 namespace Kdoctl.CliServices.AzDoServices
 {
@@ -46,13 +46,15 @@ namespace Kdoctl.CliServices.AzDoServices
             return response;
         }
 
-        public async Task<ProjectCollection> ListProjectsAsync()
+        public async Task<Project> GetProjectByIdOrNameAsync(string projectIdOrName)
         {
-            var path = "_apis/projects?stateFilter=All&api-version=1.0";
-            var projects = await CoreApi()
-                .GetRestAsync<ProjectCollection>(path);
+            var projectParameter = (Guid.TryParse(projectIdOrName, out var projectId)) 
+                ? projectIdOrName : HttpUtility.UrlEncode(projectIdOrName);
+            
+            var path = $"_apis/projects/{projectParameter}?api-version=7.0";
+            var project = await CoreApi().GetRestAsync<Project>(path);
 
-            return projects;
+            return project;
         }
 
         public async Task<ProcessTemplateCollection> ListProcessAsync()

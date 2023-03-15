@@ -25,17 +25,11 @@ namespace Kdoctl.CliServices.Tasks
         protected async override Task ExecuteCoreAsync()
         {
             var projectService = GetProjectService();
-            var projectCollection = await projectService.ListProjectsAsync();
+            var project = await projectService.GetProjectByIdOrNameAsync(opts.ProjectIdOrName);
 
-            if (projectCollection != null && projectCollection.Value != null)
+            if (project != null && opts.Resources.Contains(ManifestKind.Permission))
             {
-                foreach (var project in projectCollection.Value)
-                {
-                    if(opts.Resources.Contains(ManifestKind.Permission))
-                    {
-                        await ExportProjectPermissionsAsync(project);
-                    }
-                }
+                await ExportProjectPermissionsAsync(project);
             }
         }
 

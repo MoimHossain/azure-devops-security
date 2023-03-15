@@ -28,6 +28,8 @@ namespace Kdoctl.CliServices
                 var gService = GetGraphService();
                 var secService = GetSecurityNamespaceService();
                 var aclService = GetAclListService();
+
+
                // var allUsers = await gService.ListUsersAsync();
                 foreach (var teamManifest in manifest.Teams)
                 {

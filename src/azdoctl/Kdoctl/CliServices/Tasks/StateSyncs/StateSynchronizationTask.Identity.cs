@@ -24,7 +24,7 @@ namespace Kdoctl.CliServices
         {
             var gService = this.GetGraphService();
 
-            var existingGroup = await gService.GetGroupByNameAsync(groupName);
+            var existingGroup = await gService.GetGroupByNameFromCollectionAsync(groupName);
 
             if(existingGroup != null)
             {

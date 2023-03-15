@@ -4,6 +4,7 @@ using Kdoctl.CliServices.Supports;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 
@@ -597,5 +598,40 @@ namespace Kdoctl.CliServices.AzDoServices.Dtos
 
         [JsonProperty("memberDescriptor")]
         public string MemberDescriptor { get; set; }
+    }
+
+
+
+
+
+
+
+    public class IdentityInternalCollectionDto
+    {
+        [JsonProperty("count")]
+        public int Count { get; set; }
+
+        [JsonProperty("value")]
+        public List<IdentityInternalDto> Value { get; set; }
+    }
+    public class IdentityInternalDto
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("descriptor")]
+        public string Descriptor { get; set; }
+
+        [JsonProperty("subjectDescriptor")]
+        public string SubjectDescriptor { get; set; }
+
+        [JsonProperty("providerDisplayName")]
+        public string ProviderDisplayName { get; set; }
+
+        [JsonProperty("isActive")]
+        public bool IsActive { get; set; }
+
+        [JsonProperty("isContainer")]
+        public bool IsContainer { get; set; }
     }
 }

@@ -16,10 +16,8 @@ namespace Kdoctl.CliServices
             ProjectManifest manifest, ProjectService projectService)
         {
             var projectCreatedJIT = false;
-            var projects = await projectService.ListProjectsAsync();
-            var project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
-                StringComparison.OrdinalIgnoreCase));
-
+            var project = await projectService.GetProjectByIdOrNameAsync(manifest.Metadata.Name);
+            
             if (project == null)
             {
                 using var op = Insights.BeginOperation("Creating project, reading Process templates...", "Project");
@@ -37,9 +35,7 @@ namespace Kdoctl.CliServices
                 projectCreatedJIT = true;                
                 while (project == null)
                 {
-                    projects = await projectService.ListProjectsAsync();
-                    project = projects.Value.FirstOrDefault(p => p.Name.Equals(manifest.Metadata.Name,
-                                                StringComparison.OrdinalIgnoreCase));
+                    project = await projectService.GetProjectByIdOrNameAsync(manifest.Metadata.Name);                    
                 }                
             }
 

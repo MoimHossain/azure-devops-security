@@ -14,5 +14,8 @@ namespace Kdoctl.CliOptions
 
         [Option('d', "directory", Required = true, HelpText = "Directory where all input files to be processed.")]
         public string Directory { get; set; }
+
+        [Option('c', "project", Required = true, HelpText = "Project ID or name that should be used as context for exporting.")]
+        public string ProjectIdOrName { get; set; }
     }
 }
