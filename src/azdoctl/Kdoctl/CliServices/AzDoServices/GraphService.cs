@@ -13,13 +13,12 @@ namespace Kdoctl.CliServices.AzDoServices
 {
     public class GraphService : RestServiceBase
     {
-        private OptionBase baseOpts;        
+        private OptionBase baseOpts;
 
         public GraphService(OptionBase baseOpts, IHttpClientFactory clientFactory) : base(clientFactory)
         {
             this.baseOpts = baseOpts;
         }
-
         public async Task<VstsIdentity> GetIdentityObjectAsync(Guid id)
         {
             var path = $"_apis/identities?identityIds={id}&api-version=7.0";
@@ -30,7 +29,6 @@ namespace Kdoctl.CliServices.AzDoServices
             }
             return null;
         }
-
         public async Task<VstsGroup> GetGroupByNameFromCollectionAsync(string groupName)
         {
             var path = "_apis/graph/subjectquery?api-version=7.0-preview.1";
@@ -46,7 +44,6 @@ namespace Kdoctl.CliServices.AzDoServices
             }
             return null;
         }
-
         public async Task<VstsGroup> GetBuiltInGroupByNameFromScopeAsync(string scopeName, string groupName)
         {
             var fqgn = $"[{scopeName}]\\{groupName}";
@@ -64,8 +61,6 @@ namespace Kdoctl.CliServices.AzDoServices
             }
             return null;
         }
-
-
         public async Task<VstsGroup> CreateAadGroupByObjectId(Guid aadObjectId)
         {
             var ep = await VsspsApi()
@@ -77,7 +72,6 @@ namespace Kdoctl.CliServices.AzDoServices
                 });
             return ep;
         }
-
         public async Task<VstsMembershipCollection> GetGroupMembersAsync(string securityDescriptor)
         {
             var path = $"_apis/graph/Memberships/{securityDescriptor}?direction=Down&api-version=6.1-preview.1";
@@ -86,14 +80,12 @@ namespace Kdoctl.CliServices.AzDoServices
 
             return memberCollection;
         }
-
         public bool IsGroupDescriptor(string descriptor)
         {
             return !string.IsNullOrWhiteSpace(descriptor) &&
                 (descriptor.StartsWith("aadgp.", StringComparison.OrdinalIgnoreCase)
                     || descriptor.StartsWith("vssgp.", StringComparison.OrdinalIgnoreCase));
         }
-
         public async Task<VstsGroup> GetGroupByDescriptorAsync(string descriptor)
         {
             var path = $"_apis/graph/groups/{descriptor}?api-version=6.1-preview.1";
@@ -101,7 +93,6 @@ namespace Kdoctl.CliServices.AzDoServices
                 .GetRestAsync<VstsGroup>(path);
             return group;
         }
-
         public async Task<VstsUser> GetUserByDescriptorAsync(string descriptor)
         {
             var path = $"_apis/graph/users/{descriptor}?api-version=6.1-preview.1";
@@ -109,7 +100,6 @@ namespace Kdoctl.CliServices.AzDoServices
                 .GetRestAsync<VstsUser>(path);
             return user;
         }
-
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesBySidAsync(string descriptors)
         {
             var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";
@@ -118,15 +108,6 @@ namespace Kdoctl.CliServices.AzDoServices
 
             return users;
         }
-
-        public async Task<VstsIdentityCollection> GetLegacyIdentitiesByNameAsync(string name)
-        {
-            var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode(name)}&queryMembership=None&api-version=6.0";
-            var users = await VsspsApi()
-                .GetRestAsync<VstsIdentityCollection>(path);
-            return users;
-        }
-
         public async Task<bool> RemoveMembershipAsync(Guid projectId, string parentDescriptor, string childDescriptor)
         {
             var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.1-preview.1";
@@ -135,7 +116,6 @@ namespace Kdoctl.CliServices.AzDoServices
                 .DeleteRestAsync(path);
             return response;
         }
-
         public async Task<bool> AddMemberAsync(Guid projectId, string parentDescriptor, string childDescriptor)
         {
             var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.0-preview.1";
@@ -146,16 +126,6 @@ namespace Kdoctl.CliServices.AzDoServices
                 string.Empty);
             return !string.IsNullOrWhiteSpace(response);
         }
-
-        // User ID must be a GUID given by AzDO system after adding an user entitlement
-        public async Task<string> GetUserEntitlementAsync(string userId)
-        {
-            var path = $"_apis/userentitlements/{userId}?api-version=5.0-preview.2";
-
-            var response = await VsaexApi().GetRestJsonAsync(path);
-            return response;
-        }
-
         public async Task<VstsUserInfo> GetUserByPrincipalNameAsync(string principalName)
         {
             var path = $"_apis/UserEntitlements?$filter=name eq '{principalName}'&$orderBy=name Ascending";
@@ -166,15 +136,12 @@ namespace Kdoctl.CliServices.AzDoServices
             }
             return null;
         }
-
         public string GetSecurityDescriptorForUser(VstsUserInfo user)
         {
             return $"Microsoft.IdentityModel.Claims.ClaimsIdentity;{user.Domain}\\{user.PrincipalName}";
         }
     }
 }
-
-
 
 
 
@@ -197,6 +164,22 @@ namespace Kdoctl.CliServices.AzDoServices
 //    return response;
 //}
 /*
+ * 
+// User ID must be a GUID given by AzDO system after adding an user entitlement
+        public async Task<string> GetUserEntitlementAsync(string userId)
+        {
+            var path = $"_apis/userentitlements/{userId}?api-version=5.0-preview.2";
+
+            var response = await VsaexApi().GetRestJsonAsync(path);
+            return response;
+        }
+        public async Task<VstsIdentityCollection> GetLegacyIdentitiesByNameAsync(string name)
+        {
+            var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode(name)}&queryMembership=None&api-version=6.0";
+            var users = await VsspsApi()
+                .GetRestAsync<VstsIdentityCollection>(path);
+            return users;
+        }
         private async Task<GroupCollection> ListAllGroupsFromOrganizationCoreAsync()
         {
             var extractToken = new Func<HttpResponseMessage, string>((response) =>
