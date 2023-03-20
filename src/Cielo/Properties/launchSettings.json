@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Cielo": {
+      "commandName": "Project",
+      "commandLineArgs": "apply -f \"C:\\Git\\moimhossain\\azure-devops-security\\src\\azdoctl\\Manifests\\Project.yml\" -u https://dev.azure.com/moim -p uatc63do2tqknyvlirp32sydwktky3jrwmlibweoe4pv475i66iq -k \"InstrumentationKey=ce7516a3-24a0-4e92-b3b3-ffe524f3dc57;IngestionEndpoint=https://westeurope-5.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/\""
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    }
+  }
+}

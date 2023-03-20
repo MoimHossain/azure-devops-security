@@ -6,15 +6,15 @@ metadata:
 template:
   name: Agile
   sourceControlType: Git
-teams:
-  - name: Demo-Team-002
-    description: The A Team
-    admins:
-      - name: Wassink, EC (Edwin)
-        principal: edwin.wassink@rabobank.nl
-    membership:
-      users:
-        - name: Moim Hossain
-          principal: moim.hossain@rabobank.nl
-        - name: Wassink, EC (Edwin)
-          principal: edwin.wassink@rabobank.nl
+buildFolders:
+  - path: '/CustomFolder'
+    permissions:
+      - group: 'Team Algis'
+        origin: azdo        
+        allowed:
+          - ViewBuilds
+          - QueueBuilds
+          - StopBuilds
+          - ViewBuildDefinition
+          - EditBuildDefinition
+          - DeleteBuilds

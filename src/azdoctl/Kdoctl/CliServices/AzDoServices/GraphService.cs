@@ -48,7 +48,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var fqgn = $"[{scopeName}]\\{groupName}";
 
-            var path = $"_apis/identities?api-version=6.0&searchFilter=General&filterValue={HttpUtility.UrlEncode(fqgn)}";
+            var path = $"_apis/identities?api-version=6.0&searchFilter=General&filterValue={RestUtils.UriEncode(fqgn)}";
             var identities = await VsspsApi().GetRestAsync<IdentityInternalCollectionDto>(path);
             if (identities != null && identities.Value != null && identities.Value.Count > 0)
             {
@@ -175,7 +175,7 @@ namespace Kdoctl.CliServices.AzDoServices
         }
         public async Task<VstsIdentityCollection> GetLegacyIdentitiesByNameAsync(string name)
         {
-            var path = $"_apis/identities?searchFilter=General&filterValue={HttpUtility.UrlEncode(name)}&queryMembership=None&api-version=6.0";
+            var path = $"_apis/identities?searchFilter=General&filterValue={RestUtils.UrlEncode(name)}&queryMembership=None&api-version=6.0";
             var users = await VsspsApi()
                 .GetRestAsync<VstsIdentityCollection>(path);
             return users;

@@ -27,7 +27,7 @@ namespace Kdoctl.CliServices.AzDoServices
 
         public async Task<VstsAclList> GetAllAclsByTokenAsync(Guid namespaceId, string token)
         {
-            var path = $"_apis/accesscontrollists/{namespaceId}?token={HttpUtility.UrlEncode(token)}&api-version=6.0";
+            var path = $"_apis/accesscontrollists/{namespaceId}?token={RestUtils.UriEncode(token)}&api-version=6.0";
             var aclList = await CoreApi()
                 .GetRestAsync<VstsAclList>(path);
 

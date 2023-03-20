@@ -30,7 +30,7 @@ namespace Kdoctl.CliServices.AzDoServices
                 Guid project, string path)
         {
             var response = await VsrmApi().PostRestAsync(             
-                $"{project}/_apis/Release/folders{HttpUtility.UrlEncode(path)}?api-version=6.0-preview.2",
+                $"{project}/_apis/Release/folders{RestUtils.UriEncode(path)}?api-version=6.0-preview.2",
                 new
                 {
                     path = path

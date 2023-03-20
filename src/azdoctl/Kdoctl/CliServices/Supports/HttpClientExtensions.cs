@@ -188,7 +188,8 @@ namespace Kdoctl.CliServices.Supports
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 });
             var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(requestPath, jsonContent);            
+            var response = await client.PostAsync(requestPath, jsonContent);
+            var contentString = await response.Content.ReadAsStringAsync();
             return response.IsSuccessStatusCode;
         }
 

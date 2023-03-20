@@ -30,6 +30,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", 
 		..\..\example-usage\Migrations\workitems.yaml = ..\..\example-usage\Migrations\workitems.yaml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cielo", "..\..\Cielo\Cielo.csproj", "{5940C1F0-B47E-486D-809B-2D9E5E8C1CD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{9ABD19EF-B18F-4048-BE85-2036A4F6DDD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9ABD19EF-B18F-4048-BE85-2036A4F6DDD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9ABD19EF-B18F-4048-BE85-2036A4F6DDD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5940C1F0-B47E-486D-809B-2D9E5E8C1CD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5940C1F0-B47E-486D-809B-2D9E5E8C1CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5940C1F0-B47E-486D-809B-2D9E5E8C1CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5940C1F0-B47E-486D-809B-2D9E5E8C1CD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

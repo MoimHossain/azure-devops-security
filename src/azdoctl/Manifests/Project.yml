@@ -6,22 +6,16 @@ metadata:
 template:
   name: Agile
   sourceControlType: Git
-teams:
-  - name: SRE-TEAM-001
-    description: SRE-TEAM-001
-    admins:
-      - name: Timothy Green
-        principal: timothy@moimhossainhotmail.onmicrosoft.com
-      - name: Scrum
-        principal: Scrum@cloudoven.onmicrosoft.com
-    membership:
-      groups:
-        - name: 'SRE-People'
-          id: 0dabe415-0990-471d-b0ec-f1208ee315e1
-      users:
-        - name: Scrum
-          principal: Scrum@cloudoven.onmicrosoft.com
-        - name: Timothy Green
-          principal: timothy@moimhossainhotmail.onmicrosoft.com
-        - name: Linda
-          principal: atrium@cloudoven.onmicrosoft.com
+buildFolders:
+  - path: '/AKSBuilds'
+    permissions:
+      - group: 'Database-Adninistrators'
+        origin: aad
+        id: 04dcbbaf-614d-4614-8f08-37a54de80504
+        allowed:
+          - ViewBuilds
+          - QueueBuilds
+          - StopBuilds
+          - ViewBuildDefinition
+          - EditBuildDefinition
+          - DeleteBuilds

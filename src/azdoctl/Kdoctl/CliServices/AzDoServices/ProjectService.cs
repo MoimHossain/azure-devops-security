@@ -49,7 +49,7 @@ namespace Kdoctl.CliServices.AzDoServices
         public async Task<Project> GetProjectByIdOrNameAsync(string projectIdOrName)
         {
             var projectParameter = (Guid.TryParse(projectIdOrName, out var projectId)) 
-                ? projectIdOrName : HttpUtility.UrlEncode(projectIdOrName);
+                ? projectIdOrName : RestUtils.UriEncode(projectIdOrName);
             
             var path = $"_apis/projects/{projectParameter}?api-version=7.0";
             var project = await CoreApi().GetRestAsync<Project>(path);

@@ -32,7 +32,7 @@ namespace Kdoctl.CliServices.AzDoServices
         {
             var response = await CoreApi()
                 .PutRestAsync(
-                $"{project}/_apis/build/folders?path={HttpUtility.UrlEncode(path)}&api-version=6.0-preview.2",
+                $"{project}/_apis/build/folders?path={RestUtils.UriEncode(path)}&api-version=6.0-preview.2",
                 new
                 { 
                     path = path
