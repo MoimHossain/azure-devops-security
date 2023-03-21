@@ -1,8 +1,10 @@
 ﻿
 using Cielo.Manifests.Common;
 using Cielo.ResourceManagers.Abstract;
+using Cielo.ResourceManagers.ResourceStates;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,10 +30,16 @@ namespace Cielo.CliSupports
             var manifestFiles = GetManifestFiles();
             var resourceManagers = ReadMetadataSignatures(manifestFiles);
 
+            var rmPairs = new Dictionary<ResourceManagerBase, ResourceState>();
+
             foreach (var resourceManager in resourceManagers)
             {
-                await resourceManager.PlanAsync();
+                var state = await resourceManager.PlanAsync();
+                
+                rmPairs.Add(resourceManager, state);
             }
+
+
 
             await Task.CompletedTask;
         }
@@ -39,17 +47,24 @@ namespace Cielo.CliSupports
 
         private IEnumerable<ResourceManagerBase> ReadMetadataSignatures(IEnumerable<string> files)
         {
+            var unsortedCollection = new List<Tuple<ManifestBase, string>>();
             foreach (var file in files)
             {
                 if (File.Exists(file))
                 {
                     var payload = File.ReadAllText(file);
                     var manifestBase = deserializer.Deserialize<ManifestBase>(payload);
-                    var manager = ManifestResourceMapAttribute.GetManifestFromYaml(serviceProvider, manifestBase, payload);
-                    if (manager != null)
-                    {
-                        yield return manager;
-                    }
+
+                    unsortedCollection.Add(new Tuple<ManifestBase, string>(manifestBase, payload));                    
+                }
+            }
+
+            foreach(var tuple in unsortedCollection.OrderBy(s => s.Item1.Kind))
+            {
+                var manager = ManifestResourceMapAttribute.GetManifestFromYaml(serviceProvider, tuple.Item1, tuple.Item2);
+                if (manager != null)
+                {
+                    yield return manager;
                 }
             }
         }
