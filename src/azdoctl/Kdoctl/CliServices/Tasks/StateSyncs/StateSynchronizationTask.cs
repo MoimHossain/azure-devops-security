@@ -26,20 +26,6 @@ namespace Kdoctl.CliServices
             {   
                 var outcome = await EnsureProjectExistsAsync(manifest, projectService);
 
-                var graphService = GetGraphService();
-
-                //var x = await graphService.CreateOrgScopedVstsGroupAsync("ORG-LEVEL-GROUP", "some description");
-
-                //var x = await graphService.CreateProjectScopedVstsGroupAsync(outcome.Item1.Id, "PROJ-SCOPED-GROUP", "Some description");
-
-                var customGroup = await graphService.GetGroupByNameFromCollectionAsync("ORG-LEVEL-GROUP");
-                var customGroup1 = await graphService.GetGroupByNameFromProjectAsync(outcome.Item1.Name, "PROJ-SCOPED-GROUP");
-                
-
-                return;
-
-
-
                 await ProcessPermissionsAsync(manifest,  projectService, outcome);
                 await EnsureTeamProvisionedAsync(manifest,  projectService, outcome);
                 await EnsureRepositoriesExistsAsync(manifest,  repoService, outcome.Item1, outcome.Item2);

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
+using Cielo.Manifests.Supports;
 
 var parsedObject = Parser.Default.ParseArguments<ApplyOption>(args);
 if (!parsedObject.Errors.Any() && parsedObject.Value is not null)
@@ -15,10 +16,19 @@ if (!parsedObject.Errors.Any() && parsedObject.Value is not null)
                     {
                         option.Sanitize();
                         services.AddSingleton(option);
-                        services.AddSingleton(new DeserializerBuilder()
+
+                        IDeserializer deserializer = (Deserializer)new DeserializerBuilder()
                             .WithNamingConvention(CamelCaseNamingConvention.Instance)
                             .IgnoreUnmatchedProperties()
-                            .Build());
+                            .Build();
+                        ISerializer serializer = new SerializerBuilder()
+                           .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                           .WithEmissionPhaseObjectGraphVisitor(args => new YamlIEnumerableSkipEmptyObjectGraphVisitor(args.InnerVisitor))
+                           .Build();
+
+                        services.AddSingleton(serializer);
+                        services.AddSingleton(deserializer);
+
                         services.AddSingleton<CommandProcessor>();
                     })
                     .UseConsoleLifetime()
