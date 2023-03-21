@@ -8,5 +8,14 @@ namespace Cielo.ResourceManagers.ResourceStates
 {
     public class ResourceState
     {
+        public ResourceState()
+        {
+            Properties = new Dictionary<string, object>();
+        }
+
+        public bool Exists { get; set; }
+        public bool Changed { get; set; }
+
+        public IDictionary<string, object> Properties { get; private set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using Cielo.Manifests.Supports;
+using Cielo.Azdo;
 
 var parsedObject = Parser.Default.ParseArguments<ApplyOption>(args);
 if (!parsedObject.Errors.Any() && parsedObject.Value is not null)
@@ -28,6 +29,10 @@ if (!parsedObject.Errors.Any() && parsedObject.Value is not null)
 
                         services.AddSingleton(serializer);
                         services.AddSingleton(deserializer);
+
+                        services.AddServicesFromClientLib(option);
+                        services.AddHttpClients(option);
+                        services.AddAzdoServices();
 
                         services.AddSingleton<CommandProcessor>();
                     })

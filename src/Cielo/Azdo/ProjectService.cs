@@ -1,4 +1,5 @@
 ﻿using Cielo.Azdo.Abstract;
+using Cielo.Azdo.Dtos;
 using Microsoft.TeamFoundation.Core.WebApi;
 using System;
 using System.Collections.Generic;

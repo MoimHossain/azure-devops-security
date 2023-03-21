@@ -59,14 +59,14 @@ namespace Cielo.Azdo
             services.AddHttpClient(API.VSRM, httpClient => ConfigureClient(API.VSRM, orgUri, pat, httpClient));
         }
 
-        public static void AddServices(this IServiceCollection services)
+        public static void AddAzdoServices(this IServiceCollection services)
         {
             //services.AddTransient<AclListService>();
             //services.AddTransient<BuildService>();
             //services.AddTransient<ClassificationService>();
             //services.AddTransient<GraphService>();
             //services.AddTransient<PipelineEnvironmentService>();
-            //services.AddTransient<ProjectService>();
+            services.AddTransient<ProjectService>();
             //services.AddTransient<ReleaseService>();
             //services.AddTransient<RepositoryService>();
             //services.AddTransient<SecurityNamespaceService>();

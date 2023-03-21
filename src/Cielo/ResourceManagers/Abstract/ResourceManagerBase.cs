@@ -1,4 +1,5 @@
-﻿using Cielo.Manifests.Common;
+﻿using Cielo.Azdo;
+using Cielo.Manifests.Common;
 using Cielo.ResourceManagers.ResourceStates;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -13,7 +14,7 @@ namespace Cielo.ResourceManagers.Abstract
     public abstract class ResourceManagerBase
     {
         private readonly IServiceProvider serviceProvider;
-        private readonly string rawManifest;
+        private readonly string rawManifest;        
         private ManifestBase? fullManifest;
 
         protected ResourceManagerBase(IServiceProvider serviceProvider, string rawManifest)
@@ -23,14 +24,10 @@ namespace Cielo.ResourceManagers.Abstract
             this.fullManifest = DeserializeCore();
         }
 
-        public async Task PlanAsync()
+        public async Task<ResourceState> PlanAsync()
         {
-            if(fullManifest != null)
-            {
-                var state = await GetAsync();
-            }
-           
-            await Task.CompletedTask;
+            var state = await GetAsync();
+            return state;
         }
 
         protected virtual ManifestBase? DeserializeCore()

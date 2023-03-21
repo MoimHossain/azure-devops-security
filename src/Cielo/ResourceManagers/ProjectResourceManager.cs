@@ -1,26 +1,48 @@
-﻿using Cielo.Manifests;
+﻿
+using Cielo.Azdo;
+using Cielo.Manifests;
 using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cielo.ResourceManagers
 {
     public class ProjectResourceManager : ResourceManagerBase
     {
-        public ProjectResourceManager(IServiceProvider serviceProvider, string rawManifest) : base(serviceProvider, rawManifest) { }
+        private readonly ProjectService projectService;
 
-        protected override Task<ResourceState> GetAsync()
+        public ProjectResourceManager(IServiceProvider serviceProvider, string rawManifest) 
+            : base(serviceProvider, rawManifest) 
         {
-            throw new NotImplementedException();
+            this.projectService = serviceProvider.GetRequiredService<ProjectService>();
+        }
+
+        protected override async Task<ResourceState> GetAsync()
+        {
+            var state = new ResourceState();
+            var projectName = ProjectManifest.Metadata.Name;
+
+            var project = await projectService.GetProjectByIdOrNameAsync(projectName);
+            state.Exists = (project != null);
+
+            if(project != null)
+            {
+                state.Properties.Add("Project Id", project.Id);
+                state.Properties.Add("Project Name", project.Name);
+            }
+            else
+            {
+                state.Properties.Add("Project Name", projectName);
+            }
+
+            return state;
         }
 
         protected override Type GetResourceType()
         {
             return typeof(ProjectManifest);
         }
+
+        private ProjectManifest ProjectManifest { get { return (ProjectManifest)this.Manifest; } }
     }
 }
