@@ -29,7 +29,7 @@ namespace Kdoctl.CliServices
                 {
                     if (!string.IsNullOrWhiteSpace(permissionEntry.Name) && permissionEntry.Membership != null)
                     {
-                        var builtInGroup = await gService.GetBuiltInGroupByNameFromScopeAsync(projectName, permissionEntry.Name);
+                        var builtInGroup = await gService.GetGroupByNameFromProjectAsync(projectName, permissionEntry.Name);
 
                         if (builtInGroup != null)
                         {

@@ -238,6 +238,12 @@ namespace Kdoctl.CliServices.AzDoServices.Dtos
 
     #region User and Groups
 
+    public partial class VstsProjectDescriptor
+    {
+        [JsonProperty("value")]
+        public string ScopeDescriptor { get; set; }
+    }
+
     public partial class VstsUser
     {
         [JsonProperty("subjectKind")]

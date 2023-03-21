@@ -2,12 +2,15 @@
 using Kdoctl.CliServices.Abstract;
 using Kdoctl.CliServices.AzDoServices.Dtos;
 using Kdoctl.CliServices.Supports;
+using Microsoft.Extensions.Hosting;
+using Microsoft.VisualStudio.Services.Aad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Kdoctl.CliServices.AzDoServices
 {
@@ -29,6 +32,12 @@ namespace Kdoctl.CliServices.AzDoServices
             }
             return null;
         }
+
+       
+
+
+
+
         public async Task<VstsGroup> GetGroupByNameFromCollectionAsync(string groupName)
         {
             var path = "_apis/graph/subjectquery?api-version=7.0-preview.1";
@@ -44,9 +53,9 @@ namespace Kdoctl.CliServices.AzDoServices
             }
             return null;
         }
-        public async Task<VstsGroup> GetBuiltInGroupByNameFromScopeAsync(string scopeName, string groupName)
+        public async Task<VstsGroup> GetGroupByNameFromProjectAsync(string projectName, string groupName)
         {
-            var fqgn = $"[{scopeName}]\\{groupName}";
+            var fqgn = $"[{projectName}]\\{groupName}";
 
             var path = $"_apis/identities?api-version=6.0&searchFilter=General&filterValue={RestUtils.UriEncode(fqgn)}";
             var identities = await VsspsApi().GetRestAsync<IdentityInternalCollectionDto>(path);
@@ -61,6 +70,50 @@ namespace Kdoctl.CliServices.AzDoServices
             }
             return null;
         }
+
+        public async Task<VstsGroup> CreateOrgScopedVstsGroupAsync(string displayName, string description = "")
+        {
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                description = displayName;
+            }
+            var ep = await VsspsApi()
+                .PostRestAsync<VstsGroup>(
+                $"_apis/graph/groups?api-version=7.0-preview.1",
+                new
+                {
+                    displayName,
+                    description
+                });
+            return ep;
+
+        }
+
+        public async Task<VstsGroup> CreateProjectScopedVstsGroupAsync(Guid projectId, string displayName, string description = "")
+        {
+            if(string.IsNullOrWhiteSpace(description))
+            {
+                description = displayName;
+            }
+
+            var path = $"_apis/graph/descriptors/{projectId}";
+            var projectDescriptor = await VsspsApi().GetRestAsync<VstsProjectDescriptor>(path);
+
+            if (projectDescriptor != null && !string.IsNullOrWhiteSpace(projectDescriptor.ScopeDescriptor))
+            {
+                var ep = await VsspsApi()
+                    .PostRestAsync<VstsGroup>(
+                    $"_apis/graph/groups?scopeDescriptor={projectDescriptor.ScopeDescriptor}&api-version=7.1-preview.1",
+                    new
+                    {
+                        displayName = displayName,
+                        description
+                    });
+                return ep;
+            }
+            return null;
+        }
+
         public async Task<VstsGroup> CreateAadGroupByObjectId(Guid aadObjectId)
         {
             var ep = await VsspsApi()
@@ -72,6 +125,7 @@ namespace Kdoctl.CliServices.AzDoServices
                 });
             return ep;
         }
+
         public async Task<VstsMembershipCollection> GetGroupMembersAsync(string securityDescriptor)
         {
             var path = $"_apis/graph/Memberships/{securityDescriptor}?direction=Down&api-version=6.1-preview.1";
