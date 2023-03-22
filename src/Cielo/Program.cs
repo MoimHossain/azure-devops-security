@@ -7,6 +7,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using Cielo.Manifests.Supports;
 using Cielo.Azdo;
+using Cielo.ResourceManagers.Supports;
 
 var parsedObject = Parser.Default.ParseArguments<ApplyOption>(args);
 if (!parsedObject.Errors.Any() && parsedObject.Value is not null)
@@ -34,6 +35,7 @@ if (!parsedObject.Errors.Any() && parsedObject.Value is not null)
                         services.AddHttpClients(option);
                         services.AddAzdoServices();
 
+                        services.AddSingleton<ResourceProcessingContext>();
                         services.AddSingleton<CommandProcessor>();
                     })
                     .UseConsoleLifetime()

@@ -27,20 +27,47 @@ namespace Cielo.ResourceManagers
 
             if(project != null)
             {
-                state.Properties.Add("Project Id", project.Id);
-                state.Properties.Add("Project Name", project.Name);
+                Context.CurrentProject = project;
+
+                state.AddProperty("Project Id", project.Id);
+                state.AddProperty("Project Name", project.Name);
+
+                var properties = await projectService.GetProjectPropertiesAsync(project.Id);
+                if (properties != null && properties.Value != null )
+                {
+                    foreach( var property in properties.Value.Where(v=> !v.Name.Equals("System.MSPROJ", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        state.AddProperty(property.Name, property.Value);
+                    }
+                }
             }
             else
             {
-                state.Properties.Add("Project Name", projectName);
+                state.AddProperty("Project Name", projectName);
             }
-
             return state;
+        }
+
+        protected override async Task<ResourceState> CreateAsync()
+        {
+            await Task.CompletedTask;
+            return new ResourceState() { Exists = true };
+        }
+
+        protected override async Task<ResourceState?> UpdateAsync()
+        {
+            await Task.CompletedTask;
+            return new ResourceState() { Exists = true, Changed = false };
         }
 
         protected override Type GetResourceType()
         {
             return typeof(ProjectManifest);
+        }
+
+        protected override void SetContextData()
+        {
+            this.Context.CurrentProjectManifest = this.ProjectManifest;
         }
 
         private ProjectManifest ProjectManifest { get { return (ProjectManifest)this.Manifest; } }

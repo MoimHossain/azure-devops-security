@@ -2,6 +2,7 @@
 using Cielo.Manifests.Common;
 using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
+using Cielo.ResourceManagers.Supports;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -16,12 +17,18 @@ namespace Cielo.CliSupports
     {
         private readonly ApplyOption applyOption;
         private readonly IDeserializer deserializer;
+        private readonly ResourceProcessingContext context;
         private readonly IServiceProvider serviceProvider;
 
-        public CommandProcessor(ApplyOption applyOption, IDeserializer deserializer, IServiceProvider serviceProvider)
+        public CommandProcessor(
+            ApplyOption applyOption, 
+            IDeserializer deserializer,
+            ResourceProcessingContext context,
+            IServiceProvider serviceProvider)
         {
             this.applyOption = applyOption ?? throw new ArgumentNullException(nameof(applyOption));
             this.deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
+            this.context = context;
             this.serviceProvider = serviceProvider;
         }
 
@@ -42,10 +49,13 @@ namespace Cielo.CliSupports
             foreach(var rmPair in rmPairs)
             {
                 var rm = rmPair.Key;
+                var state = rmPair.Value;
                 Console.WriteLine($"{rm.Manifest.Kind}");
+                foreach (var (name, value, changed) in state.GetProperties())
+                {
+                    Console.WriteLine($"\t{name} = {value}");
+                }
             }
-
-
             await Task.CompletedTask;
         }
 

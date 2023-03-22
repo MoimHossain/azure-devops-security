@@ -11,11 +11,13 @@ namespace Cielo.Manifests.Common
     {
         [ManifestResourceMapAttribute(typeof(ProjectResourceManager))]
         Project = 0,
+        [ManifestResourceMapAttribute(typeof(GroupResourceManager))]
+        Group = 1,
         [ManifestResourceMapAttribute(typeof(ProjectResourceManager))]
-        Team = 1,
+        Team = 2,
         [ManifestResourceMapAttribute(typeof(ProjectResourceManager))]
-        Repository = 2,
+        Repository = 3,
         [ManifestResourceMapAttribute(typeof(ProjectResourceManager))]
-        Permission = 3
+        Permission = 4
     }
 }

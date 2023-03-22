@@ -1,18 +1,16 @@
-﻿using Cielo.Azdo;
+﻿
 using Cielo.Manifests.Common;
 using Cielo.ResourceManagers.ResourceStates;
+using Cielo.ResourceManagers.Supports;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.TeamFoundation.WorkItemTracking.Process.WebApi.Models;
 using YamlDotNet.Serialization;
 
 namespace Cielo.ResourceManagers.Abstract
 {
     public abstract class ResourceManagerBase
     {
+        private readonly ResourceProcessingContext context;
         private readonly IServiceProvider serviceProvider;
         private readonly string rawManifest;        
         private ManifestBase? fullManifest;
@@ -22,13 +20,31 @@ namespace Cielo.ResourceManagers.Abstract
             this.serviceProvider = serviceProvider;
             this.rawManifest = rawManifest;
             this.fullManifest = DeserializeCore();
+            this.context = serviceProvider.GetRequiredService<ResourceProcessingContext>();
+
+            this.SetContextData();
         }
+
+        
 
         public async Task<ResourceState> PlanAsync()
         {
-            var state = await GetAsync();
-            return state;
+            var beforeState = await GetAsync();
+            var afterState = default(ResourceState);
+
+            if(beforeState.Exists)
+            {
+                afterState = await UpdateAsync();
+            }
+            else
+            {
+                afterState = await CreateAsync();
+            }
+
+            return beforeState;
         }
+
+      
 
         protected virtual ManifestBase? DeserializeCore()
         {
@@ -41,6 +57,12 @@ namespace Cielo.ResourceManagers.Abstract
 
         public ManifestBase? Manifest { get { return this.fullManifest; } }
 
+        protected virtual void SetContextData() { }
+
+        protected ResourceProcessingContext Context { get { return this.context; } }
+
         protected abstract Task<ResourceState> GetAsync();
+        protected abstract Task<ResourceState> CreateAsync();
+        protected abstract Task<ResourceState?> UpdateAsync();
     }
 }

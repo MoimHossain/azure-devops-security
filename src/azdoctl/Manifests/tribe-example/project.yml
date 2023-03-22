@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Project
 metadata:
-  name: TAS-Main
+  name: Platform
   description: Project for TAS team
 template:
   name: Agile

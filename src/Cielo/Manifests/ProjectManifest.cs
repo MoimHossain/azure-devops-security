@@ -9,5 +9,6 @@ namespace Cielo.Manifests
 {
     public class ProjectManifest : ManifestBase
     {
+
     }
 }

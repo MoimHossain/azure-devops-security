@@ -53,6 +53,14 @@ namespace Cielo.Azdo
             return project;
         }
 
+        public async Task<ProjectPropertyCollection> GetProjectPropertiesAsync(Guid projectId)
+        {            
+            var path = $"_apis/projects/{projectId}/properties?api-version=7.1-preview.1";
+            var projectProperties = await CoreApi().GetRestAsync<ProjectPropertyCollection>(path);
+
+            return projectProperties;
+        }
+
         public async Task<ProcessTemplateCollection> ListProcessAsync()
         {
             var path = "_apis/process/processes?api-version=6.1-preview.1";

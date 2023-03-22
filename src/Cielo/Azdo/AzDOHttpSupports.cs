@@ -64,7 +64,7 @@ namespace Cielo.Azdo
             //services.AddTransient<AclListService>();
             //services.AddTransient<BuildService>();
             //services.AddTransient<ClassificationService>();
-            //services.AddTransient<GraphService>();
+            services.AddTransient<GraphService>();
             //services.AddTransient<PipelineEnvironmentService>();
             services.AddTransient<ProjectService>();
             //services.AddTransient<ReleaseService>();

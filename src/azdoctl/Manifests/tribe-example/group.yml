@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Group
+metadata:
+  name: SRE-Project-Scoped-Group
+  description: A Group that is project scoped
+properties:
+  origin: Vsts
+  scope: Project
+membership:
+  groups:
+  - name: 'IoT-Developers'
+    origin: Aad
+    scope: Project
+  users:
+  - name: Timothy Green
+    principal: timothy@moimhossainhotmail.onmicrosoft.com
+  - name: Linda
+    principal: Linda@moimhossainhotmail.onmicrosoft.com
