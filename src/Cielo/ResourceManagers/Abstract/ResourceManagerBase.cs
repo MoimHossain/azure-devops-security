@@ -39,7 +39,7 @@ namespace Cielo.ResourceManagers.Abstract
 
         protected abstract Type GetResourceType();
 
-        protected ManifestBase? Manifest { get { return this.fullManifest; } }
+        public ManifestBase? Manifest { get { return this.fullManifest; } }
 
         protected abstract Task<ResourceState> GetAsync();
     }

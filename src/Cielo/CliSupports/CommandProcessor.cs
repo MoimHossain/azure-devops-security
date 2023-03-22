@@ -39,6 +39,11 @@ namespace Cielo.CliSupports
                 rmPairs.Add(resourceManager, state);
             }
 
+            foreach(var rmPair in rmPairs)
+            {
+                var rm = rmPair.Key;
+                Console.WriteLine($"{rm.Manifest.Kind}");
+            }
 
 
             await Task.CompletedTask;
