@@ -27,7 +27,7 @@ namespace Cielo.ResourceManagers.Abstract
 
         
 
-        public async Task<ResourceState> PlanAsync()
+        public async Task<(ResourceState, ResourceState?)> PlanAsync()
         {
             var beforeState = await GetAsync();
             var afterState = default(ResourceState);
@@ -41,7 +41,7 @@ namespace Cielo.ResourceManagers.Abstract
                 afterState = await CreateAsync();
             }
 
-            return beforeState;
+            return (beforeState, afterState);
         }
 
       

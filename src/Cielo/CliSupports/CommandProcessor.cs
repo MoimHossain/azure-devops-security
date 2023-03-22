@@ -37,19 +37,19 @@ namespace Cielo.CliSupports
             var manifestFiles = GetManifestFiles();
             var resourceManagers = ReadMetadataSignatures(manifestFiles);
 
-            var rmPairs = new Dictionary<ResourceManagerBase, ResourceState>();
+            var tuples = new List<(ResourceManagerBase, ResourceState, ResourceState?)>();
 
             foreach (var resourceManager in resourceManagers)
             {
-                var state = await resourceManager.PlanAsync();
-                
-                rmPairs.Add(resourceManager, state);
+                var (beforeState, afterState) = await resourceManager.PlanAsync();
+
+                tuples.Add((resourceManager, beforeState, afterState));
             }
 
-            foreach(var rmPair in rmPairs)
+            foreach(var tuple in tuples)
             {
-                var rm = rmPair.Key;
-                var state = rmPair.Value;
+                var rm = tuple.Item1;
+                var state = tuple.Item2;
                 Console.WriteLine($"{rm.Manifest.Kind}");
                 foreach (var (name, value, changed) in state.GetProperties())
                 {
