@@ -109,7 +109,8 @@ namespace Cielo.ResourceManagers
 
         private async Task DiscoverAdminsAsync(VstsTeam team, ResourceState state, Project project)
         {
-            //
+            var admins = await teamService.GetTeamAdminsAsync(project.Id, team.Id);
+        
         }
 
         private async Task DiscoverMembershipAsync(VstsTeam team, ResourceState state, Project project)
