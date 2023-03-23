@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: Group
+metadata:
+  name: IoT-Developers
+  description: An AAD Group that needs to be materialized
+properties:
+  origin: Aad
+  aadObjectId: 00238ebc-66c1-4220-a859-ed0a00243f27
