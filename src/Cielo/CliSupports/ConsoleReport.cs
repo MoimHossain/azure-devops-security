@@ -66,14 +66,38 @@ namespace Cielo.CliSupports
             }
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write($"{name} : ");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.ForegroundColor = changed ? ConsoleColor.DarkMagenta: ConsoleColor.DarkYellow;
+            Console.WriteLine($"{value}");
+        }
+
+        public static void ReportAfterStateProperty((string, object, bool) property)
+        {
+            var name = property.Item1;
+            var value = property.Item2;
+            var changed = property.Item3;
+
+            if (changed)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write($" ≈ ");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write($" + ");
+            }
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write($"{name} : ");
+            Console.ForegroundColor = changed ? ConsoleColor.DarkGreen : ConsoleColor.Green;
             Console.WriteLine($"{value}");
         }
 
         public static void ReportError(string error)
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($" ♨ ERROR: ");
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write($" ♨ ERROR: {error}");
+            Console.WriteLine($"{error}");
         }
     }
 }

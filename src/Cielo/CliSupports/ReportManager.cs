@@ -41,6 +41,23 @@ namespace Cielo.CliSupports
                     ConsoleReport.ReportError(error);
                 }
             }
+
+            if(afterState != null)
+            {
+                foreach (var property in afterState.GetProperties())
+                {
+                    ConsoleReport.ReportAfterStateProperty(property);
+                }
+
+                if (afterState.HasErrors)
+                {
+                    foreach (var error in afterState.GetErrors())
+                    {
+                        ConsoleReport.ReportError(error);
+                    }
+                }
+
+            }
         }
     }
 }
