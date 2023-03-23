@@ -3,6 +3,7 @@ using Cielo.Manifests.Common;
 using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
 using Cielo.ResourceManagers.Supports;
+using Microsoft.VisualStudio.Services.WebApi.Jwt;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -36,25 +37,15 @@ namespace Cielo.CliSupports
         {
             var manifestFiles = GetManifestFiles();
             var resourceManagers = ReadMetadataSignatures(manifestFiles);
-
-            var tuples = new List<(ResourceManagerBase, ResourceState, ResourceState?)>();
+            var reports = new List<ReportManager>();
 
             foreach (var resourceManager in resourceManagers)
             {
                 var (beforeState, afterState) = await resourceManager.PlanAsync();
 
-                tuples.Add((resourceManager, beforeState, afterState));
-            }
-
-            foreach(var tuple in tuples)
-            {
-                var rm = tuple.Item1;
-                var state = tuple.Item2;
-                Console.WriteLine($"{rm.Manifest.Kind}");
-                foreach (var (name, value, changed) in state.GetProperties())
-                {
-                    Console.WriteLine($"\t{name} = {value}");
-                }
+                var reportManager = new ReportManager(resourceManager, beforeState, afterState);
+                reportManager.Report();
+                reports.Add(reportManager);
             }
             await Task.CompletedTask;
         }

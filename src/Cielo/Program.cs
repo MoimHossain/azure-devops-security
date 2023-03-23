@@ -9,6 +9,7 @@ using Cielo.Manifests.Supports;
 using Cielo.Azdo;
 using Cielo.ResourceManagers.Supports;
 
+ConsoleReport.Begin();
 var parsedObject = Parser.Default.ParseArguments<ApplyOption>(args);
 if (!parsedObject.Errors.Any() && parsedObject.Value is not null)
 {
@@ -56,4 +57,6 @@ else
         }
     }
 }
+
+ConsoleReport.End();
 return -1;

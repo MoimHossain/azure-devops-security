@@ -26,6 +26,13 @@ namespace Cielo.Azdo
             return null;
         }
 
+        public async Task<VstsGroup> GetAadGroupById(Guid aadObjectId)
+        {
+            // it seems until you use a AAD group the materialzation doesn't persist and you won't
+            // find it later by searching by names
+            return await this.CreateAadGroupByObjectId(aadObjectId);
+        }
+
         public async Task<VstsGroup> GetGroupByNameFromCollectionAsync(string groupName)
         {
             var path = "_apis/graph/subjectquery?api-version=7.0-preview.1";

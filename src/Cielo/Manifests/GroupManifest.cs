@@ -38,6 +38,8 @@ namespace Cielo.Manifests
             public string Name { get; set; }
             public GroupScopeEnum Scope { get; set; }
             public IdentityOrigin Origin { get; set; }
+
+            public Guid? AadObjectId { get; set; }
         }
 
         public class GroupMembershipManifest

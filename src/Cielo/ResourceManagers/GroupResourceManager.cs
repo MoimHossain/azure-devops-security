@@ -97,7 +97,11 @@ namespace Cielo.ResourceManagers
                 return state;
             }
 
-            var group = await GetGroupCoreAsync(groupName, project.Name, GroupManifest.Properties.Scope, GroupManifest.Properties.Origin);
+            var group = await GetGroupCoreAsync(
+                groupName, project.Name, 
+                GroupManifest.Properties.Scope, 
+                GroupManifest.Properties.Origin,
+                GroupManifest.Properties.AadObjectId);
             state.AddProperty("Name", groupName);
             state.AddProperty("Origin", GroupManifest.Properties.Origin.ToString());
             state.AddProperty("Scope", GroupManifest.Properties.Scope.ToString());
@@ -133,7 +137,10 @@ namespace Cielo.ResourceManagers
                 return state;
             }
 
-            var group = await GetGroupCoreAsync(groupName, project.Name, GroupManifest.Properties.Scope, GroupManifest.Properties.Origin);
+            var group = await GetGroupCoreAsync(
+                groupName, project.Name, 
+                GroupManifest.Properties.Scope, 
+                GroupManifest.Properties.Origin, GroupManifest.Properties.AadObjectId);
 
             if(group != null)
             {
@@ -160,7 +167,7 @@ namespace Cielo.ResourceManagers
                 {
                     foreach (var expectedGroup in GroupManifest.Membership.Groups)
                     {
-                        var foundGroup = await GetGroupCoreAsync(expectedGroup.Name, project.Name, expectedGroup.Scope, expectedGroup.Origin);
+                        var foundGroup = await GetGroupCoreAsync(expectedGroup.Name, project.Name, expectedGroup.Scope, expectedGroup.Origin, expectedGroup.AadObjectId);
 
                         if (foundGroup != null)
                         {
@@ -225,7 +232,9 @@ namespace Cielo.ResourceManagers
                 {
                     foreach (var expectedGroup in GroupManifest.Membership.Groups)
                     {
-                        var foundGroup = await GetGroupCoreAsync(expectedGroup.Name, project.Name, expectedGroup.Scope, expectedGroup.Origin);
+                        var foundGroup = await GetGroupCoreAsync(
+                            expectedGroup.Name, project.Name, 
+                            expectedGroup.Scope, expectedGroup.Origin, expectedGroup.AadObjectId);
 
                         if (foundGroup == null)
                         {
@@ -273,7 +282,8 @@ namespace Cielo.ResourceManagers
             string name,
             string projectName,
             GroupManifest.GroupScopeEnum scope,
-            IdentityOrigin origin)
+            IdentityOrigin origin, 
+            Guid? aadObjectId)
         {
             var group = default(VstsGroup);
             if (origin == IdentityOrigin.Vsts)
@@ -289,8 +299,11 @@ namespace Cielo.ResourceManagers
             }
             else
             {
-                // this should find us the Aad materialized group?
-                group = await graphService.GetGroupByNameFromCollectionAsync(name);
+                if(aadObjectId.HasValue)
+                {
+                    // this should find us the Aad materialized group?
+                    group = await graphService.GetAadGroupById(aadObjectId.Value);
+                }            
             }
             return group;
         }

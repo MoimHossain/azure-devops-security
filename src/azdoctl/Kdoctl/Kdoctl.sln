@@ -20,10 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tribe-example", "tribe-exam
 		..\Manifests\tribe-example\IoT-Developers.yml = ..\Manifests\tribe-example\IoT-Developers.yml
 		..\Manifests\tribe-example\K8s-Operators.yml = ..\Manifests\tribe-example\K8s-Operators.yml
 		..\Manifests\tribe-example\project.yml = ..\Manifests\tribe-example\project.yml
-		..\Manifests\tribe-example\group.yml = ..\Manifests\tribe-example\group.yml
 		..\Manifests\tribe-example\release-folders.yml = ..\Manifests\tribe-example\release-folders.yml
 		..\Manifests\tribe-example\Repository.yml = ..\Manifests\tribe-example\Repository.yml
 		..\Manifests\tribe-example\service-endpoints.yml = ..\Manifests\tribe-example\service-endpoints.yml
+		..\Manifests\tribe-example\SRE-Project-Scoped-Group.yml = ..\Manifests\tribe-example\SRE-Project-Scoped-Group.yml
 		..\Manifests\tribe-example\teams.yml = ..\Manifests\tribe-example\teams.yml
 	EndProjectSection
 EndProject

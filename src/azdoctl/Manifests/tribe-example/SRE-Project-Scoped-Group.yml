@@ -11,6 +11,7 @@ membership:
   - name: 'IoT-Developers'
     origin: Aad
     scope: Project
+    aadObjectId: 00238ebc-66c1-4220-a859-ed0a00243f27
   users:
   - name: Timothy Green
     principal: timothy@moimhossainhotmail.onmicrosoft.com
