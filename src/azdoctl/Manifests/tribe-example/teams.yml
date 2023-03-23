@@ -1,21 +1,19 @@
 apiVersion: apps/v1
 kind: Team
 metadata:
-  name: TAS-Main
-teams:
-  - name: TulsaPeople
-    description: The A Team
-    admins:
-      - name: Timothy Green
-        id: 4ae3c851-6ef3-4748-bef9-4f809736d538
-      - name: Linda
-        id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
-    membership:
-      groups:
-        - name: 'Kubernetes-Admins'
-          id: a2931c86-e975-4220-aa89-dc3f952290f4
-      users:
-        - name: Timothy Green
-          id: 4ae3c851-6ef3-4748-bef9-4f809736d538
-        - name: Linda
-          id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
+  name: PO-TEAM
+  description: A team for Product owners
+admins:
+  - name: Timothy Green
+    principal: timothy@moimhossainhotmail.onmicrosoft.com
+  - name: Moim
+    principal: moim@moimhossainhotmail.onmicrosoft.com
+membership:
+  groups:
+  - name: 'Kubernetes-Admins'
+    id: a2931c86-e975-4220-aa89-dc3f952290f4
+  users:
+  - name: Timothy Green
+    id: 4ae3c851-6ef3-4748-bef9-4f809736d538
+  - name: Linda
+    id: 9c5918c7-ef03-4059-a49e-aa6e6d761423

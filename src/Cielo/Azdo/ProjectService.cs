@@ -11,25 +11,9 @@ namespace Cielo.Azdo
 {
     public class ProjectService : RestServiceBase
     {
-        private readonly TeamHttpClient teamClient;
-
-        public ProjectService(TeamHttpClient teamClient, IHttpClientFactory clientFactory) : base(clientFactory)
+        public ProjectService(IHttpClientFactory clientFactory) : base(clientFactory)
         {
-            this.teamClient = teamClient;
-        }
-
-        public async Task<WebApiTeam> CreateTeamAsync(WebApiTeam team, Guid projectId)
-        {
-            return await teamClient.CreateTeamAsync(team, projectId.ToString());
-        }
-
-        public async Task<VstsTeamCollection> GetTeamsAsync(Guid projectId)
-        {
-            var path = $"_apis/projects/{projectId}/teams?api-version=7.0";
-            var teams = await CoreApi()
-                .GetRestAsync<VstsTeamCollection>(path);
-
-            return teams;
+    
         }
 
         public async Task<string> UpdateRetentionAsync(Guid projectId, ProjectRetentionSetting settings)
