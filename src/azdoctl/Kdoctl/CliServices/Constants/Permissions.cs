@@ -7,7 +7,6 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 namespace Kdoctl.CliServices.Constants
-
 {
     [Guid("58450c49-b02d-465a-ab12-59ae512d6531")]
     [Description("Analytics")]

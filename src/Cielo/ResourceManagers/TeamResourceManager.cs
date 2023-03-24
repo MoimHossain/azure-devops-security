@@ -1,26 +1,29 @@
-﻿using Cielo.Azdo;
+﻿
+
+using Cielo.Azdo;
 using Cielo.Azdo.Dtos;
 using Cielo.Manifests;
 using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.Services.WebApi;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static Cielo.Azdo.SecurityNamespaceService;
 
 namespace Cielo.ResourceManagers
 {
     public class TeamResourceManager : ResourceManagerBase
     {
         private readonly TeamService teamService;
+        private readonly SecurityNamespaceService sercurityNamespaceService;
+        private readonly GraphService graphService;
+        private AclService aclService;
 
         public TeamResourceManager(IServiceProvider serviceProvider, string rawManifest) 
             : base(serviceProvider, rawManifest)
         {
             this.teamService = serviceProvider.GetRequiredService<TeamService>();
+            this.sercurityNamespaceService = serviceProvider.GetRequiredService<SecurityNamespaceService>();
+            this.graphService = serviceProvider.GetRequiredService<GraphService>();
+            this.aclService = serviceProvider.GetRequiredService<AclService>();
         }
 
         protected async override Task<ResourceState> CreateAsync()
@@ -61,11 +64,6 @@ namespace Cielo.ResourceManagers
             return state;
         }
 
-        private async Task UpdateAdminsAsync(VstsTeam team, ResourceState state, Project project)
-        {
-            await Task.CompletedTask;
-        }
-
         private async Task UpdateMembersAsync(VstsTeam team, ResourceState state, Project project)
         {
             await Task.CompletedTask;
@@ -100,17 +98,75 @@ namespace Cielo.ResourceManagers
             else
             {
                 state.Exists = true;
-
-                await DiscoverAdminsAsync(team, state, project);
+                if (TeamManifest.Admins != null)
+                {
+                    await DiscoverAdminsAsync(team, state, project, TeamManifest.Admins);
+                }
+               
                 await DiscoverMembershipAsync(team, state, project);
             }
             return state;
         }
 
-        private async Task DiscoverAdminsAsync(VstsTeam team, ResourceState state, Project project)
+        private async Task DiscoverAdminsAsync(
+            VstsTeam team, ResourceState state,
+            Project project, List<TeamManifest.UserReference> expectedAdmins)
         {
-            var admins = await teamService.GetTeamAdminsAsync(project.Id, team.Id);
-        
+            var currentAdmins = await teamService.GetTeamAdminsAsync(project.Id, team.Id);
+
+            if (currentAdmins != null)
+            {
+                foreach (var expectedAdmin in expectedAdmins)
+                {
+                    var exists = currentAdmins.Exists(ca => ca.UniqueName.Equals(expectedAdmin.Principal, StringComparison.OrdinalIgnoreCase));
+                    if (!exists)
+                    {
+                        state.AddProperty($"{team.Name} Admins", $"{expectedAdmin.Principal} will be added as Admin", true);
+                    }
+                }
+            }
+        }
+
+        private async Task UpdateAdminsAsync(VstsTeam team, ResourceState state, Project project)
+        {
+            var expectedAdmins = TeamManifest.Admins;
+            if(expectedAdmins != null && expectedAdmins.Count > 0)
+            {
+                var token = $"{project.Id}\\{team.Id}";
+                var securityNamespace = await sercurityNamespaceService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
+                var secNamespaceId = securityNamespace.NamespaceId;
+                var aclDictioanry = new Dictionary<string, VstsAcesDictionaryEntry>();
+
+                var currentAdmins = await teamService.GetTeamAdminsAsync(project.Id, team.Id);
+
+                if (currentAdmins != null)
+                {
+                    foreach (var expectedAdmin in expectedAdmins)
+                    {
+                        var loadedUserObject = await graphService.GetUserByPrincipalNameAsync(expectedAdmin.Principal);
+                        if (loadedUserObject != null)
+                        {
+                            var securityDescriptor = graphService.GetSecurityDescriptorForUser(loadedUserObject);
+                            aclDictioanry.Add(securityDescriptor, new VstsAcesDictionaryEntry
+                            {
+                                Allow = 31,
+                                Deny = 0,
+                                Descriptor = securityDescriptor
+                            });
+                        }
+                        else
+                        {
+                            state.AddError($"Failed to find user {expectedAdmin.Principal}");
+                        }
+                    }
+
+                    var result = await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
+                    if(!result)
+                    {
+                        state.AddError($"Couldn't update Tean Admins");
+                    }
+                }
+            }
         }
 
         private async Task DiscoverMembershipAsync(VstsTeam team, ResourceState state, Project project)

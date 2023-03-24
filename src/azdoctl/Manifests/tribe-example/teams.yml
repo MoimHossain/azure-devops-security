@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Team
 metadata:
-  name: PO-TEAM
+  name: PO-TEAM-2
   description: A team for Product owners
 admins:
   - name: Timothy Green
