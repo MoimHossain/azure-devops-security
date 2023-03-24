@@ -7,6 +7,7 @@ using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
 using Microsoft.Extensions.DependencyInjection;
 using static Cielo.Azdo.SecurityNamespaceService;
+using static Cielo.Manifests.GroupManifest;
 
 namespace Cielo.ResourceManagers
 {
@@ -17,7 +18,7 @@ namespace Cielo.ResourceManagers
         private readonly GraphService graphService;
         private AclService aclService;
 
-        public TeamResourceManager(IServiceProvider serviceProvider, string rawManifest) 
+        public TeamResourceManager(IServiceProvider serviceProvider, string rawManifest)
             : base(serviceProvider, rawManifest)
         {
             this.teamService = serviceProvider.GetRequiredService<TeamService>();
@@ -46,7 +47,7 @@ namespace Cielo.ResourceManagers
             }
 
             var team = await teamService.CreateTeamAsync(
-                new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam 
+                new Microsoft.TeamFoundation.Core.WebApi.WebApiTeam
                 {
                     Name = teamName,
                     Description = TeamManifest.Metadata.Description,
@@ -63,12 +64,6 @@ namespace Cielo.ResourceManagers
             }
             return state;
         }
-
-        private async Task UpdateMembersAsync(VstsTeam team, ResourceState state, Project project)
-        {
-            await Task.CompletedTask;
-        }
-
         protected async override Task<ResourceState> GetAsync()
         {
             var project = Context.CurrentProject;
@@ -102,15 +97,118 @@ namespace Cielo.ResourceManagers
                 {
                     await DiscoverAdminsAsync(team, state, project, TeamManifest.Admins);
                 }
-               
+
                 await DiscoverMembershipAsync(team, state, project);
             }
             return state;
         }
+        protected async override Task<ResourceState?> UpdateAsync()
+        {
+            var project = Context.CurrentProject;
+            var teamName = TeamManifest.Metadata.Name;
+            if (project == null)
+            {
+                var errorState = new ResourceState();
+                errorState.AddError($"Required Project context is missing for resource {TeamManifest.Kind}:{teamName}");
+                return errorState;
+            }
+
+            var state = new ResourceState();
+            if (string.IsNullOrEmpty(teamName) || TeamManifest == null)
+            {
+                state.AddError("Team name is empty");
+                return state;
+            }
+
+            var team = await teamService.GetTeamByNameAsync(project.Id, teamName);
+
+            if (team != null)
+            {
+                await UpdateAdminsAsync(team, state, project);
+                await UpdateMembersAsync(team, state, project);
+            }
+
+            return state;
+        }
+
+
+        private async Task UpdateMembersAsync(VstsTeam team, ResourceState state, Project project)
+        {
+            var expectedMemberGroups = new List<VstsGroup>();
+            var expectedMemberUsers = new List<VstsUserInfo>();
+
+            if (TeamManifest.Membership != null)
+            {
+                if (TeamManifest.Membership.Groups != null)
+                {
+                    foreach (var gpManifest in TeamManifest.Membership.Groups)
+                    {
+                        var group = await GetGroupCoreAsync(gpManifest.Name, project.Name, gpManifest.Scope, gpManifest.Origin, gpManifest.AadObjectId);
+                        if (group != null) { expectedMemberGroups.Add(group); }
+                        else { state.AddError($"No descriptor found for {gpManifest.Name}"); }
+                    }
+                }
+
+                if (TeamManifest.Membership.Users != null)
+                {
+                    foreach (var userManifest in TeamManifest.Membership.Users)
+                    {
+                        var user = await graphService.GetUserByPrincipalNameAsync(userManifest.Principal);
+                        if (user != null) { expectedMemberUsers.Add(user); }
+                        else { state.AddError($"No descriptor found for {userManifest.Principal}"); }
+                    }
+                }
+            }
+
+            var teamDescriptor = await this.teamService.GetTeamDescriptorAsync(team.Id);
+            if (teamDescriptor == null)
+            {
+                state.AddError($"Failed to find {team.Name}'s security descriptor.");
+                return;
+            }
+            var currentMembers = await graphService.GetGroupMembersAsync(teamDescriptor.ScopeDescriptor);
+            if (currentMembers == null || currentMembers.Members == null)
+            {
+                state.AddError($"Failed to read current membership of {team.Name}.");
+                return;
+            }
+
+            foreach (var expectedGroup in expectedMemberGroups)
+            {
+                if (!currentMembers.Members.Any(cm => cm.MemberDescriptor.Equals(expectedGroup.Descriptor)))
+                {
+                    var result = await graphService.AddMemberAsync(project.Id, teamDescriptor.ScopeDescriptor, expectedGroup.Descriptor);
+                    if (result)
+                    {
+                        state.AddProperty("Membership", $"{expectedGroup.PrincipalName} added as member.", true);
+                    }
+                    else
+                    {
+                        state.AddError($"Failed to add {expectedGroup.PrincipalName} as member.");
+                    }
+                }
+            }
+            foreach (var expectedUser in expectedMemberUsers)
+            {
+                if (!currentMembers.Members.Any(cm => cm.MemberDescriptor.Equals(expectedUser.Descriptor)))
+                {
+                    var result = await graphService.AddMemberAsync(project.Id, teamDescriptor.ScopeDescriptor, expectedUser.Descriptor);
+                    if (result)
+                    {
+                        state.AddProperty("Membership", $"{expectedUser.PrincipalName} added as member.", true);
+                    }
+                    else
+                    {
+                        state.AddError($"Failed to add {expectedUser.PrincipalName} as member.");
+                    }
+                }
+            }
+        }
+
 
         private async Task DiscoverAdminsAsync(
             VstsTeam team, ResourceState state,
-            Project project, List<TeamManifest.UserReference> expectedAdmins)
+            Project project, List<UserReference> expectedAdmins)
         {
             var currentAdmins = await teamService.GetTeamAdminsAsync(project.Id, team.Id);
 
@@ -130,7 +228,7 @@ namespace Cielo.ResourceManagers
         private async Task UpdateAdminsAsync(VstsTeam team, ResourceState state, Project project)
         {
             var expectedAdmins = TeamManifest.Admins;
-            if(expectedAdmins != null && expectedAdmins.Count > 0)
+            if (expectedAdmins != null && expectedAdmins.Count > 0)
             {
                 var token = $"{project.Id}\\{team.Id}";
                 var securityNamespace = await sercurityNamespaceService.GetNamespaceAsync(SecurityNamespaceConstants.Identity);
@@ -161,7 +259,7 @@ namespace Cielo.ResourceManagers
                     }
 
                     var result = await aclService.SetAclsAsync(secNamespaceId, token, aclDictioanry, false);
-                    if(!result)
+                    if (!result)
                     {
                         state.AddError($"Couldn't update Tean Admins");
                     }
@@ -169,40 +267,94 @@ namespace Cielo.ResourceManagers
             }
         }
 
+        private async Task<VstsGroup> GetGroupCoreAsync(
+            string name,
+            string projectName,
+            GroupManifest.GroupScopeEnum scope,
+            IdentityOrigin origin,
+            Guid? aadObjectId)
+        {
+            var group = default(VstsGroup);
+            if (origin == IdentityOrigin.Vsts)
+            {
+                if (scope == GroupManifest.GroupScopeEnum.Project)
+                {
+                    group = await graphService.GetGroupByNameFromProjectAsync(projectName, name);
+                }
+                else
+                {
+                    group = await graphService.GetGroupByNameFromCollectionAsync(name);
+                }
+            }
+            else
+            {
+                if (aadObjectId.HasValue)
+                {
+                    // this should find us the Aad materialized group?
+                    group = await graphService.GetAadGroupById(aadObjectId.Value);
+                }
+            }
+            return group;
+        }
+
         private async Task DiscoverMembershipAsync(VstsTeam team, ResourceState state, Project project)
         {
-            //
+            var expectedMemberGroups = new List<VstsGroup>();
+            var expectedMemberUsers = new List<VstsUserInfo>();
+
+            if (TeamManifest.Membership != null)
+            {
+                if (TeamManifest.Membership.Groups != null)
+                {
+                    foreach (var gpManifest in TeamManifest.Membership.Groups)
+                    {
+                        var group = await GetGroupCoreAsync(gpManifest.Name, project.Name, gpManifest.Scope, gpManifest.Origin, gpManifest.AadObjectId);
+                        if (group != null) { expectedMemberGroups.Add(group); }
+                        else { state.AddError($"No descriptor found for {gpManifest.Name}"); }
+                    }
+                }
+
+                if (TeamManifest.Membership.Users != null)
+                {
+                    foreach (var userManifest in TeamManifest.Membership.Users)
+                    {
+                        var user = await graphService.GetUserByPrincipalNameAsync(userManifest.Principal);
+                        if (user != null) { expectedMemberUsers.Add(user); }
+                        else { state.AddError($"No descriptor found for {userManifest.Principal}"); }
+                    }
+                }
+            }
+
+            var teamDescriptor = await this.teamService.GetTeamDescriptorAsync(team.Id);
+            if (teamDescriptor == null)
+            {
+                state.AddError($"Failed to find {team.Name}'s security descriptor.");
+                return;
+            }
+            var currentMembers = await graphService.GetGroupMembersAsync(teamDescriptor.ScopeDescriptor);
+            if (currentMembers == null || currentMembers.Members == null)
+            {
+                state.AddError($"Failed to read current membership of {team.Name}.");
+                return;
+            }
+            
+            foreach(var expectedGroup in expectedMemberGroups)
+            {
+                if(!currentMembers.Members.Any(cm => cm.MemberDescriptor.Equals(expectedGroup.Descriptor)))
+                {
+                    state.AddProperty("Member", $"{expectedGroup.PrincipalName} will be added.");
+                }                
+            }
+            foreach (var expectedUser in expectedMemberUsers)
+            {
+                if (!currentMembers.Members.Any(cm => cm.MemberDescriptor.Equals(expectedUser.Descriptor)))
+                {
+                    state.AddProperty("Member", $"{expectedUser.PrincipalName} will be added.");
+                }
+            }
         }
 
-        protected async override Task<ResourceState?> UpdateAsync()
-        {
-            var project = Context.CurrentProject;
-            var teamName = TeamManifest.Metadata.Name;
-            if (project == null)
-            {
-                var errorState = new ResourceState();
-                errorState.AddError($"Required Project context is missing for resource {TeamManifest.Kind}:{teamName}");
-                return errorState;
-            }
-
-            var state = new ResourceState();
-            if (string.IsNullOrEmpty(teamName) || TeamManifest == null )
-            {
-                state.AddError("Team name is empty");
-                return state;
-            }
-
-            var team = await teamService.GetTeamByNameAsync(project.Id, teamName);
-
-            if (team != null)
-            {
-                await UpdateAdminsAsync(team, state, project);
-                await UpdateMembersAsync(team, state, project);
-            }
-
-            return state;
-        }
-
+        
         protected override Type GetResourceType()
         {
             return typeof(TeamManifest);

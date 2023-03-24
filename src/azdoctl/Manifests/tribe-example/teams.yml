@@ -10,10 +10,13 @@ admins:
     principal: moim@moimhossainhotmail.onmicrosoft.com
 membership:
   groups:
-  - name: 'Kubernetes-Admins'
-    id: a2931c86-e975-4220-aa89-dc3f952290f4
+    - name: 'K8s-Operators'
+      origin: Aad
+      aadObjectId: eb2a16c0-401a-4fc8-beb4-02fe3e6f25b6
   users:
-  - name: Timothy Green
-    id: 4ae3c851-6ef3-4748-bef9-4f809736d538
-  - name: Linda
-    id: 9c5918c7-ef03-4059-a49e-aa6e6d761423
+    - name: Timothy Green
+      principal: timothy@moimhossainhotmail.onmicrosoft.com
+    - name: Linda
+      principal: Linda@moimhossainhotmail.onmicrosoft.com
+    - name: Scrum
+      principal: Scrum@cloudoven.onmicrosoft.com

@@ -1,4 +1,5 @@
-﻿using Cielo.ResourceManagers.Abstract;
+﻿using Cielo.Manifests.Common;
+using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,8 @@ namespace Cielo.CliSupports
 
             if(afterState != null)
             {
+                ConsoleReport.ChangeBegin(manifest.Metadata.Name, manifest.Kind);
+
                 foreach (var property in afterState.GetProperties())
                 {
                     ConsoleReport.ReportAfterStateProperty(property);

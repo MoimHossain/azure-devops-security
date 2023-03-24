@@ -178,7 +178,7 @@ namespace Cielo.ResourceManagers
                             {
                                 if (await graphService.AddMemberAsync(project.Id, group.Descriptor, foundGroup.Descriptor))
                                 {
-                                    state.AddProperty($"{group.PrincipalName} membership", $"Group ({foundGroup.PrincipalName}) added as member", false);
+                                    state.AddProperty($"Membership", $"{foundGroup.PrincipalName} added as member", false);
                                 }
                                 else
                                 {
@@ -204,7 +204,7 @@ namespace Cielo.ResourceManagers
                             {
                                 if (await graphService.AddMemberAsync(project.Id, group.Descriptor, foundUser.Descriptor))
                                 {
-                                    state.AddProperty($"{group.PrincipalName} membership", $"User ({foundUser.PrincipalName}) added as member", false);
+                                    state.AddProperty($"Membership", $"{foundUser.PrincipalName} added as member", false);
                                 }
                                 else
                                 {
@@ -238,7 +238,7 @@ namespace Cielo.ResourceManagers
 
                         if (foundGroup == null)
                         {
-                            state.AddProperty($"{group.PrincipalName} membership", $"Member ({expectedGroup.Name}) doesn't exist", true);
+                            state.AddError($"{expectedGroup.Name} doesn't exist");
                         }
                         else
                         {
@@ -247,7 +247,7 @@ namespace Cielo.ResourceManagers
 
                             if(alreadyMember == null)
                             {
-                                state.AddProperty($"{group.PrincipalName} membership", $"Group ({expectedGroup.Name}) is not a member", true);
+                                state.AddProperty($"Membership", $"{expectedGroup.Name} will be added.", true);
                             }
                         }
                     }
@@ -261,7 +261,7 @@ namespace Cielo.ResourceManagers
 
                         if (foundUser == null)
                         {
-                            state.AddProperty($"{group.PrincipalName} membership", $"Member ({expectedUser.Principal}) doesn't exist", true);
+                            state.AddError($"{expectedUser.Principal} doesn't exist");
                         }
                         else
                         {
@@ -270,7 +270,7 @@ namespace Cielo.ResourceManagers
 
                             if (alreadyMember == null)
                             {
-                                state.AddProperty($"{group.PrincipalName} membership", $"Group ({foundUser.PrincipalName}) is not a member", true);
+                                state.AddProperty($"Membership", $"{foundUser.PrincipalName} will be added.", true);
                             }
                         }
                     }

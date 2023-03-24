@@ -44,12 +44,13 @@ namespace Cielo.CliSupports
             else
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($" ✖ Doesn't exist, will be provisioned.");
+                Console.WriteLine($" ✖ Doesn't exist, will be provisioned. ");
             }     
         }
 
         public static void ReportBeforeStateProperty((string, object, bool) property)
         {
+            Console.Write("\t");
             var name = property.Item1;
             var value = property.Item2;
             var changed = property.Item3;
@@ -72,6 +73,7 @@ namespace Cielo.CliSupports
 
         public static void ReportAfterStateProperty((string, object, bool) property)
         {
+            Console.Write("\t");
             var name = property.Item1;
             var value = property.Item2;
             var changed = property.Item3;
@@ -98,6 +100,15 @@ namespace Cielo.CliSupports
             Console.Write($" ♨ ERROR: ");
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{error}");
+            Console.ResetColor();
+        }
+
+        public static void ChangeBegin(string? name, ManifestKind kind)
+        {   
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write($" ☀ Mutations ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"{name}");
         }
     }
 }

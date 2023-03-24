@@ -32,10 +32,16 @@ namespace Cielo.Azdo
             return team;
         }
 
-        public async Task<List<MsVssTeamAdmin>> GetTeamAdminsAsync(Guid projectId, Guid teamId)
+        public async Task<VstsTeamDescriptor> GetTeamDescriptorAsync(Guid teamId)
         {
             var path = $"_apis/graph/descriptors/{teamId}";
             var teamDescriptor = await VsspsApi().GetRestAsync<VstsTeamDescriptor>(path);
+            return teamDescriptor;
+        }
+
+        public async Task<List<MsVssTeamAdmin>> GetTeamAdminsAsync(Guid projectId, Guid teamId)
+        {
+            var teamDescriptor = await this.GetTeamDescriptorAsync(teamId);
             if (teamDescriptor != null && !string.IsNullOrWhiteSpace(teamDescriptor.ScopeDescriptor))
             {
                 var adminPath = $"_apis/Contribution/HierarchyQuery?api-version=5.0-preview.1";
