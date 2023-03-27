@@ -16,12 +16,14 @@ namespace Cielo.ResourceManagers
 {
     public class RepositorySecurityManager : ResourceManagerBase
     {
+        private readonly AclService aclService;
         private readonly RepositoryService repositoryService;
         private readonly GraphService graphService;
 
         public RepositorySecurityManager(IServiceProvider serviceProvider, string rawManifest)
             : base(serviceProvider, rawManifest)
         {
+            this.aclService = serviceProvider.GetService<AclService>();
             this.repositoryService = serviceProvider.GetRequiredService<RepositoryService>();
             this.graphService = serviceProvider.GetRequiredService<GraphService>();
         }
@@ -68,6 +70,7 @@ namespace Cielo.ResourceManagers
                     {
                         var repoPropertyBag = new List<(string, object, bool)>();
                         state.AddProperty(repoName, repoPropertyBag);
+                        var acls = new Dictionary<string, VstsAcesDictionaryEntry>();
 
                         foreach (var groupSpec in permissionSpec.Groups)
                         {
@@ -76,7 +79,8 @@ namespace Cielo.ResourceManagers
                                 groupSpec.Scope, groupSpec.Origin, groupSpec.AadObjectId);
                             if (group != null)
                             {
-                                var childState = await DiscoverPermissionsAsync(project, group.Descriptor, repository, permissionSpec, readonlyMode);
+                                var childState = await DiscoverPermissionsAsync(
+                                    project, group.Descriptor, group.Sid, repository, permissionSpec, readonlyMode, acls);
                                 repoPropertyBag.Add((group.PrincipalName, childState.GetProperties(), false));
                             }
                             else
@@ -90,13 +94,30 @@ namespace Cielo.ResourceManagers
                             var user = await graphService.GetUserByPrincipalNameAsync(userSpec.Principal);
                             if (user != null)
                             {
-                                var childState = await DiscoverPermissionsAsync(project, user.Descriptor, repository, permissionSpec, readonlyMode);
+                                var childState = await DiscoverPermissionsAsync(
+                                    project, user.Descriptor, user.Sid, repository, permissionSpec, readonlyMode, acls);
                                 repoPropertyBag.Add((user.PrincipalName, childState.GetProperties(), false));
                             }
                             else
                             {
                                 state.AddError($"{userSpec.Principal} not found!");
                             }
+                        }
+
+
+                        if(!readonlyMode && acls.Any())
+                        {
+                            var gitSecurityNamespaceId = await this.repositoryService.GetNamespaceId();
+                            var repositorySecurityToken = $"repoV2/{project.Id}/{repository.Id}";                            
+                            var result = await aclService.SetAclsAsync(gitSecurityNamespaceId, repositorySecurityToken, acls, false);
+                            if (!result)
+                            {
+                                state.AddError("Failed to update permissions.");
+                            }
+                            else
+                            {
+                                state.AddProperty("Permissions", "Applied successfully.");
+                            }                            
                         }
                     }
                     else
@@ -111,9 +132,11 @@ namespace Cielo.ResourceManagers
         private async Task<ResourceState> DiscoverPermissionsAsync(
             Azdo.Dtos.Project project, 
             string descriptor,
+            string sid,
             GitRepository repository,            
             RepositorySecurityManifest.RepositoryPermissionManifest permissionSpec,
-            bool readonlyMode)
+            bool readonlyMode,
+            Dictionary<string, VstsAcesDictionaryEntry> acls)
         {
             var state = new ResourceState() {  } ;
             var currentPerms = await repositoryService.GetPermissionsAsync(project.Id, descriptor, repository.Id);
@@ -137,26 +160,21 @@ namespace Cielo.ResourceManagers
                 }
                 else
                 {
-                    // mutation mode
-                    var acls = new Dictionary<string, VstsAcesDictionaryEntry>();
-                    var bitMask = 0;
-                    foreach (var expectedPermission in permissionSpec.Allowed)
-                    {
-                        bitMask |= EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
-                    }
-                    var sid = IdentityBase64Supports.GetSid(descriptor);
+                                        
                     if (!string.IsNullOrWhiteSpace(sid))
                     {
+                        // mutation mode                    
+                        var bitMask = 0;
+                        foreach (var expectedPermission in permissionSpec.Allowed)
+                        {
+                            bitMask |= EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                        }
                         acls.Add(sid, new VstsAcesDictionaryEntry
                         {
                             Descriptor = sid,
                             Allow = bitMask,
                             Deny = 0
                         });
-              
-                        // update permissions
-
-
                     }
                     else
                     {

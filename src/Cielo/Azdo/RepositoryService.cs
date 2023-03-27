@@ -30,7 +30,7 @@ namespace Cielo.Azdo
             return allRepos.FirstOrDefault(repo => repo.Name.Equals(repositoryName, StringComparison.OrdinalIgnoreCase));
         }
 
-        private async Task<Guid> GetNamespaceId()
+        public async Task<Guid> GetNamespaceId()
         {
             var ns = await securityNamespaceService.GetNamespaceAsync(SecurityNamespaceService.SecurityNamespaceConstants.Git_Repositories);
             return ns.NamespaceId;

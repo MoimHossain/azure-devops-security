@@ -48,6 +48,15 @@ namespace Cielo.Azdo.Dtos
 
         [JsonProperty("descriptor", NullValueHandling = NullValueHandling.Ignore)]
         public string Descriptor { get; set; }
+
+        [JsonIgnore]
+        public string Sid
+        {
+            get
+            {
+                return $"Microsoft.IdentityModel.Claims.ClaimsIdentity;{this.Domain}\\{this.PrincipalName}";
+            }
+        }
     }
 
 
