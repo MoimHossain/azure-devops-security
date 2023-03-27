@@ -12,7 +12,7 @@ namespace Cielo.Manifests.Common
         [ManifestResourceMapAttribute(typeof(ProjectResourceManager))] Project = 0,
         [ManifestResourceMapAttribute(typeof(GroupResourceManager))] Group = 1,
         [ManifestResourceMapAttribute(typeof(TeamResourceManager))] Team = 2,
-        [ManifestResourceMapAttribute(typeof(ProjectResourceManager))] Repository = 3,
+        [ManifestResourceMapAttribute(typeof(RepositorySecurityManager))] RepositorySecurity = 3,
         [ManifestResourceMapAttribute(typeof(ProjectResourceManager))] Permission = 4
     }
 }

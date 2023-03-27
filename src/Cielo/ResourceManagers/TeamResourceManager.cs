@@ -143,7 +143,7 @@ namespace Cielo.ResourceManagers
                 {
                     foreach (var gpManifest in TeamManifest.Membership.Groups)
                     {
-                        var group = await GetGroupCoreAsync(gpManifest.Name, project.Name, gpManifest.Scope, gpManifest.Origin, gpManifest.AadObjectId);
+                        var group = await graphService.GetGroupAsync(gpManifest.Name, project.Name, gpManifest.Scope, gpManifest.Origin, gpManifest.AadObjectId);
                         if (group != null) { expectedMemberGroups.Add(group); }
                         else { state.AddError($"No descriptor found for {gpManifest.Name}"); }
                     }
@@ -267,35 +267,7 @@ namespace Cielo.ResourceManagers
             }
         }
 
-        private async Task<VstsGroup> GetGroupCoreAsync(
-            string name,
-            string projectName,
-            GroupManifest.GroupScopeEnum scope,
-            IdentityOrigin origin,
-            Guid? aadObjectId)
-        {
-            var group = default(VstsGroup);
-            if (origin == IdentityOrigin.Vsts)
-            {
-                if (scope == GroupManifest.GroupScopeEnum.Project)
-                {
-                    group = await graphService.GetGroupByNameFromProjectAsync(projectName, name);
-                }
-                else
-                {
-                    group = await graphService.GetGroupByNameFromCollectionAsync(name);
-                }
-            }
-            else
-            {
-                if (aadObjectId.HasValue)
-                {
-                    // this should find us the Aad materialized group?
-                    group = await graphService.GetAadGroupById(aadObjectId.Value);
-                }
-            }
-            return group;
-        }
+
 
         private async Task DiscoverMembershipAsync(VstsTeam team, ResourceState state, Project project)
         {
@@ -308,7 +280,7 @@ namespace Cielo.ResourceManagers
                 {
                     foreach (var gpManifest in TeamManifest.Membership.Groups)
                     {
-                        var group = await GetGroupCoreAsync(gpManifest.Name, project.Name, gpManifest.Scope, gpManifest.Origin, gpManifest.AadObjectId);
+                        var group = await graphService.GetGroupAsync(gpManifest.Name, project.Name, gpManifest.Scope, gpManifest.Origin, gpManifest.AadObjectId);
                         if (group != null) { expectedMemberGroups.Add(group); }
                         else { state.AddError($"No descriptor found for {gpManifest.Name}"); }
                     }

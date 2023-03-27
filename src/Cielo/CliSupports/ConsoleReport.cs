@@ -45,12 +45,21 @@ namespace Cielo.CliSupports
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine($" ✖ Doesn't exist, will be provisioned. ");
-            }     
+            }
         }
 
-        public static void ReportBeforeStateProperty((string, object, bool) property)
+        public static void ReportPropertyHeader(string header, bool beforeOrAfter = true, int indent = 1)
         {
-            Console.Write("\t");
+            Console.Write(new string('\t', indent));
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write($" ☛ ");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine($"{header} : ");
+        }
+
+        public static void ReportProperty((string, object, bool) property, bool beforeOrAfter = true, int indent = 1)
+        {   
+            Console.Write(new string('\t', indent));
             var name = property.Item1;
             var value = property.Item2;
             var changed = property.Item3;
@@ -68,29 +77,6 @@ namespace Cielo.CliSupports
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write($"{name} : ");
             Console.ForegroundColor = changed ? ConsoleColor.DarkMagenta: ConsoleColor.DarkYellow;
-            Console.WriteLine($"{value}");
-        }
-
-        public static void ReportAfterStateProperty((string, object, bool) property)
-        {
-            Console.Write("\t");
-            var name = property.Item1;
-            var value = property.Item2;
-            var changed = property.Item3;
-
-            if (changed)
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write($" ≈ ");
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write($" + ");
-            }
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write($"{name} : ");
-            Console.ForegroundColor = changed ? ConsoleColor.DarkGreen : ConsoleColor.Green;
             Console.WriteLine($"{value}");
         }
 

@@ -30,26 +30,23 @@ namespace Cielo.CliSupports
             var manifest = resourceManager.Manifest;
             ConsoleReport.BeginResource(manifest.Metadata.Name, manifest.Kind);
             ConsoleReport.ResourceState(beforeState.Exists);
-            foreach(var property in beforeState.GetProperties())
-            {
-                ConsoleReport.ReportBeforeStateProperty(property);
-            }
+            PrintProperties(beforeState.GetProperties());
 
-            if(beforeState.HasErrors)
+            if (beforeState.HasErrors)
             {
-                foreach(var error in beforeState.GetErrors())
+                foreach (var error in beforeState.GetErrors())
                 {
                     ConsoleReport.ReportError(error);
                 }
             }
 
-            if(afterState != null)
+            if (afterState != null)
             {
                 ConsoleReport.ChangeBegin(manifest.Metadata.Name, manifest.Kind);
 
                 foreach (var property in afterState.GetProperties())
                 {
-                    ConsoleReport.ReportAfterStateProperty(property);
+                    ConsoleReport.ReportProperty(property);
                 }
 
                 if (afterState.HasErrors)
@@ -60,6 +57,23 @@ namespace Cielo.CliSupports
                     }
                 }
 
+            }
+        }
+
+        private void PrintProperties(IEnumerable<(string, object, bool)> properties, bool beforeOrAfter = true, int indent = 1)
+        {
+            foreach (var property in properties)
+            {
+                var childProps = property.Item2 as IEnumerable<(string, object, bool)>;
+                if (childProps != null)
+                {
+                    ConsoleReport.ReportPropertyHeader(property.Item1, beforeOrAfter, indent - 1); 
+                    PrintProperties(childProps, beforeOrAfter, indent + 1);
+                }
+                else
+                {
+                    ConsoleReport.ReportProperty(property, beforeOrAfter, indent);
+                }
             }
         }
     }

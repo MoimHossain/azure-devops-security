@@ -1,5 +1,6 @@
 ﻿using Cielo.Azdo.Abstract;
 using Cielo.Azdo.Dtos;
+using Cielo.Manifests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,36 @@ namespace Cielo.Azdo
         public GraphService(IHttpClientFactory clientFactory) : base(clientFactory)
         {
             
+        }
+
+        public async Task<VstsGroup> GetGroupAsync(
+            string groupName,
+            string projectName,
+            GroupManifest.GroupScopeEnum scope,
+            IdentityOrigin origin,
+            Guid? aadObjectId)
+        {
+            var group = default(VstsGroup);
+            if (origin == IdentityOrigin.Vsts)
+            {
+                if (scope == GroupManifest.GroupScopeEnum.Project)
+                {
+                    group = await GetGroupByNameFromProjectAsync(projectName, groupName);
+                }
+                else
+                {
+                    group = await GetGroupByNameFromCollectionAsync(groupName);
+                }
+            }
+            else
+            {
+                if (aadObjectId.HasValue)
+                {
+                    // this should find us the Aad materialized group?
+                    group = await GetAadGroupById(aadObjectId.Value);
+                }
+            }
+            return group;
         }
 
         public async Task<VstsIdentity> GetIdentityObjectAsync(Guid id)
