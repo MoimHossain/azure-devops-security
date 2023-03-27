@@ -28,32 +28,23 @@ namespace Cielo.ResourceManagers
 
         protected async override Task<ResourceState> CreateAsync()
         {
-            await Task.CompletedTask;
-            return new ResourceState();
+            return await DiscoverAndApplyPermissionsAsync(false);
         }
 
-        public GitRepositories GetPermissionEnum()
+
+        protected async override Task<ResourceState?> UpdateAsync()
         {
-            var member = typeof(GitRepositories)
-                .GetMembers()
-                .FirstOrDefault((member) =>
-                {
-                    var dva = member.GetCustomAttribute<DefaultValueAttribute>();
-                    if (dva != null)
-                    {
-                        if (int.TryParse($"{dva.Value}", out var value))
-                        {
-                            //return value == this.Bit;
-                        }
-                    }
-                    return false;
-                });
-
-            return GitRepositories.EditPolicies;
+            return await DiscoverAndApplyPermissionsAsync(false);
         }
+
 
 
         protected async override Task<ResourceState> GetAsync()
+        {
+            return await DiscoverAndApplyPermissionsAsync();
+        }
+
+        private async Task<ResourceState> DiscoverAndApplyPermissionsAsync(bool readonlyMode = true)
         {
             var project = Context.CurrentProject;
             var metadataName = RepositorySecurityManifest.Metadata.Name;
@@ -68,12 +59,12 @@ namespace Cielo.ResourceManagers
 
             var state = new ResourceState() { Exists = true };
 
-            foreach(var permissionSpec in permissions)
+            foreach (var permissionSpec in permissions)
             {
-                foreach(var repoName in permissionSpec.Names)
+                foreach (var repoName in permissionSpec.Names)
                 {
                     var repository = await this.repositoryService.GetRepositoryAsync(project.Id, repoName);
-                    if(repository != null)
+                    if (repository != null)
                     {
                         var repoPropertyBag = new List<(string, object, bool)>();
                         state.AddProperty(repoName, repoPropertyBag);
@@ -85,7 +76,7 @@ namespace Cielo.ResourceManagers
                                 groupSpec.Scope, groupSpec.Origin, groupSpec.AadObjectId);
                             if (group != null)
                             {
-                                var childState = await DiscoverPermissionsAsync(project, group.Descriptor, repository, permissionSpec);
+                                var childState = await DiscoverPermissionsAsync(project, group.Descriptor, repository, permissionSpec, readonlyMode);
                                 repoPropertyBag.Add((group.PrincipalName, childState.GetProperties(), false));
                             }
                             else
@@ -99,7 +90,7 @@ namespace Cielo.ResourceManagers
                             var user = await graphService.GetUserByPrincipalNameAsync(userSpec.Principal);
                             if (user != null)
                             {
-                                var childState = await DiscoverPermissionsAsync(project, user.Descriptor, repository, permissionSpec);
+                                var childState = await DiscoverPermissionsAsync(project, user.Descriptor, repository, permissionSpec, readonlyMode);
                                 repoPropertyBag.Add((user.PrincipalName, childState.GetProperties(), false));
                             }
                             else
@@ -121,30 +112,79 @@ namespace Cielo.ResourceManagers
             Azdo.Dtos.Project project, 
             string descriptor,
             GitRepository repository,            
-            RepositorySecurityManifest.RepositoryPermissionManifest permissionSpec)
+            RepositorySecurityManifest.RepositoryPermissionManifest permissionSpec,
+            bool readonlyMode)
         {
             var state = new ResourceState() {  } ;
             var currentPerms = await repositoryService.GetPermissionsAsync(project.Id, descriptor, repository.Id);
             if (currentPerms != null)
             {
-                foreach (var expectedPermission in permissionSpec.Allowed)
+                if (readonlyMode)
                 {
-                    var bit = EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
-                    var crrentPerm = currentPerms.FirstOrDefault(cp => cp.Bit == bit);
-                    if (crrentPerm != null && crrentPerm.EffectivePermissionValue.HasValue)
+                    foreach (var expectedPermission in permissionSpec.Allowed)
                     {
-                        var missingExpectation = ((crrentPerm.EffectivePermissionValue.Value & bit) <= 0);
-                        state.AddProperty(expectedPermission.ToString(), (missingExpectation ? "Missing" : "Allowed"), missingExpectation);
+                        var bit = EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                        var crrentPerm = currentPerms.FirstOrDefault(cp => cp.Bit == bit);
+                        if (crrentPerm != null && crrentPerm.EffectivePermissionValue.HasValue)
+                        {
+                            if (readonlyMode)
+                            {
+                                var missingExpectation = ((crrentPerm.EffectivePermissionValue.Value & bit) <= 0);
+                                state.AddProperty(expectedPermission.ToString(), (missingExpectation ? "Missing" : "Allowed"), missingExpectation);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // mutation mode
+                    var acls = new Dictionary<string, VstsAcesDictionaryEntry>();
+                    var bitMask = 0;
+                    foreach (var expectedPermission in permissionSpec.Allowed)
+                    {
+                        bitMask |= EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                    }
+                    var sid = IdentityBase64Supports.GetSid(descriptor);
+                    if (!string.IsNullOrWhiteSpace(sid))
+                    {
+                        acls.Add(sid, new VstsAcesDictionaryEntry
+                        {
+                            Descriptor = sid,
+                            Allow = bitMask,
+                            Deny = 0
+                        });
+              
+                        // update permissions
+
+
+                    }
+                    else
+                    {
+                        state.AddError($"Failed to calculate SID");
                     }
                 }
             }
             return state;
         }
 
-        protected async override Task<ResourceState?> UpdateAsync()
+        public GitRepositories GetPermissionEnum()
         {
-            await Task.CompletedTask;
-            return new ResourceState();
+            var member = typeof(GitRepositories)
+                .GetMembers()
+                .FirstOrDefault((member) =>
+                {
+                    var dva = member.GetCustomAttribute<DefaultValueAttribute>();
+                    if (dva != null)
+                    {
+                        if (int.TryParse($"{dva.Value}", out var value))
+                        {
+                            //return value == this.Bit;
+                        }
+                    }
+                    return false;
+                });
+
+            return GitRepositories.EditPolicies;
         }
 
         protected override Type GetResourceType()

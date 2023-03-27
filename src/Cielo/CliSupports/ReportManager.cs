@@ -43,11 +43,7 @@ namespace Cielo.CliSupports
             if (afterState != null)
             {
                 ConsoleReport.ChangeBegin(manifest.Metadata.Name, manifest.Kind);
-
-                foreach (var property in afterState.GetProperties())
-                {
-                    ConsoleReport.ReportProperty(property);
-                }
+                PrintProperties(afterState.GetProperties());
 
                 if (afterState.HasErrors)
                 {
