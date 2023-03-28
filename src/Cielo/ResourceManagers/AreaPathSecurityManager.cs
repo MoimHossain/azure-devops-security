@@ -142,12 +142,7 @@ namespace Cielo.ResourceManagers
 
             if (!readonlyMode && acls.Any())
             {
-                //var nsID = await this.classificationService.GetNamespaceId();
-                //var securityToken = classificationService.GetSecurityToken(project.Id, pathSpec.Identifier);
-                //var result = await aclService.SetAclsAsync(nsID, securityToken, acls, false);
-
                 var result = await classificationService.SetPermissionsAsync(project.Id, pathSpec, acls.Values.ToList());
-
 
                 if (!result)
                 {
