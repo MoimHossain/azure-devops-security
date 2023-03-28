@@ -73,7 +73,7 @@ namespace Cielo.Azdo
 
         public async Task<bool> UpdateConfigAsync(Guid projectId, Guid teamId, object saveSata)
         {
-            var requestURI = $"/{projectId}/{teamId}/_admin/_Areas/UpdateAreasData?useApiUrl=true&teamId={teamId}&__v=5";
+            var requestURI = $"{projectId}/{teamId}/_admin/_Areas/UpdateAreasData?useApiUrl=true&teamId={teamId}&__v=5";
             var saveDataJSON = JsonConvert.SerializeObject(saveSata);
 
             var result = await CoreApi().PostWithoutResponseBodyAsync(requestURI, new { saveData = saveDataJSON });

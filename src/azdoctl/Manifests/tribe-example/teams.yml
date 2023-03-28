@@ -27,3 +27,5 @@ config:
       includeSubAreas: true
     - path: 'Platform/Marketing/Frontdesk'
       includeSubAreas: true
+    - path: 'Platform/HR/Internal'
+      includeSubAreas: true
