@@ -62,7 +62,7 @@ namespace Cielo.Azdo
         public static void AddAzdoServices(this IServiceCollection services)
         {
             services.AddTransient<AclService>();
-            //services.AddTransient<BuildService>();
+            services.AddTransient<PipelineService>();
             //services.AddTransient<ClassificationService>();
             services.AddTransient<GraphService>();
             //services.AddTransient<PipelineEnvironmentService>();
