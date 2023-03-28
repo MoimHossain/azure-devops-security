@@ -14,6 +14,7 @@ namespace Cielo.Manifests.Common
         [ManifestResourceMapAttribute(typeof(TeamResourceManager))] Team = 2,
         [ManifestResourceMapAttribute(typeof(RepositorySecurityManager))] RepositorySecurity = 3,
         [ManifestResourceMapAttribute(typeof(PipelineFolderSecurityManager))] PipelineFolderSecurity = 4,
-        [ManifestResourceMapAttribute(typeof(ReleaseFolderSecurityManager))] ReleaseFolderSecurity = 5
+        [ManifestResourceMapAttribute(typeof(ReleaseFolderSecurityManager))] ReleaseFolderSecurity = 5,
+        [ManifestResourceMapAttribute(typeof(AreaPathSecurityManager))] AreaPathSecurity = 6
     }
 }

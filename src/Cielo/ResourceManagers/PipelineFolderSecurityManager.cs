@@ -23,7 +23,7 @@ namespace Cielo.ResourceManagers
         public PipelineFolderSecurityManager(IServiceProvider serviceProvider, string rawManifest) 
             : base(serviceProvider, rawManifest)
         {
-            this.aclService = serviceProvider.GetService<AclService>();
+            this.aclService = serviceProvider.GetRequiredService<AclService>();
             this.pipelineService = serviceProvider.GetRequiredService<PipelineService>();
             this.graphService = serviceProvider.GetRequiredService<GraphService>();
         }
