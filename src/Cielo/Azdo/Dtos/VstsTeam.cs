@@ -81,4 +81,48 @@ namespace Cielo.Azdo.Dtos
         [JsonPropertyName("dataProviders")]
         public VstsTeamAdminDataProvider DataProviders { get; set; }
     }
+
+
+
+
+    public class VstsTeamConfig
+    {
+        [JsonProperty("defaultValue")]
+        [JsonPropertyName("defaultValue")]
+        public string DefaultPath { get; set; }
+
+        [JsonProperty("values")]
+        [JsonPropertyName("values")]
+        public List<VstsTeamConfigAreaPath> AreaPaths { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string TrimmedDefaultPath
+        {
+            get {
+                return ClassificationService.GetNormalizedPath(this.DefaultPath);
+            }
+        }
+    }
+
+    public class VstsTeamConfigAreaPath
+    {
+        [JsonProperty("value")]
+        [JsonPropertyName("value")]
+        public string Path { get; set; }
+
+        [JsonProperty("includeChildren")]
+        [JsonPropertyName("includeChildren")]
+        public bool IncludeChildren { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public string TrimmedPath
+        {
+            get
+            {
+                return ClassificationService.GetNormalizedPath(this.Path);
+            }
+        }
+    }
 }

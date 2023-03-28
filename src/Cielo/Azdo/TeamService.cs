@@ -1,11 +1,6 @@
 ﻿using Cielo.Azdo.Abstract;
 using Cielo.Azdo.Dtos;
 using Microsoft.TeamFoundation.Core.WebApi;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cielo.Azdo
 {
@@ -67,27 +62,12 @@ namespace Cielo.Azdo
             return new List<MsVssTeamAdmin>();
         }
 
-        /* Get Admin
-         use this class in DTO VstsTeamAdminResponseRoot
+        public async Task<VstsTeamConfig> GetTeamsAreaPathConfigAsync(Guid projectId, Guid teamId)
+        {
+            var reqPath = $"{projectId}/{teamId}/_apis/work/teamsettings/teamfieldvalues";
+            var response = await CoreApi().GetRestAsync<VstsTeamConfig>(reqPath);
 
-
-###
-GET  https://vssps.{{host}}/{{organization}}/_apis/graph/descriptors/{{teamID}}
-Authorization: Basic {{base64EncodedPat}}
-Content-Type: application/json
-
-###
-POST https://dev.azure.com/moim/_apis/Contribution/HierarchyQuery?api-version=5.0-preview.1
-Authorization: Basic {{base64EncodedPat}}
-Content-Type: application/json
-
-{
-	"contributionIds": ["ms.vss-admin-web.admin-teams-admin-list-data-provider"],
-	"dataProviderContext": {
-		"properties": {
-			"descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0yOTg0MTI4OTgzLTMzNTkyMzAwOS0yNTAyNjQwNDUwLTg0Mzk1OTYzLTEtNTkzNDk1Mzc5LTQyMDU3MzA4ODItMjI3Njk0NTg0My00MjUxMzE4NzA5"
-		}
-	}
-}*/
+            return response;
+        }
     }
 }

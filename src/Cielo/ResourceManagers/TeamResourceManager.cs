@@ -6,6 +6,7 @@ using Cielo.Manifests;
 using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.TeamFoundation.Build.WebApi;
 using static Cielo.Azdo.SecurityNamespaceService;
 using static Cielo.Manifests.GroupManifest;
 
@@ -99,6 +100,7 @@ namespace Cielo.ResourceManagers
                 }
 
                 await DiscoverMembershipAsync(team, state, project);
+                await DiscoverConfigAsync(team, state, project);
             }
             return state;
         }
@@ -326,7 +328,53 @@ namespace Cielo.ResourceManagers
             }
         }
 
-        
+        private async Task DiscoverConfigAsync(VstsTeam team, ResourceState state, Project project)
+        {
+            var expectedConfig = TeamManifest.Config;
+            if(expectedConfig != null)
+            {
+                var configPropertyBag = new List<(string, object, bool)>();
+                state.AddProperty($"Config", configPropertyBag);
+
+                var currentConfig = await this.teamService.GetTeamsAreaPathConfigAsync(project.Id, team.Id);
+                if (currentConfig != null)
+                {
+                    if(!string.IsNullOrWhiteSpace(expectedConfig.DefaultPath))
+                    {
+                        if (expectedConfig.DefaultPath.Equals(currentConfig.TrimmedDefaultPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            configPropertyBag.Add(("Default Area Path", $"{currentConfig.TrimmedDefaultPath} exists.", false));
+                        }
+                        else 
+                        {
+                            configPropertyBag.Add(("Default Area Path", $"PATH=({currentConfig.DefaultPath}) will change.", false));
+                        }
+                    }
+
+                    if(expectedConfig.AreaPaths != null)
+                    {
+                        foreach(var expectedPath in expectedConfig.AreaPaths)
+                        {
+                            var foundPath = currentConfig.AreaPaths
+                                .FirstOrDefault(ap => ap.TrimmedPath.Equals(expectedPath.Path, StringComparison.OrdinalIgnoreCase)
+                                && ap.IncludeChildren == expectedPath.IncludeSubAreas);
+                            if (foundPath == null)
+                            {
+                                configPropertyBag.Add(("Path", $"{expectedPath.Path} (will changes)", false));
+                                configPropertyBag.Add(("SubArea included", $"{expectedPath.IncludeSubAreas} (will changes)", false));
+                            }
+                            else
+                            {
+                                configPropertyBag.Add(("Path", $"{foundPath.TrimmedPath} (no changes)", false));
+                                configPropertyBag.Add(("SubArea included", $"{foundPath.IncludeChildren} (no changes)", false));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         protected override Type GetResourceType()
         {
             return typeof(TeamManifest);
