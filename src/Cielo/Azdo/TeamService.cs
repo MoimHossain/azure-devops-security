@@ -1,6 +1,7 @@
 ﻿using Cielo.Azdo.Abstract;
 using Cielo.Azdo.Dtos;
 using Microsoft.TeamFoundation.Core.WebApi;
+using Newtonsoft.Json;
 
 namespace Cielo.Azdo
 {
@@ -68,6 +69,15 @@ namespace Cielo.Azdo
             var response = await CoreApi().GetRestAsync<VstsTeamConfig>(reqPath);
 
             return response;
+        }
+
+        public async Task<bool> UpdateConfigAsync(Guid projectId, Guid teamId, object saveSata)
+        {
+            var requestURI = $"/{projectId}/{teamId}/_admin/_Areas/UpdateAreasData?useApiUrl=true&teamId={teamId}&__v=5";
+            var saveDataJSON = JsonConvert.SerializeObject(saveSata);
+
+            var result = await CoreApi().PostWithoutResponseBodyAsync(requestURI, new { saveData = saveDataJSON });
+            return result;
         }
     }
 }

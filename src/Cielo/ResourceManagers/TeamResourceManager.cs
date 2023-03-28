@@ -7,6 +7,8 @@ using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TeamFoundation.Build.WebApi;
+using Microsoft.TeamFoundation.Work.WebApi;
+using Newtonsoft.Json;
 using static Cielo.Azdo.SecurityNamespaceService;
 using static Cielo.Manifests.GroupManifest;
 
@@ -62,6 +64,7 @@ namespace Cielo.ResourceManagers
 
                 await UpdateAdminsAsync(team, state, project);
                 await UpdateMembersAsync(team, state, project);
+                await UpdateConfigAsync(team, state, project);
             }
             return state;
         }
@@ -128,9 +131,51 @@ namespace Cielo.ResourceManagers
             {
                 await UpdateAdminsAsync(team, state, project);
                 await UpdateMembersAsync(team, state, project);
+                await UpdateConfigAsync(team, state, project);
             }
 
             return state;
+        }
+
+        private async Task UpdateConfigAsync(VstsTeam team, ResourceState state, Project project)
+        {
+            var expectedConfig = TeamManifest.Config;
+            if (expectedConfig != null)
+            {
+                var configPropertyBag = new List<(string, object, bool)>();
+                state.AddProperty($"Config", configPropertyBag);
+
+                var currentConfig = await this.teamService.GetTeamsAreaPathConfigAsync(project.Id, team.Id);
+                if (currentConfig != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(expectedConfig.DefaultPath) && (expectedConfig.AreaPaths != null))
+                    {
+                        var index = expectedConfig.AreaPaths.FindIndex(ap => ap.Path.Equals(expectedConfig.DefaultPath, StringComparison.OrdinalIgnoreCase));
+                        if (index <= -1) 
+                        {
+                            state.AddError($"Path({expectedConfig.DefaultPath}) is not associated to the team.");
+                            return;
+                        }
+                        var tfv = expectedConfig.AreaPaths.Select(ap =>
+                            new
+                            {
+                                value = ClassificationService.GetNormalizedPath(ap.Path).Replace('/', '\\'),
+                                includeChildren = ap.IncludeSubAreas
+                            }).ToList();
+                        
+                        var result = await this.teamService.UpdateConfigAsync(project.Id, team.Id, new { DefaultValueIndex = index, TeamFieldValues = tfv });
+
+                        if (!result)
+                        {
+                            state.AddError("Failed to update team settings.");
+                        }
+                        else 
+                        {
+                            state.AddProperty("Team Config", "Updated successfully");
+                        }
+                    }
+                }
+            }
         }
 
 

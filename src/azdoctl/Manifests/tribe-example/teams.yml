@@ -25,5 +25,5 @@ config:
   areaPaths:
     - path: 'Platform/Finance/South Americas'
       includeSubAreas: true
-    - path: 'Platform/Finance/Frontdesk'
+    - path: 'Platform/Marketing/Frontdesk'
       includeSubAreas: true
