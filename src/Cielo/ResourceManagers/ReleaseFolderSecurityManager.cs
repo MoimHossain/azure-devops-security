@@ -4,8 +4,6 @@ using Cielo.Manifests;
 using Cielo.ResourceManagers.Abstract;
 using Cielo.ResourceManagers.ResourceStates;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.TeamFoundation.Build.WebApi;
-using Microsoft.TeamFoundation.SourceControl.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace Cielo.ResourceManagers
 {
-    public class PipelineFolderSecurityManager : ResourceManagerBase
+    public class ReleaseFolderSecurityManager : ResourceManagerBase
     {
         private readonly AclService aclService;
-        private readonly PipelineService pipelineService;
+        private readonly ReleaseService releaseService;
         private readonly GraphService graphService;
 
-        public PipelineFolderSecurityManager(IServiceProvider serviceProvider, string rawManifest) 
+        public ReleaseFolderSecurityManager(IServiceProvider serviceProvider, string rawManifest)
             : base(serviceProvider, rawManifest)
         {
             this.aclService = serviceProvider.GetService<AclService>();
-            this.pipelineService = serviceProvider.GetRequiredService<PipelineService>();
+            this.releaseService = serviceProvider.GetRequiredService<ReleaseService>();
             this.graphService = serviceProvider.GetRequiredService<GraphService>();
         }
 
@@ -45,22 +43,22 @@ namespace Cielo.ResourceManagers
 
         protected override Type GetResourceType()
         {
-            return typeof(PipelineFolderSecurityManifest);
+            return typeof(ReleaseFolderSecurityManifest);
         }
 
-        public PipelineFolderSecurityManifest PipelineFolderSecurityManifest { get { return (PipelineFolderSecurityManifest)this.Manifest; } }
+        public ReleaseFolderSecurityManifest ReleaseFolderSecurityManifest { get { return (ReleaseFolderSecurityManifest)this.Manifest; } }
 
 
         private async Task<ResourceState> DiscoverAndApplyPermissionsAsync(bool readonlyMode = true)
         {
             var project = Context.CurrentProject;
-            var metadataName = PipelineFolderSecurityManifest.Metadata.Name;
-            var permissions = PipelineFolderSecurityManifest.Permissions;
+            var metadataName = ReleaseFolderSecurityManifest.Metadata.Name;
+            var permissions = ReleaseFolderSecurityManifest.Permissions;
 
             if (project == null || permissions == null)
             {
                 var errorState = new ResourceState();
-                errorState.AddError($"Required Project context is missing for resource {PipelineFolderSecurityManifest.Kind}:{metadataName}");
+                errorState.AddError($"Required Project context is missing for resource {ReleaseFolderSecurityManifest.Kind}:{metadataName}");
                 return errorState;
             }
 
@@ -70,20 +68,20 @@ namespace Cielo.ResourceManagers
             {
                 foreach (var pipelineFolderPath in permissionSpec.Paths)
                 {
-                    var folderPath = await this.pipelineService.GetPipelineFolderAsync(project.Id, pipelineFolderPath);
+                    var folderPath = await this.releaseService.GetPipelineFolderAsync(project.Id, pipelineFolderPath);
                     if (folderPath != null)
                     {
                         await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, folderPath);
                     }
                     else
                     {
-                        if(readonlyMode)
+                        if (readonlyMode)
                         {
                             state.AddProperty($"PATH({pipelineFolderPath})", "Missing, will be created.");
                         }
                         else
                         {
-                            folderPath = await this.pipelineService.CreateFolderAsync(project.Id, pipelineFolderPath);
+                            folderPath = await this.releaseService.CreateFolderAsync(project.Id, pipelineFolderPath);
                             if (folderPath != null)
                             {
                                 state.AddProperty($"PATH({pipelineFolderPath})", "Created");
@@ -94,7 +92,7 @@ namespace Cielo.ResourceManagers
                                 state.AddError($"{pipelineFolderPath} creation failed.");
                             }
                         }
-                        
+
                     }
                 }
             }
@@ -103,7 +101,7 @@ namespace Cielo.ResourceManagers
 
         private async Task DiscoverAndApplyPermissionsOnFolderAsync(
             bool readonlyMode, Azdo.Dtos.Project project, ResourceState state,
-            PipelineFolderSecurityManifest.PipelineFolderPermissionManifest permissionSpec,
+            ReleaseFolderSecurityManifest.ReleaseFolderPermissionManifest permissionSpec,
             VstsFolder folder)
         {
             var repoPropertyBag = new List<(string, object, bool)>();
@@ -145,8 +143,8 @@ namespace Cielo.ResourceManagers
 
             if (!readonlyMode && acls.Any())
             {
-                var nsID = await this.pipelineService.GetNamespaceId();
-                var securityToken = pipelineService.GetSecurityTokenForPath(project.Id, folder.Path);
+                var nsID = await this.releaseService.GetNamespaceId();
+                var securityToken = releaseService.GetSecurityTokenForPath(project.Id, folder.Path);
                 var result = await aclService.SetAclsAsync(nsID, securityToken, acls, false);
                 if (!result)
                 {
@@ -165,19 +163,19 @@ namespace Cielo.ResourceManagers
             string descriptor,
             string sid,
             VstsFolder folder,
-            PipelineFolderSecurityManifest.PipelineFolderPermissionManifest permissionSpec,
+            ReleaseFolderSecurityManifest.ReleaseFolderPermissionManifest permissionSpec,
             bool readonlyMode,
             Dictionary<string, VstsAcesDictionaryEntry> acls)
         {
             var state = new ResourceState() { };
-            var currentPerms = await pipelineService.GetFolderPermissionsAsync(project.Id, descriptor, folder.Path);
+            var currentPerms = await releaseService.GetFolderPermissionsAsync(project.Id, descriptor, folder.Path);
             if (currentPerms != null)
             {
                 if (readonlyMode)
                 {
                     foreach (var expectedPermission in permissionSpec.Allowed)
                     {
-                        var bit = EnumSupport.GetBitMaskValue(typeof(PermissionEnums.Build), expectedPermission.ToString());
+                        var bit = EnumSupport.GetBitMaskValue(typeof(PermissionEnums.ReleaseManagementEx), expectedPermission.ToString());
                         var crrentPerm = currentPerms.FirstOrDefault(cp => cp.Bit == bit);
                         if (crrentPerm != null && !string.IsNullOrWhiteSpace(crrentPerm.PermissionDisplayString))
                         {
@@ -198,7 +196,7 @@ namespace Cielo.ResourceManagers
                         var bitMask = 0;
                         foreach (var expectedPermission in permissionSpec.Allowed)
                         {
-                            bitMask |= EnumSupport.GetBitMaskValue(typeof(PermissionEnums.Build), expectedPermission.ToString());
+                            bitMask |= EnumSupport.GetBitMaskValue(typeof(PermissionEnums.ReleaseManagementEx), expectedPermission.ToString());
                         }
                         acls.Add(sid, new VstsAcesDictionaryEntry
                         {

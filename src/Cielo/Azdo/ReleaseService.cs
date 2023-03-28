@@ -1,7 +1,6 @@
 ﻿using Cielo.Azdo.Abstract;
 using Cielo.Azdo.Dtos;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
-using Microsoft.VisualStudio.Services.Security;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Cielo.Azdo
 {
-    public class PipelineService : RestServiceBase
+    public class ReleaseService : RestServiceBase
     {
         private readonly SecurityNamespaceService securityNamespaceService;
         private readonly GitHttpClient gitHttpClient;
 
-        public PipelineService(
+        public ReleaseService(
             SecurityNamespaceService securityNamespaceService,
             GitHttpClient gitHttpClient,
             IHttpClientFactory clientFactory) : base(clientFactory)
@@ -34,7 +33,7 @@ namespace Cielo.Azdo
 
         public async Task<Guid> GetNamespaceId()
         {
-            var ns = await securityNamespaceService.GetNamespaceAsync(SecurityNamespaceService.SecurityNamespaceConstants.Build);
+            var ns = await securityNamespaceService.GetNamespaceAsync(SecurityNamespaceService.SecurityNamespaceConstants.ReleaseManagement);
             return ns.NamespaceId;
         }
 
@@ -42,7 +41,7 @@ namespace Cielo.Azdo
         {
             var token = GetSecurityTokenForPath(projectId, path);
             var ns = await GetNamespaceId();
-            var apiPath = "_apis/Contribution/HierarchyQuery?api-version=5.0-preview.1";
+            var apiPath = $"_apis/Contribution/HierarchyQuery/project/{projectId}?api-version=5.0-preview.1";
             var permissionResponse = await CoreApi().PostRestAsync<VstsRepoPermissionRoot>(apiPath,
                 new
                 {
@@ -70,10 +69,10 @@ namespace Cielo.Azdo
 
         public async Task<VstsFolder> GetPipelineFolderAsync(Guid projectId, string path = "")
         {
-            var requestPath = $"{projectId}/_apis/build/folders/{path}?api-version=6.0-preview.2";
-            var folders = await CoreApi()
+            var requestPath = $"{projectId}/_apis/release/folders/{path}?api-version=6.0-preview.2";
+            var folders = await VsrmApi()
                 .GetRestAsync<VstsFolderCollection>(requestPath);
-            if(folders != null && folders.Value != null)
+            if (folders != null && folders.Value != null)
             {
                 var folder = folders.Value.FirstOrDefault(f => f.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
                 return folder;
@@ -83,9 +82,8 @@ namespace Cielo.Azdo
 
         public async Task<VstsFolder> CreateFolderAsync(Guid project, string path)
         {
-            var response = await CoreApi()
-                .PutRestAsync(
-                $"{project}/_apis/build/folders?path={RestUtils.UriEncode(path)}&api-version=6.0-preview.2",
+            var response = await VsrmApi().PostRestAsync(
+                $"{project}/_apis/Release/folders{RestUtils.UriEncode(path)}?api-version=6.0-preview.2",
                 new
                 {
                     path = path

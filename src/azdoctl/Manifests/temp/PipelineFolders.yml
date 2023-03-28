@@ -5,7 +5,8 @@ metadata:
   description: Sample that applies permissions across multiple pipeline folders
 permissions:
   - paths:
-    - \Demo-Folder\Child-Folder
+    - \Demo-Folder\Child-Folder\X86
+    - \Demo-Folder\Child-Folder\X64
     allowed:
     - ViewBuilds
     - QueueBuilds

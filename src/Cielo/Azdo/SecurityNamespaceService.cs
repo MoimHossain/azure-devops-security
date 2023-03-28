@@ -34,7 +34,7 @@ namespace Cielo.Azdo
         {
             var sv = securityNamespace.GetStringValue();
             var all = await GetAllNamespacesAsync();
-            var ns = all.Value.FirstOrDefault(sn => sn.Name.Equals(sv, StringComparison.OrdinalIgnoreCase));
+            var ns = all.Value.LastOrDefault(sn => sn.Name.Equals(sv, StringComparison.OrdinalIgnoreCase));
 
             return ns;
         }
@@ -45,7 +45,7 @@ namespace Cielo.Azdo
         {
             var sv = securityNamespace.GetStringValue();
             var all = await GetAllNamespacesAsync();
-            var ns = all.Value.FirstOrDefault(sn => sn.Name.Equals(sv, StringComparison.OrdinalIgnoreCase)
+            var ns = all.Value.LastOrDefault(sn => sn.Name.Equals(sv, StringComparison.OrdinalIgnoreCase)
                         && sn.Actions.Any(ac => ac.Name.Equals(action, StringComparison.OrdinalIgnoreCase)));
             return ns;
         }
