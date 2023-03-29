@@ -1,21 +1,18 @@
 apiVersion: apps/v1
-kind: AreaPathSecurity
+kind: IterationPathSecurity
 metadata:
-  name: AreaPathSecurity
-  description: Sample that applies permissions across multiple area paths
+  name: IterationPathSecurity
+  description: Sample that applies permissions across multiple Iteration paths
 permissions:
   - paths:
-    - Platform/Marketing/Frontdesk
-    - Platform/Finance
+    - Platform/GA
+    - Platform/GA/CommunityRelease
+    - Platform/GA/CTP1
     allowed:
     - GENERIC_READ
     - GENERIC_WRITE
     - CREATE_CHILDREN
     - DELETE
-    - WORK_ITEM_READ
-    - WORK_ITEM_WRITE
-    - MANAGE_TEST_PLANS
-    - MANAGE_TEST_SUITES
     groups: 
     - group: 'K8s-Operators'
       origin: Aad

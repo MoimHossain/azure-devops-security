@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Project
 metadata:
-  name: TAS-Main
-  description: Project for TAS team
+  name: APF opt2
+  description: Project APF opt2
 template:
   name: Agile
   sourceControlType: Git

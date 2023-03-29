@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Group
+metadata:
+  name: SRE-Project-Scoped-GroupW
+  description: A Group that is project scoped
+properties:
+  origin: Vsts
+  scope: Project
+membership:
+  # groups:
+  # - name: 'IoT-Developers'
+  #   origin: Aad
+  #   aadObjectId: 00238ebc-66c1-4220-a859-ed0a00243f27
+  # - name: 'K8s-Operators'
+  #   origin: Aad
+  #   aadObjectId: eb2a16c0-401a-4fc8-beb4-02fe3e6f25b6
+  users:
+  - name: Edwin.Wassink
+    principal: Edwin.Wassink@rabobank.nl
+  - name: Moim.Hossain
+    principal: Moim.Hossain@rabobank.nl

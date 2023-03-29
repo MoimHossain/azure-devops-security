@@ -66,34 +66,37 @@ namespace Cielo.ResourceManagers
 
             foreach (var permissionSpec in permissions)
             {
-                foreach (var iterationPathString in permissionSpec.Paths)
+                if(permissionSpec.Paths != null)
                 {
-                    var iterationPathObject = await this.classificationService.GetIterationPathAsync(project.Id, iterationPathString);
-                    if (iterationPathObject != null)
+                    foreach (var iterationPathString in permissionSpec.Paths)
                     {
-                        await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, iterationPathObject);
-                    }
-                    else
-                    {
-                        if (readonlyMode)
+                        var iterationPathObject = await this.classificationService.GetIterationPathAsync(project.Id, iterationPathString);
+                        if (iterationPathObject != null)
                         {
-                            state.AddProperty($"PATH({iterationPathString})", "Missing, will be created.");
+                            await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, iterationPathObject);
                         }
                         else
                         {
-                            iterationPathObject = await this.classificationService.CreateOrUpdateIterationPathAsync(project.Id, iterationPathString);
-                            if (iterationPathObject != null)
+                            if (readonlyMode)
                             {
-                                state.AddProperty("Created", $"PATH({iterationPathString})");
-                                await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, iterationPathObject);
+                                state.AddProperty($"PATH({iterationPathString})", "Missing, will be created.");
                             }
                             else
                             {
-                                state.AddError($"{iterationPathString} creation failed.");
+                                iterationPathObject = await this.classificationService.CreateOrUpdateIterationPathAsync(project.Id, iterationPathString);
+                                if (iterationPathObject != null)
+                                {
+                                    state.AddProperty("Created", $"PATH({iterationPathString})");
+                                    await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, iterationPathObject);
+                                }
+                                else
+                                {
+                                    state.AddError($"{iterationPathString} creation failed.");
+                                }
                             }
                         }
                     }
-                }
+                }                
             }
             return state;
         }
@@ -107,38 +110,43 @@ namespace Cielo.ResourceManagers
             state.AddProperty($"PATH({pathSpec.TrimmedPath})", clsNodePropertyBag);
             var acls = new Dictionary<string, VstsAcesDictionaryEntry>();
 
-            foreach (var groupSpec in permissionSpec.Groups)
+            if(permissionSpec.Groups != null)
             {
-                var group = await graphService.GetGroupAsync(
-                    groupSpec.Name, project.Name,
-                    groupSpec.Scope, groupSpec.Origin, groupSpec.AadObjectId);
-                if (group != null)
+                foreach (var groupSpec in permissionSpec.Groups)
                 {
-                    var childState = await DiscoverPermissionsAsync(
-                        project, group.Descriptor, group.Sid, pathSpec, permissionSpec, readonlyMode, acls);
-                    clsNodePropertyBag.Add((group.PrincipalName, childState.GetProperties(), false));
-                }
-                else
-                {
-                    state.AddError($"{groupSpec.Name} not found!");
+                    var group = await graphService.GetGroupAsync(
+                        groupSpec.Name, project.Name,
+                        groupSpec.Scope, groupSpec.Origin, groupSpec.AadObjectId);
+                    if (group != null)
+                    {
+                        var childState = await DiscoverPermissionsAsync(
+                            project, group.Descriptor, group.Sid, pathSpec, permissionSpec, readonlyMode, acls);
+                        clsNodePropertyBag.Add((group.PrincipalName, childState.GetProperties(), false));
+                    }
+                    else
+                    {
+                        state.AddError($"{groupSpec.Name} not found!");
+                    }
                 }
             }
 
-            foreach (var userSpec in permissionSpec.Users)
+            if(permissionSpec.Users != null)
             {
-                var user = await graphService.GetUserByPrincipalNameAsync(userSpec.Principal);
-                if (user != null)
+                foreach (var userSpec in permissionSpec.Users)
                 {
-                    var childState = await DiscoverPermissionsAsync(
-                        project, user.Descriptor, user.Sid, pathSpec, permissionSpec, readonlyMode, acls);
-                    clsNodePropertyBag.Add((user.PrincipalName, childState.GetProperties(), false));
-                }
-                else
-                {
-                    state.AddError($"{userSpec.Principal} not found!");
+                    var user = await graphService.GetUserByPrincipalNameAsync(userSpec.Principal);
+                    if (user != null)
+                    {
+                        var childState = await DiscoverPermissionsAsync(
+                            project, user.Descriptor, user.Sid, pathSpec, permissionSpec, readonlyMode, acls);
+                        clsNodePropertyBag.Add((user.PrincipalName, childState.GetProperties(), false));
+                    }
+                    else
+                    {
+                        state.AddError($"{userSpec.Principal} not found!");
+                    }
                 }
             }
-
 
             if (!readonlyMode && acls.Any())
             {
@@ -167,7 +175,7 @@ namespace Cielo.ResourceManagers
         {
             var state = new ResourceState() { };
             var currentPerms = await classificationService.GetIterationPathPermissionsAsync(project.Id, descriptor, clsNode.Identifier);
-            if (currentPerms != null)
+            if (currentPerms != null && permissionSpec.Allowed != null)
             {
                 if (readonlyMode)
                 {

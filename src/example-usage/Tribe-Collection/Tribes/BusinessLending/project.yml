@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Project
 metadata:
-  name: Tulsa
-  description: BI Engineering teams project
+  name: Platform
+  description: Project for TAS team
 template:
   name: Agile
   sourceControlType: Git
