@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Team
+metadata:
+  name: PO-TEAM
+  description: A team for Product owners
+admins:
+  - name: Edwin
+    principal: Edwin.Wassink@rabobank.nl
+  - name: Moim
+    principal: Moim.Hossain@rabobank.nl
+membership:
+  # groups:
+  #   - name: 'K8s-Operators'
+  #     origin: Aad
+  #     aadObjectId: eb2a16c0-401a-4fc8-beb4-02fe3e6f25b6
+  users:
+    - name: Moim Hossain
+      principal: Moim.Hossain@rabobank.nl
+    - name: Edwin Wassink
+      principal: Edwin.Wassink@rabobank.nl
+config:
+  defaultPath: 'APF opt2/Marketing/Brand'
+  areaPaths:
+    - path: 'APF opt2/Marketing/Brand'
+      includeSubAreas: true
+    - path: 'opt2/Finance'
+      includeSubAreas: true
+    - path: 'opt2/Finance/Loan'
+      includeSubAreas: true
