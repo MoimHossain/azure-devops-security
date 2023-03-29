@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Team
 metadata:
-  name: PO-TEAM
+  name: PO-TEAM-001
   description: A team for Product owners
 admins:
   - name: Edwin
@@ -23,7 +23,7 @@ config:
   areaPaths:
     - path: 'APF opt2/Marketing/Brand'
       includeSubAreas: true
-    - path: 'opt2/Finance'
+    - path: 'APF opt2/Finance'
       includeSubAreas: true
-    - path: 'opt2/Finance/Loan'
+    - path: 'APF opt2/Finance/Loan'
       includeSubAreas: true
