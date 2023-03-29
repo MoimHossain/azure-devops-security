@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: Group
+metadata:
+  name: K8s-Operators
+  description: An AAD Group that needs to be materialized
+properties:
+  origin: Aad
+  aadObjectId: eb2a16c0-401a-4fc8-beb4-02fe3e6f25b6

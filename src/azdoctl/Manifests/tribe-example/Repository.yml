@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: RepositorySecurity
+metadata:
+  name: RepositorySecurity
+  description: Sample that applies permissions across multiple repositories
+permissions:
+  - names:
+    - React-JS
+    - Mobile-App 
+    allowed:
+    - GenericRead
+    - GenericContribute
+    - CreateBranch
+    - PullRequestContribute
+    groups: 
+    - group: 'K8s-Operators'
+      origin: Aad
+      aadObjectId: eb2a16c0-401a-4fc8-beb4-02fe3e6f25b6
+    users:
+    - name: Timothy
+      principal: timothy@moimhossainhotmail.onmicrosoft.com
