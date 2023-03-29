@@ -12,10 +12,11 @@ namespace Cielo.Manifests.Common
         [ManifestResourceMapAttribute(typeof(ProjectResourceManager))] Project = 0,
         [ManifestResourceMapAttribute(typeof(GroupResourceManager))] Group = 1,
         [ManifestResourceMapAttribute(typeof(AreaPathSecurityManager))] AreaPathSecurity = 2,
-        [ManifestResourceMapAttribute(typeof(TeamResourceManager))] Team = 3,
-        [ManifestResourceMapAttribute(typeof(RepositorySecurityManager))] RepositorySecurity = 4,
-        [ManifestResourceMapAttribute(typeof(PipelineFolderSecurityManager))] PipelineFolderSecurity = 5,
-        [ManifestResourceMapAttribute(typeof(ReleaseFolderSecurityManager))] ReleaseFolderSecurity = 6,
+        [ManifestResourceMapAttribute(typeof(IterationPathSecurityManager))] IterationPathSecurity = 3,
+        [ManifestResourceMapAttribute(typeof(TeamResourceManager))] Team = 4,
+        [ManifestResourceMapAttribute(typeof(RepositorySecurityManager))] RepositorySecurity = 5,
+        [ManifestResourceMapAttribute(typeof(PipelineFolderSecurityManager))] PipelineFolderSecurity = 6,
+        [ManifestResourceMapAttribute(typeof(ReleaseFolderSecurityManager))] ReleaseFolderSecurity = 7,
         
     }
 }

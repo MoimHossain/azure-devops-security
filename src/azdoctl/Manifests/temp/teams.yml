@@ -20,3 +20,12 @@ membership:
       principal: Linda@moimhossainhotmail.onmicrosoft.com
     - name: Scrum
       principal: Scrum@cloudoven.onmicrosoft.com
+config:
+  defaultPath: Platform/Marketing/Frontdesk
+  areaPaths:
+    - path: 'Platform/Finance/South Americas'
+      includeSubAreas: true
+    - path: 'Platform/Marketing/Frontdesk'
+      includeSubAreas: true
+    - path: 'Platform/HR/Internal'
+      includeSubAreas: true

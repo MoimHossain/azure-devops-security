@@ -15,6 +15,8 @@ namespace Cielo.Azdo
         {
             [Description("CSS")]
             Classifications,
+            [Description("Iteration")]
+            Iteration,
             [Description("Git Repositories")]
             Git_Repositories,
             [Description("ReleaseManagement")]

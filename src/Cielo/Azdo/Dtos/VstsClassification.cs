@@ -41,10 +41,13 @@ namespace Cielo.Azdo.Dtos
         {
             get
             {
-                return ClassificationService.GetNormalizedPath(this.Path.Replace("\\Area", string.Empty));
+                var cleanedUpValue = this.Path.Replace("\\Area", string.Empty).Replace("\\Iteration", string.Empty);
+                return ClassificationService.GetNormalizedPath(cleanedUpValue);
             }
         }
 
+        [JsonProperty("attributes")]
+        public VstsClassificationAttributes Attributes { get; set; }
 
         private List<Guid> parentNodeIds = new List<Guid>();
         [JsonIgnore]
@@ -61,6 +64,16 @@ namespace Cielo.Azdo.Dtos
             return $"{this.Name} = {this.Path}";
         }
     }
+
+    public class VstsClassificationAttributes
+    {
+        [JsonProperty("startDate")]
+        public DateTime StartDate { get; set; }
+
+        [JsonProperty("finishDate")]
+        public DateTime FinishDate { get; set; }
+    }
+
 
     public class WorkItemClassificationNode
     {

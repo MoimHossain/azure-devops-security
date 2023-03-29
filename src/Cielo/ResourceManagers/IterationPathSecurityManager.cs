@@ -12,16 +12,16 @@ using System.Threading.Tasks;
 
 namespace Cielo.ResourceManagers
 {
-    public class AreaPathSecurityManager : ResourceManagerBase
+    public class IterationPathSecurityManager : ResourceManagerBase
     {
-        private readonly AclService aclService;        
+        private readonly AclService aclService;
         private readonly GraphService graphService;
         private readonly ClassificationService classificationService;
 
-        public AreaPathSecurityManager(IServiceProvider serviceProvider, string rawManifest)
+        public IterationPathSecurityManager(IServiceProvider serviceProvider, string rawManifest)
             : base(serviceProvider, rawManifest)
         {
-            this.aclService = serviceProvider.GetRequiredService<AclService>();            
+            this.aclService = serviceProvider.GetRequiredService<AclService>();
             this.graphService = serviceProvider.GetRequiredService<GraphService>();
             this.classificationService = serviceProvider.GetRequiredService<ClassificationService>();
         }
@@ -43,22 +43,22 @@ namespace Cielo.ResourceManagers
 
         protected override Type GetResourceType()
         {
-            return typeof(AreaPathSecurityManifest);
+            return typeof(IterationPathSecurityManifest);
         }
 
-        public AreaPathSecurityManifest AreaPathSecurityManifest { get { return (AreaPathSecurityManifest)this.Manifest; } }
+        public IterationPathSecurityManifest IterationPathSecurityManifest { get { return (IterationPathSecurityManifest)this.Manifest; } }
 
 
         private async Task<ResourceState> DiscoverAndApplyPermissionsAsync(bool readonlyMode = true)
         {
             var project = Context.CurrentProject;
-            var metadataName = AreaPathSecurityManifest.Metadata.Name;
-            var permissions = AreaPathSecurityManifest.Permissions;
+            var metadataName = IterationPathSecurityManifest.Metadata.Name;
+            var permissions = IterationPathSecurityManifest.Permissions;
 
             if (project == null || permissions == null)
             {
                 var errorState = new ResourceState();
-                errorState.AddError($"Required Project context is missing for resource {AreaPathSecurityManifest.Kind}:{metadataName}");
+                errorState.AddError($"Required Project context is missing for resource {IterationPathSecurityManifest.Kind}:{metadataName}");
                 return errorState;
             }
 
@@ -66,30 +66,30 @@ namespace Cielo.ResourceManagers
 
             foreach (var permissionSpec in permissions)
             {
-                foreach (var areaPathString in permissionSpec.Paths)
+                foreach (var iterationPathString in permissionSpec.Paths)
                 {
-                    var areaPathObject = await this.classificationService.GetAreaPathAsync(project.Id, areaPathString);
-                    if (areaPathObject != null)
+                    var iterationPathObject = await this.classificationService.GetIterationPathAsync(project.Id, iterationPathString);
+                    if (iterationPathObject != null)
                     {
-                        await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, areaPathObject);
+                        await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, iterationPathObject);
                     }
                     else
                     {
                         if (readonlyMode)
                         {
-                            state.AddProperty($"PATH({areaPathString})", "Missing, will be created.");
+                            state.AddProperty($"PATH({iterationPathString})", "Missing, will be created.");
                         }
                         else
                         {
-                            areaPathObject = await this.classificationService.CreateOrUpdateAreaPathAsync(project.Id, areaPathString);
-                            if (areaPathObject != null)
+                            iterationPathObject = await this.classificationService.CreateOrUpdateIterationPathAsync(project.Id, iterationPathString);
+                            if (iterationPathObject != null)
                             {
-                                state.AddProperty("Created", $"PATH({areaPathString})");
-                                await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, areaPathObject);
+                                state.AddProperty("Created", $"PATH({iterationPathString})");
+                                await DiscoverAndApplyPermissionsOnFolderAsync(readonlyMode, project, state, permissionSpec, iterationPathObject);
                             }
                             else
                             {
-                                state.AddError($"{areaPathString} creation failed.");
+                                state.AddError($"{iterationPathString} creation failed.");
                             }
                         }
                     }
@@ -100,7 +100,7 @@ namespace Cielo.ResourceManagers
 
         private async Task DiscoverAndApplyPermissionsOnFolderAsync(
             bool readonlyMode, Azdo.Dtos.Project project, ResourceState state,
-            AreaPathSecurityManifest.AreaPathSecurityPermissionManifest permissionSpec,
+            IterationPathSecurityManifest.IterationPathSecurityPermissionManifest permissionSpec,
             VstsClassification pathSpec)
         {
             var clsNodePropertyBag = new List<(string, object, bool)>();
@@ -142,7 +142,7 @@ namespace Cielo.ResourceManagers
 
             if (!readonlyMode && acls.Any())
             {
-                var result = await classificationService.SetAreaPathPermissionsAsync(project.Id, pathSpec, acls.Values.ToList());
+                var result = await classificationService.SetIterationPathPermissionsAsync(project.Id, pathSpec, acls.Values.ToList());
 
                 if (!result)
                 {
@@ -155,18 +155,18 @@ namespace Cielo.ResourceManagers
             }
         }
 
-        
+
         private async Task<ResourceState> DiscoverPermissionsAsync(
             Azdo.Dtos.Project project,
             string descriptor,
             string sid,
             VstsClassification clsNode,
-            AreaPathSecurityManifest.AreaPathSecurityPermissionManifest permissionSpec,
+            IterationPathSecurityManifest.IterationPathSecurityPermissionManifest permissionSpec,
             bool readonlyMode,
             Dictionary<string, VstsAcesDictionaryEntry> acls)
         {
             var state = new ResourceState() { };
-            var currentPerms = await classificationService.GetAreaPathPermissionsAsync(project.Id, descriptor, clsNode.Identifier);
+            var currentPerms = await classificationService.GetIterationPathPermissionsAsync(project.Id, descriptor, clsNode.Identifier);
             if (currentPerms != null)
             {
                 if (readonlyMode)
