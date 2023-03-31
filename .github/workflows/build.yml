@@ -16,7 +16,7 @@ jobs:
     - name: Login to github packages
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u moimhossain --password-stdin
     - name: Build the Docker image
-      working-directory: ./src/azdoctl/Kdoctl
+      working-directory: ./src/Cielo
       run: docker build . --file Dockerfile --tag ghcr.io/moimhossain/azdoctl:${imagetag}
     - name: Push to github packages
       run: docker push ghcr.io/moimhossain/azdoctl:${imagetag}
