@@ -86,35 +86,42 @@ namespace Cielo.ResourceManagers
             state.AddProperty(repoName, repoPropertyBag);
             var acls = new Dictionary<string, VstsAcesDictionaryEntry>();
 
-            foreach (var groupSpec in permissionSpec.Groups)
+            if(permissionSpec.Groups != null)
             {
-                var group = await graphService.GetGroupAsync(
-                    groupSpec.Name, project.Name,
-                    groupSpec.Scope, groupSpec.Origin, groupSpec.AadObjectId);
-                if (group != null)
+                foreach (var groupSpec in permissionSpec.Groups)
                 {
-                    var childState = await DiscoverPermissionsAsync(
-                        project, group.Descriptor, group.Sid, repository, permissionSpec, readonlyMode, acls);
-                    repoPropertyBag.Add((group.PrincipalName, childState.GetProperties(), false));
-                }
-                else
-                {
-                    state.AddError($"{groupSpec.Name} not found!");
+                    var group = await graphService.GetGroupAsync(
+                        groupSpec.Name, project.Name,
+                        groupSpec.Scope, groupSpec.Origin, groupSpec.AadObjectId);
+                    if (group != null)
+                    {
+                        var childState = await DiscoverPermissionsAsync(
+                            project, group.Descriptor, group.Sid, repository, permissionSpec, readonlyMode, acls);
+                        repoPropertyBag.Add((group.PrincipalName, childState.GetProperties(), false));
+                    }
+                    else
+                    {
+                        state.AddError($"{groupSpec.Name} not found!");
+                    }
                 }
             }
 
-            foreach (var userSpec in permissionSpec.Users)
+
+            if (permissionSpec.Users != null)
             {
-                var user = await graphService.GetUserByPrincipalNameAsync(userSpec.Principal);
-                if (user != null)
+                foreach (var userSpec in permissionSpec.Users)
                 {
-                    var childState = await DiscoverPermissionsAsync(
-                        project, user.Descriptor, user.Sid, repository, permissionSpec, readonlyMode, acls);
-                    repoPropertyBag.Add((user.PrincipalName, childState.GetProperties(), false));
-                }
-                else
-                {
-                    state.AddError($"{userSpec.Principal} not found!");
+                    var user = await graphService.GetUserByPrincipalNameAsync(userSpec.Principal);
+                    if (user != null)
+                    {
+                        var childState = await DiscoverPermissionsAsync(
+                            project, user.Descriptor, user.Sid, repository, permissionSpec, readonlyMode, acls);
+                        repoPropertyBag.Add((user.PrincipalName, childState.GetProperties(), false));
+                    }
+                    else
+                    {
+                        state.AddError($"{userSpec.Principal} not found!");
+                    }
                 }
             }
 
@@ -150,37 +157,45 @@ namespace Cielo.ResourceManagers
             {
                 if (readonlyMode)
                 {
-                    foreach (var expectedPermission in permissionSpec.Allowed)
+                    if(permissionSpec.Allowed != null )
                     {
-                        var bit = EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
-                        var crrentPerm = currentPerms.FirstOrDefault(cp => cp.Bit == bit);
-                        if (crrentPerm != null && crrentPerm.EffectivePermissionValue.HasValue)
+                        foreach (var expectedPermission in permissionSpec.Allowed)
                         {
-                            if (readonlyMode)
+                            var bit = EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                            var crrentPerm = currentPerms.FirstOrDefault(cp => cp.Bit == bit);
+                            if (crrentPerm != null && crrentPerm.EffectivePermissionValue.HasValue)
                             {
-                                var missingExpectation = ((crrentPerm.EffectivePermissionValue.Value & bit) <= 0);
-                                state.AddProperty(expectedPermission.ToString(), (missingExpectation ? "Missing" : "Allowed"), missingExpectation);
+                                if (readonlyMode)
+                                {
+                                    var missingExpectation = ((crrentPerm.EffectivePermissionValue.Value & bit) <= 0);
+                                    state.AddProperty(expectedPermission.ToString(), (missingExpectation ? "Missing" : "Allowed"), missingExpectation);
+                                }
                             }
                         }
                     }
+
                 }
                 else
                 {
                                         
                     if (!string.IsNullOrWhiteSpace(sid))
                     {
-                        // mutation mode                    
-                        var bitMask = 0;
-                        foreach (var expectedPermission in permissionSpec.Allowed)
+                        if(permissionSpec.Allowed != null )
                         {
-                            bitMask |= EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                            // mutation mode                    
+                            var bitMask = 0;
+                            foreach (var expectedPermission in permissionSpec.Allowed)
+                            {
+                                bitMask |= EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                            }
+                            acls.Add(sid, new VstsAcesDictionaryEntry
+                            {
+                                Descriptor = sid,
+                                Allow = bitMask,
+                                Deny = 0
+                            });
                         }
-                        acls.Add(sid, new VstsAcesDictionaryEntry
-                        {
-                            Descriptor = sid,
-                            Allow = bitMask,
-                            Deny = 0
-                        });
+
                     }
                     else
                     {

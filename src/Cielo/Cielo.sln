@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cielo", "Cielo.csproj", "{EB48C106-BE05-41E6-876C-A74A19447AEF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB48C106-BE05-41E6-876C-A74A19447AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB48C106-BE05-41E6-876C-A74A19447AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB48C106-BE05-41E6-876C-A74A19447AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB48C106-BE05-41E6-876C-A74A19447AEF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A6827AF5-C515-477E-8FE5-1A8B432AB261}
+	EndGlobalSection
+EndGlobal

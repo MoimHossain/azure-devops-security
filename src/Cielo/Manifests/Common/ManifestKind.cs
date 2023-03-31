@@ -17,6 +17,6 @@ namespace Cielo.Manifests.Common
         [ManifestResourceMapAttribute(typeof(RepositorySecurityManager))] RepositorySecurity = 5,
         [ManifestResourceMapAttribute(typeof(PipelineFolderSecurityManager))] PipelineFolderSecurity = 6,
         [ManifestResourceMapAttribute(typeof(ReleaseFolderSecurityManager))] ReleaseFolderSecurity = 7,
-        
+        [ManifestResourceMapAttribute(typeof(EnvSecurityManager))] EnvironmentSecurity = 8,
     }
 }

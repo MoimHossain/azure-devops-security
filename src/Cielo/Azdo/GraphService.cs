@@ -1,6 +1,7 @@
 ﻿using Cielo.Azdo.Abstract;
 using Cielo.Azdo.Dtos;
 using Cielo.Manifests;
+using Microsoft.VisualStudio.Services.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,46 @@ namespace Cielo.Azdo
         public GraphService(IHttpClientFactory clientFactory) : base(clientFactory)
         {
             
+        }
+        public async Task<Guid?> GetUserIdByPrincipalNameAsync(string principalName)
+        {
+            var user = await GetUserByPrincipalNameAsync(principalName);
+            if(user != null)
+            {
+                var id = await this.GetIdentityIdByDescriptor(user.Descriptor);
+                return id;
+            }
+            return null;
+        }
+
+        public async Task<Guid?> GetGroupIdByGroupAsync(
+                string groupName,
+                string projectName,
+                GroupManifest.GroupScopeEnum scope,
+                IdentityOrigin origin,
+                Guid? aadObjectId)
+        {
+            var group = await this.GetGroupAsync(groupName, projectName, scope, origin, aadObjectId);
+            if(group != null)
+            {
+                var id = await this.GetIdentityIdByDescriptor(group.Descriptor);
+                return id;
+            }
+            return null;
+        }
+
+        public async Task<Guid?> GetIdentityIdByDescriptor(string subjectDescriptor)
+        {
+            var path = $"_apis/identities?subjectDescriptors={subjectDescriptor}&queryMembership=None&api-version=7.0";
+            var identityCollection = await VsspsApi().GetRestAsync<VstsIdentityCollection>(path);
+
+            if (identityCollection != null && identityCollection.Value != null && identityCollection.Value.Length > 0)
+            {
+                var identity = identityCollection.Value.First();
+                return identity.Id;
+            }
+
+            return null;
         }
 
         public async Task<VstsGroup> GetGroupAsync(
@@ -181,14 +222,14 @@ namespace Cielo.Azdo
                 .GetRestAsync<VstsUser>(path);
             return user;
         }
-        public async Task<VstsIdentityCollection> GetLegacyIdentitiesBySidAsync(string descriptors)
-        {
-            var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";
-            var users = await VsspsApi()
-                .GetRestAsync<VstsIdentityCollection>(path);
+        //public async Task<VstsIdentityCollection> GetLegacyIdentitiesBySidAsync(string descriptors)
+        //{
+        //    var path = $"_apis/identities?descriptors={descriptors}&queryMembership=None&api-version=6.0";
+        //    var users = await VsspsApi()
+        //        .GetRestAsync<VstsIdentityCollection>(path);
 
-            return users;
-        }
+        //    return users;
+        //}
         public async Task<bool> RemoveMembershipAsync(Guid projectId, string parentDescriptor, string childDescriptor)
         {
             var path = $"_apis/graph/memberships/{childDescriptor}/{parentDescriptor}?api-version=6.1-preview.1";
