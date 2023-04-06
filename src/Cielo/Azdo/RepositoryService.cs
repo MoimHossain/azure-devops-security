@@ -1,6 +1,7 @@
 ﻿
 using Cielo.Azdo.Abstract;
 using Cielo.Azdo.Dtos;
+using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,17 @@ namespace Cielo.Azdo
             this.gitHttpClient = gitHttpClient;
         }
 
+        public async Task<GitRepository> CreateAsync(Guid projectId, string name)
+        {
+            return await this.gitHttpClient.CreateRepositoryAsync(new GitRepositoryCreateOptions
+            {
+                Name = name,
+                ProjectReference = new TeamProjectReference
+                {
+                    Id = projectId
+                }
+            });
+        }
         public async Task<GitRepository?> GetRepositoryAsync(Guid projectId, string repositoryName)
         {
             var allRepos = await this.gitHttpClient.GetRepositoriesAsync(projectId.ToString());

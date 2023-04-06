@@ -77,7 +77,22 @@ namespace Cielo.ResourceManagers
                         }
                         else
                         {
-                            state.AddError($"{repoName} not found!");
+                            if (readonlyMode)
+                            {
+                                state.AddError($"{repoName} doesn't exist!");
+                            }
+                            else 
+                            {
+                                repository = await this.repositoryService.CreateAsync(project.Id, repoName);
+                                if (repository != null)
+                                {
+                                    await DiscoverAndApplyPermissionsOnRepoAsync(readonlyMode, project, state, permissionSpec, repoName, repository);
+                                }
+                                else
+                                {
+                                    state.AddError($"{repoName} failed to create!");
+                                }
+                            }
                         }
                     }
                 }

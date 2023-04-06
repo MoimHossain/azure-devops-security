@@ -22,7 +22,8 @@ permissions:
       principal: timothy@moimhossainhotmail.onmicrosoft.com
   - names:
     - React-JS
-    - Mobile-App 
+    - Mobile-App
+    - SQL-DemoRepo
     allowed:
     - GenericRead
     - GenericContribute
