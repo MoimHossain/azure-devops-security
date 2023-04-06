@@ -22,7 +22,7 @@ namespace Cielo.CliSupports
         private readonly IServiceProvider serviceProvider;
 
         public CommandProcessor(
-            ApplyOption applyOption, 
+            ApplyOption applyOption,
             IDeserializer deserializer,
             ResourceProcessingContext context,
             IServiceProvider serviceProvider)
@@ -61,11 +61,11 @@ namespace Cielo.CliSupports
                     var payload = File.ReadAllText(file);
                     var manifestBase = deserializer.Deserialize<ManifestBase>(payload);
 
-                    unsortedCollection.Add(new Tuple<ManifestBase, string>(manifestBase, payload));                    
+                    unsortedCollection.Add(new Tuple<ManifestBase, string>(manifestBase, payload));
                 }
             }
 
-            foreach(var tuple in unsortedCollection.OrderBy(s => s.Item1.Kind))
+            foreach (var tuple in unsortedCollection.OrderBy(s => s.Item1.Kind))
             {
                 var manager = ManifestResourceMapAttribute.GetManifestFromYaml(serviceProvider, tuple.Item1, tuple.Item2);
                 if (manager != null)
@@ -82,7 +82,12 @@ namespace Cielo.CliSupports
             {
                 if (Directory.Exists(applyOption.Directory))
                 {
-                    files.AddRange(Directory.GetFiles(applyOption.Directory, "*.y*ml"));
+                    files.AddRange(Directory.GetFiles(applyOption.Directory, "*.y*ml",
+                        new EnumerationOptions()
+                        {
+                            RecurseSubdirectories = true,
+                            MaxRecursionDepth = 10
+                        }));
                 }
             }
             if (applyOption.ManifestFiles != null && applyOption.ManifestFiles.Any())
