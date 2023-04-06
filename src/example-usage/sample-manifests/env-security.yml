@@ -6,7 +6,7 @@ metadata:
 permissions:
   - applyToRoot: true
     roles:
-    - Administrator
+    - Creator
     groups: 
     - name: 'K8s-Operators'
       origin: Aad

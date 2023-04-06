@@ -16,6 +16,8 @@ namespace Cielo.Manifests
 
             public List<UserReference> Users { get; set; }
             public List<GroupReference> Groups { get; set; }
+
+            public bool ApplyToRoot { get; set; }
         }
     }
 }

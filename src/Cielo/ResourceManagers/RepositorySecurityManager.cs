@@ -155,6 +155,59 @@ namespace Cielo.ResourceManagers
             var currentPerms = await repositoryService.GetPermissionsAsync(project.Id, descriptor, repository.Id);
             if (currentPerms != null)
             {
+
+                if (permissionSpec.Allowed != null)
+                {
+
+                    var permissionUpdatesRequired = false;
+                    foreach (var expectedPermission in permissionSpec.Allowed)
+                    {
+                        var bit = EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                        var crrentPerm = currentPerms.FirstOrDefault(cp => cp.Bit == bit);
+                        if (crrentPerm != null)
+                        {
+                            var expectationMet = "Allow".Equals(crrentPerm.PermissionDisplayString, StringComparison.OrdinalIgnoreCase);
+                            if (readonlyMode)
+                            {
+                                state.AddProperty(expectedPermission.ToString(), (expectationMet ? "No changes" : "Missing permission"), expectationMet);
+                            }
+                            else
+                            {
+                                if (!expectationMet)
+                                {
+                                    permissionUpdatesRequired = true;
+
+                                }
+                            }
+                        }
+                    }
+
+                    if (!readonlyMode && permissionUpdatesRequired)
+                    {
+                        if (!string.IsNullOrWhiteSpace(sid))
+                        {
+                            var bitMask = 0;
+                            foreach (var expectedPermission in permissionSpec.Allowed)
+                            {
+                                bitMask |= EnumSupport.GetBitMaskValue(typeof(GitRepositories), expectedPermission.ToString());
+                            }
+                            acls.Add(sid, new VstsAcesDictionaryEntry
+                            {
+                                Descriptor = sid,
+                                Allow = bitMask,
+                                Deny = 0
+                            });
+                        }
+                        else
+                        {
+                            state.AddError($"Failed to calculate SID");
+                        }
+                    }
+                }
+
+
+
+                /*
                 if (readonlyMode)
                 {
                     if(permissionSpec.Allowed != null )
@@ -201,7 +254,7 @@ namespace Cielo.ResourceManagers
                     {
                         state.AddError($"Failed to calculate SID");
                     }
-                }
+                }*/
             }
             return state;
         }
