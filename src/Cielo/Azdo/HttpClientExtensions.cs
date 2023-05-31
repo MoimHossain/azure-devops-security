@@ -188,14 +188,15 @@ namespace Cielo.Azdo
                 });
             var jsonContent = new StringContent(jsonString, Encoding.UTF8, "application/json");
             var response = await client.PostAsync(requestPath, jsonContent);
-            var contentString = await response.Content.ReadAsStringAsync();
+            //var contentString = await response.Content.ReadAsStringAsync();
             return response.IsSuccessStatusCode;
         }
 
         public static async Task<TPayload> ReadContentAsync<TPayload>(this HttpContent content)
         {
-            var contentString = await content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<TPayload>(contentString);
+            //var contentString = await content.ReadAsStringAsync();
+            //return JsonConvert.DeserializeObject<TPayload>(contentString);
+            return await content.ReadAsAsync<TPayload>();            
         }
     }
 }

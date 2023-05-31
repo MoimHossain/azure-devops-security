@@ -36,6 +36,9 @@ permissions:
     - group: 'K8s-Operators'
       origin: Aad
       aadObjectId: eb2a16c0-401a-4fc8-beb4-02fe3e6f25b6
+    - group: 'Frontend-Engineers'
+      origin: Aad
+      aadObjectId: 95e3d281-c6e3-4ed6-af34-d0d8d46c9693      
     users:
     - name: Timothy
       principal: timothy@moimhossainhotmail.onmicrosoft.com
